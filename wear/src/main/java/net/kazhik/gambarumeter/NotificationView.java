@@ -52,7 +52,6 @@ public class NotificationView implements Stopwatch.OnTickListener {
 
     }
     public void start() {
-        Log.d(TAG, "start");
         this.stopwatch.start();
 
     }
@@ -72,10 +71,10 @@ public class NotificationView implements Stopwatch.OnTickListener {
         strBuff.append(DateUtils.formatElapsedTime(elapsed / 1000))
                 .append("/")
                 .append(this.heartRate)
-                .append("bpm")
+                .append(this.context.getString(R.string.bpm))
                 .append("/")
                 .append(this.stepCount)
-                .append("steps")
+                .append(this.context.getString(R.string.steps))
                 ;
 
         return strBuff.toString();
