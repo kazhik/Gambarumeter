@@ -3,6 +3,6 @@
 
     <string name="app_name">Gambarumeter</string>
     <string name="bpm">bpm</string>
-    <string name="steps">steps</string>
+    <string name="steps">歩</string>
 
 </resources>

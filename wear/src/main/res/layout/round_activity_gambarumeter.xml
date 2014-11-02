@@ -42,7 +42,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:gravity="bottom"
-                android:text="bpm"
+                android:text="@string/bpm"
                 android:textSize="16sp" />
 
         </LinearLayout>
@@ -97,7 +97,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:gravity="bottom"
-                android:text="steps"
+                android:text="@string/steps"
                 android:textSize="16sp" />
         </LinearLayout>
 
