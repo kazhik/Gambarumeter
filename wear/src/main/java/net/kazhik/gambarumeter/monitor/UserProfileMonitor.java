@@ -5,7 +5,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 
-/** 
+/**
  * Created by kazhik on 14/10/12.
  */
 public class UserProfileMonitor implements SensorEventListener {

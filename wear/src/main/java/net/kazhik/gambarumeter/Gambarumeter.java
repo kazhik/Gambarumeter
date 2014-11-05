@@ -162,6 +162,8 @@ public class Gambarumeter extends Activity
         this.heartRateMonitor.stop();
         this.stepCountMonitor.stop();
         this.userProfileMonitor.stop();
+
+        this.notificationView.dismiss();
     }
 
     @Override
@@ -187,7 +189,7 @@ public class Gambarumeter extends Activity
         this.splitTimeView.setTime(elapsed);
         this.runOnUiThread(this.splitTimeView);
 
-        this.notificationView.updateTime(elapsed);
+        this.notificationView.show(elapsed);
     }
 
     @Override

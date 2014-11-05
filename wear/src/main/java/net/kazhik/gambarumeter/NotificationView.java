@@ -16,7 +16,7 @@ public class NotificationView {
     private int heartRate = 0;
     private int stepCount = 0;
 
-    private static final String TAG = "NotificationView";
+    private static final int NOTIFICATION_ID = 3000;
 
     public void initialize(Context context) {
 
@@ -59,13 +59,17 @@ public class NotificationView {
                 + this.stepCount
                 + this.context.getString(R.string.steps);
     }
-    public void updateTime(long elapsed) {
+    public void show(long elapsed) {
         NotificationCompat.BigTextStyle bigTextStyle = new NotificationCompat.BigTextStyle();
         bigTextStyle.bigText(this.makeText(elapsed));
         this.notificationBuilder.setStyle(bigTextStyle);
 
-        NotificationManagerCompat.from(context).notify(3000, this.notificationBuilder.build());
+        NotificationManagerCompat.from(this.context)
+                .notify(NOTIFICATION_ID, this.notificationBuilder.build());
 
+    }
+    public void dismiss() {
+        NotificationManagerCompat.from(this.context).cancel(NOTIFICATION_ID);
     }
 
 }
