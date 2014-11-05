@@ -1,8 +1,6 @@
 package net.kazhik.gambarumeter;
 
 import android.app.Activity;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -11,23 +9,32 @@ import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.wearable.view.CardFragment;
 import android.support.wearable.view.WatchViewStub;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 
+import net.kazhik.gambarumeter.monitor.ControllerOnGesture;
 import net.kazhik.gambarumeter.monitor.HeartRateMonitor;
 import net.kazhik.gambarumeter.monitor.SensorValueListener;
 import net.kazhik.gambarumeter.monitor.StepCountMonitor;
+import net.kazhik.gambarumeter.monitor.Stopwatch;
 import net.kazhik.gambarumeter.monitor.UserProfileMonitor;
 
 import java.util.List;
 
-public class Gambarumeter extends Activity implements SensorValueListener, ServiceConnection {
+public class Gambarumeter extends Activity
+        implements Stopwatch.OnTickListener,
+        SensorValueListener,
+        ServiceConnection,
+        ControllerOnGesture.GestureListener,
+        View.OnTouchListener {
 
     private SensorManager sensorManager;
 
+    private Stopwatch stopwatch;
     private HeartRateMonitor heartRateMonitor;
     private StepCountMonitor stepCountMonitor = new StepCountMonitor();
     private UserProfileMonitor userProfileMonitor = new UserProfileMonitor();
@@ -38,10 +45,23 @@ public class Gambarumeter extends Activity implements SensorValueListener, Servi
 
     private NotificationView notificationView = new NotificationView();
 
+    private ControllerOnGesture controllerOnGesture;
+
     private ImageButton startButton;
     private ImageButton stopButton;
 
     private static final String TAG = "Gambarumeter";
+
+    @Override
+    public void onGestureStart() {
+        this.startWorkout();
+    }
+
+    @Override
+    public void onGestureStop() {
+        this.stopWorkout();
+
+    }
 
     private class StartButtonListener implements View.OnClickListener {
         @Override
@@ -64,8 +84,6 @@ public class Gambarumeter extends Activity implements SensorValueListener, Servi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gambarumeter);
 
-        Log.d(TAG, "onCreate");
-
         final WatchViewStub stub = (WatchViewStub) findViewById(R.id.watch_view_stub);
         stub.setOnLayoutInflatedListener(new WatchViewStub.OnLayoutInflatedListener() {
             @Override
@@ -75,7 +93,7 @@ public class Gambarumeter extends Activity implements SensorValueListener, Servi
         });
 
         this.initializeSensor();
-
+        this.controllerOnGesture = new ControllerOnGesture(this, this);
     }
 
     @Override
@@ -83,6 +101,12 @@ public class Gambarumeter extends Activity implements SensorValueListener, Servi
         super.onDestroy();
         this.stopWorkout();
         this.unbindService(this);
+    }
+
+    @Override
+    public boolean onTouch(View view, MotionEvent motionEvent) {
+        return this.controllerOnGesture.onTouchEvent(motionEvent);
+
     }
 
     private void initializeSensor() {
@@ -93,10 +117,11 @@ public class Gambarumeter extends Activity implements SensorValueListener, Servi
             Log.i(TAG, "Sensor:" + sensor.getName() + "; " + sensor.getType());
         }
 
+        this.stopwatch = new Stopwatch(1000L, this);
+
         this.stepCountMonitor.init(sensorManager, this);
         this.userProfileMonitor.init(sensorManager);
 
-        Log.d(TAG, "bind service");
         Intent intent = new Intent(this, HeartRateMonitor.class);
 
         this.bindService(intent, this, Context.BIND_AUTO_CREATE);
@@ -117,12 +142,14 @@ public class Gambarumeter extends Activity implements SensorValueListener, Servi
         this.stopButton.setOnClickListener(new StopButtonListener());
         this.stopButton.setVisibility(View.GONE);
 
+        LinearLayout mainLayout = (LinearLayout)stub.findViewById(R.id.main_layout);
+        mainLayout.setOnTouchListener(this);
     }
     private void startWorkout() {
         this.startButton.setVisibility(View.GONE);
         this.stopButton.setVisibility(View.VISIBLE);
-        this.splitTimeView.start();
-        this.notificationView.start();
+
+        this.stopwatch.start();
         this.heartRateMonitor.start();
         this.stepCountMonitor.start();
         this.userProfileMonitor.start();
@@ -130,30 +157,13 @@ public class Gambarumeter extends Activity implements SensorValueListener, Servi
     private void stopWorkout() {
         this.startButton.setVisibility(View.VISIBLE);
         this.stopButton.setVisibility(View.GONE);
-        this.splitTimeView.stop();
-        this.notificationView.stop();
+
+        this.stopwatch.stop();
         this.heartRateMonitor.stop();
         this.stepCountMonitor.stop();
         this.userProfileMonitor.stop();
     }
-    private void addCard() {
 
-        FragmentManager fragmentManager = getFragmentManager();
-        if (fragmentManager == null) {
-            Log.e(TAG, "fragmentManager null");
-            return;
-        }
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        if (getString(R.string.app_name) == null) {
-            Log.e(TAG, "app_name null");
-            return;
-        }
-        CardFragment cardFragment = CardFragment.create(getString(R.string.app_name),
-                getString(R.string.hello_round));
-        fragmentTransaction.add(R.id.main_layout, cardFragment);
-        fragmentTransaction.commit();
-
-    }
     @Override
     public void onHeartRateChanged(long timestamp, int rate) {
         this.heartRateView.setCurrentRate(rate);
@@ -172,6 +182,13 @@ public class Gambarumeter extends Activity implements SensorValueListener, Servi
 
         this.notificationView.updateStepCount(stepCount);
     }
+    @Override
+    public void onTick(long elapsed) {
+        this.splitTimeView.setTime(elapsed);
+        this.runOnUiThread(this.splitTimeView);
+
+        this.notificationView.updateTime(elapsed);
+    }
 
     @Override
     public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
@@ -188,4 +205,5 @@ public class Gambarumeter extends Activity implements SensorValueListener, Servi
         Log.d(TAG, "onServiceDisconnected: " + componentName.toString());
 
     }
+
 }

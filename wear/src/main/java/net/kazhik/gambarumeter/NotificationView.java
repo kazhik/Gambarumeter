@@ -1,35 +1,26 @@
 package net.kazhik.gambarumeter;
 
-import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.text.format.DateUtils;
-import android.util.Log;
-
-import net.kazhik.gambarumeter.monitor.Stopwatch;
-
-import java.util.List;
 
 /**
  * Created by kazhik on 14/10/25.
  */
-public class NotificationView implements Stopwatch.OnTickListener {
+public class NotificationView {
     private Context context;
     private NotificationCompat.Builder notificationBuilder;
     private int heartRate = 0;
     private int stepCount = 0;
-    private Stopwatch stopwatch;
 
     private static final String TAG = "NotificationView";
 
     public void initialize(Context context) {
 
         this.context = context;
-
-        this.stopwatch = new Stopwatch(1000L, this);
 
         Intent intent = new Intent(context, Gambarumeter.class);
         PendingIntent pendingIntent
@@ -44,19 +35,12 @@ public class NotificationView implements Stopwatch.OnTickListener {
                 .addAction(openMain);
 
         this.notificationBuilder = new NotificationCompat.Builder(context)
-//                .setContentIntent(pendingIntent)
                 .setSmallIcon(R.drawable.ic_launcher)
                 .extend(extender)
                 .setOnlyAlertOnce(true)
-                .setPriority(NotificationCompat.PRIORITY_MAX);
+                .setPriority(NotificationCompat.PRIORITY_MAX)
+                .setOngoing(true);
 
-    }
-    public void start() {
-        this.stopwatch.start();
-
-    }
-    public void stop() {
-        this.stopwatch.stop();
     }
     public void updateHeartRate(int heartRate) {
 
@@ -66,27 +50,22 @@ public class NotificationView implements Stopwatch.OnTickListener {
         this.stepCount = stepCount;
     }
     private String makeText(long elapsed) {
-        StringBuffer strBuff = new StringBuffer();
 
-        strBuff.append(DateUtils.formatElapsedTime(elapsed / 1000))
-                .append("/")
-                .append(this.heartRate)
-                .append(this.context.getString(R.string.bpm))
-                .append("/")
-                .append(this.stepCount)
-                .append(this.context.getString(R.string.steps))
-                ;
-
-        return strBuff.toString();
+        return DateUtils.formatElapsedTime(elapsed / 1000)
+                + "/"
+                + this.heartRate
+                + this.context.getString(R.string.bpm)
+                + "/"
+                + this.stepCount
+                + this.context.getString(R.string.steps);
     }
-
-    @Override
-    public void onTick(long elapsed) {
-//        this.notificationBuilder.setContentText(this.makeText(elapsed));
-        this.notificationBuilder.setStyle(
-                new NotificationCompat.BigTextStyle().bigText(this.makeText(elapsed)));
+    public void updateTime(long elapsed) {
+        NotificationCompat.BigTextStyle bigTextStyle = new NotificationCompat.BigTextStyle();
+        bigTextStyle.bigText(this.makeText(elapsed));
+        this.notificationBuilder.setStyle(bigTextStyle);
 
         NotificationManagerCompat.from(context).notify(3000, this.notificationBuilder.build());
 
     }
+
 }

@@ -1,39 +1,29 @@
 package net.kazhik.gambarumeter;
 
-import android.os.SystemClock;
 import android.support.wearable.view.WatchViewStub;
 import android.text.format.DateUtils;
-import android.widget.Chronometer;
+import android.widget.TextView;
 
 /**
  * Created by kazhik on 14/10/11.
  */
-public class SplitTimeView implements Chronometer.OnChronometerTickListener {
+public class SplitTimeView implements Runnable {
 
-    private Chronometer chronometer;
+    private TextView splitTime;
+    private long elapsed;
 
     public void initialize(WatchViewStub stub) {
-        this.chronometer = (Chronometer) stub.findViewById(R.id.split_time);
-        this.chronometer.setText(DateUtils.formatElapsedTime(0));
-        this.chronometer.setOnChronometerTickListener(this);
+        this.splitTime = (TextView) stub.findViewById(R.id.split_time);
 
     }
-    public String getText() {
-        return this.chronometer.getText().toString();
+    public void setTime(long elapsed) {
+        this.elapsed = elapsed;
     }
-    public void start() {
-        this.chronometer.setBase(SystemClock.elapsedRealtime());
-        this.chronometer.start();
-    }
-    public void stop() {
-        this.chronometer.stop();
-    }
-
 
     @Override
-    public void onChronometerTick(Chronometer chronometer) {
-        long elapsedSeconds = (SystemClock.elapsedRealtime() - chronometer.getBase()) / 1000;
-        this.chronometer.setText(DateUtils.formatElapsedTime(elapsedSeconds));
-
+    public void run() {
+        this.splitTime.setText(DateUtils.formatElapsedTime(this.elapsed / 1000));
     }
+
+
 }

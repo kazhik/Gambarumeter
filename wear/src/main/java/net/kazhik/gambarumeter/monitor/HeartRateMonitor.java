@@ -11,11 +11,9 @@ import android.os.IBinder;
 import android.util.Log;
 
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * Created by kazhik on 14/10/11.

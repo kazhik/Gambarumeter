@@ -1,7 +1,5 @@
 package net.kazhik.gambarumeter.monitor;
 
-import android.hardware.Sensor;
-
 /**
  * Created by kazhik on 14/10/15.
  */

@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Gambarumeter.iml" filepath="$PROJECT_DIR$/Gambarumeter.iml" />
+      <module fileurl="file://$PROJECT_DIR$/gambarumeter.iml" filepath="$PROJECT_DIR$/gambarumeter.iml" />
       <module fileurl="file://$PROJECT_DIR$/mobile/mobile.iml" filepath="$PROJECT_DIR$/mobile/mobile.iml" />
       <module fileurl="file://$PROJECT_DIR$/wear/wear.iml" filepath="$PROJECT_DIR$/wear/wear.iml" />
     </modules>

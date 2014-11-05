@@ -13,9 +13,6 @@ public class HeartRateView implements Runnable {
         this.bpmText = (TextView) stub.findViewById(R.id.bpm);
 
     }
-    public String getCurrentRate() {
-        return this.bpmText.getText().toString();
-    }
 
     public void setCurrentRate(int rate) {
         this.currentRate = rate;
