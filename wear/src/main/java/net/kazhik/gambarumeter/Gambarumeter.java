@@ -11,17 +11,11 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.wearable.view.WatchViewStub;
 import android.util.Log;
-import android.view.MotionEvent;
-import android.view.View;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
 
-import net.kazhik.gambarumeter.monitor.ControllerOnGesture;
 import net.kazhik.gambarumeter.monitor.HeartRateMonitor;
 import net.kazhik.gambarumeter.monitor.SensorValueListener;
 import net.kazhik.gambarumeter.monitor.StepCountMonitor;
 import net.kazhik.gambarumeter.monitor.Stopwatch;
-import net.kazhik.gambarumeter.monitor.UserProfileMonitor;
 
 import java.util.List;
 
@@ -29,15 +23,14 @@ public class Gambarumeter extends Activity
         implements Stopwatch.OnTickListener,
         SensorValueListener,
         ServiceConnection,
-        ControllerOnGesture.GestureListener,
-        View.OnTouchListener {
+        UserInputManager.UserInputListener {
 
     private SensorManager sensorManager;
 
     private Stopwatch stopwatch;
     private HeartRateMonitor heartRateMonitor;
     private StepCountMonitor stepCountMonitor = new StepCountMonitor();
-    private UserProfileMonitor userProfileMonitor = new UserProfileMonitor();
+//    private UserProfileMonitor userProfileMonitor = new UserProfileMonitor();
 
     private SplitTimeView splitTimeView = new SplitTimeView();
     private HeartRateView heartRateView = new HeartRateView();
@@ -45,39 +38,20 @@ public class Gambarumeter extends Activity
 
     private NotificationView notificationView = new NotificationView();
 
-    private ControllerOnGesture controllerOnGesture;
-
-    private ImageButton startButton;
-    private ImageButton stopButton;
+    private UserInputManager userInputManager;
 
     private static final String TAG = "Gambarumeter";
 
     @Override
-    public void onGestureStart() {
+    public void onUserStart() {
         this.startWorkout();
     }
 
     @Override
-    public void onGestureStop() {
+    public void onUserStop() {
         this.stopWorkout();
 
     }
-
-    private class StartButtonListener implements View.OnClickListener {
-        @Override
-        public void onClick(View view) {
-            startWorkout();
-        }
-
-    }
-    private class StopButtonListener implements View.OnClickListener {
-        @Override
-        public void onClick(View view) {
-            stopWorkout();
-        }
-
-    }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,7 +67,7 @@ public class Gambarumeter extends Activity
         });
 
         this.initializeSensor();
-        this.controllerOnGesture = new ControllerOnGesture(this, this);
+
     }
 
     @Override
@@ -103,28 +77,29 @@ public class Gambarumeter extends Activity
         this.unbindService(this);
     }
 
-    @Override
-    public boolean onTouch(View view, MotionEvent motionEvent) {
-        return this.controllerOnGesture.onTouchEvent(motionEvent);
-
-    }
-
     private void initializeSensor() {
         this.sensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
 
         List<Sensor> sensorList = this.sensorManager.getSensorList(Sensor.TYPE_ALL);
         for (Sensor sensor: sensorList) {
             Log.i(TAG, "Sensor:" + sensor.getName() + "; " + sensor.getType());
+            switch (sensor.getType()) {
+                case Sensor.TYPE_HEART_RATE:
+                    Intent intent = new Intent(this, HeartRateMonitor.class);
+                    this.bindService(intent, this, Context.BIND_AUTO_CREATE);
+                    break;
+                case Sensor.TYPE_STEP_COUNTER:
+                    this.stepCountMonitor.init(sensorManager, this);
+                    break;
+                default:
+                    break;
+            }
         }
 
         this.stopwatch = new Stopwatch(1000L, this);
 
-        this.stepCountMonitor.init(sensorManager, this);
-        this.userProfileMonitor.init(sensorManager);
+//        this.userProfileMonitor.init(sensorManager);
 
-        Intent intent = new Intent(this, HeartRateMonitor.class);
-
-        this.bindService(intent, this, Context.BIND_AUTO_CREATE);
 
 
     }
@@ -135,33 +110,22 @@ public class Gambarumeter extends Activity
 
         this.notificationView.initialize(this);
 
-        this.startButton = (ImageButton) stub.findViewById(R.id.start);
-        this.startButton.setOnClickListener(new StartButtonListener());
+        this.userInputManager = new UserInputManager(this, this, stub);
 
-        this.stopButton = (ImageButton) stub.findViewById(R.id.stop);
-        this.stopButton.setOnClickListener(new StopButtonListener());
-        this.stopButton.setVisibility(View.GONE);
-
-        LinearLayout mainLayout = (LinearLayout)stub.findViewById(R.id.main_layout);
-        mainLayout.setOnTouchListener(this);
     }
     private void startWorkout() {
-        this.startButton.setVisibility(View.GONE);
-        this.stopButton.setVisibility(View.VISIBLE);
 
         this.stopwatch.start();
         this.heartRateMonitor.start();
         this.stepCountMonitor.start();
-        this.userProfileMonitor.start();
+//        this.userProfileMonitor.start();
     }
     private void stopWorkout() {
-        this.startButton.setVisibility(View.VISIBLE);
-        this.stopButton.setVisibility(View.GONE);
 
         this.stopwatch.stop();
         this.heartRateMonitor.stop();
         this.stepCountMonitor.stop();
-        this.userProfileMonitor.stop();
+//        this.userProfileMonitor.stop();
 
         this.notificationView.dismiss();
     }
