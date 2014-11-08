@@ -9,8 +9,10 @@ import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.wearable.view.WatchViewStub;
 import android.util.Log;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import net.kazhik.gambarumeter.monitor.HeartRateMonitor;
 import net.kazhik.gambarumeter.monitor.SensorValueListener;
@@ -58,13 +60,7 @@ public class Gambarumeter extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gambarumeter);
 
-        final WatchViewStub stub = (WatchViewStub) findViewById(R.id.watch_view_stub);
-        stub.setOnLayoutInflatedListener(new WatchViewStub.OnLayoutInflatedListener() {
-            @Override
-            public void onLayoutInflated(WatchViewStub stub) {
-                initializeUI(stub);
-            }
-        });
+        this.initializeUI();
 
         this.initializeSensor();
 
@@ -99,32 +95,42 @@ public class Gambarumeter extends Activity
         this.stopwatch = new Stopwatch(1000L, this);
 
 //        this.userProfileMonitor.init(sensorManager);
-
-
-
     }
-    private void initializeUI(WatchViewStub stub) {
-        this.splitTimeView.initialize(stub);
-        this.heartRateView.initialize(stub);
-        this.stepCountView.initialize(stub);
+    private void initializeUI() {
+        this.splitTimeView.initialize((TextView)this.findViewById(R.id.split_time));
+        this.heartRateView.initialize((TextView)this.findViewById(R.id.bpm));
+        this.stepCountView.initialize((TextView)this.findViewById(R.id.stepcount_value));
 
         this.notificationView.initialize(this);
 
-        this.userInputManager = new UserInputManager(this, this, stub);
+        this.userInputManager = new UserInputManager(this)
+                .initTouch(this, (LinearLayout)this.findViewById(R.id.main_layout))
+                .initButtons(
+                        (ImageButton)this.findViewById(R.id.start),
+                        (ImageButton)this.findViewById(R.id.stop)
+                );
 
     }
     private void startWorkout() {
 
         this.stopwatch.start();
-        this.heartRateMonitor.start();
-        this.stepCountMonitor.start();
+        if (this.heartRateMonitor != null) {
+            this.heartRateMonitor.start();
+        }
+        if (this.stepCountMonitor != null) {
+            this.stepCountMonitor.start();
+        }
 //        this.userProfileMonitor.start();
     }
     private void stopWorkout() {
 
         this.stopwatch.stop();
-        this.heartRateMonitor.stop();
-        this.stepCountMonitor.stop();
+        if (this.heartRateMonitor != null) {
+            this.heartRateMonitor.stop();
+        }
+        if (this.stepCountMonitor != null) {
+            this.stepCountMonitor.stop();
+        }
 //        this.userProfileMonitor.stop();
 
         this.notificationView.dismiss();

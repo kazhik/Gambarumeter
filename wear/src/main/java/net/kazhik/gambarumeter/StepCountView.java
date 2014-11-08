@@ -1,6 +1,5 @@
 package net.kazhik.gambarumeter;
 
-import android.support.wearable.view.WatchViewStub;
 import android.widget.TextView;
 
 /**
@@ -9,8 +8,8 @@ import android.widget.TextView;
 public class StepCountView implements Runnable {
     private TextView stepCountText;
     private int stepCount = 0;
-    public void initialize(WatchViewStub stub) {
-        this.stepCountText = (TextView) stub.findViewById(R.id.stepcount_value);
+    public void initialize(TextView textView) {
+        this.stepCountText = textView;
 
     }
 

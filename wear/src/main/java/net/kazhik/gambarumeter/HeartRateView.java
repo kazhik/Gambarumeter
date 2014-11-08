@@ -1,6 +1,5 @@
 package net.kazhik.gambarumeter;
 
-import android.support.wearable.view.WatchViewStub;
 import android.widget.TextView;
 
 /**
@@ -9,8 +8,8 @@ import android.widget.TextView;
 public class HeartRateView implements Runnable {
     private TextView bpmText;
     private int currentRate = 0;
-    public void initialize(WatchViewStub stub) {
-        this.bpmText = (TextView) stub.findViewById(R.id.bpm);
+    public void initialize(TextView textView) {
+        this.bpmText = textView;
 
     }
 

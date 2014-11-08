@@ -1,6 +1,5 @@
 package net.kazhik.gambarumeter;
 
-import android.support.wearable.view.WatchViewStub;
 import android.text.format.DateUtils;
 import android.widget.TextView;
 
@@ -12,8 +11,8 @@ public class SplitTimeView implements Runnable {
     private TextView splitTime;
     private long elapsed;
 
-    public void initialize(WatchViewStub stub) {
-        this.splitTime = (TextView) stub.findViewById(R.id.split_time);
+    public void initialize(TextView textView) {
+        this.splitTime = textView;
 
     }
     public void setTime(long elapsed) {

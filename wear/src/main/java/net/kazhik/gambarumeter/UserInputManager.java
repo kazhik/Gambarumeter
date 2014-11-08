@@ -29,23 +29,30 @@ public class UserInputManager
     private boolean started = false;
     private static final String TAG = "GestureManager";
 
-    public UserInputManager(Context context, UserInputListener listener, WatchViewStub stub) {
+    public UserInputManager(UserInputListener listener) {
         this.listener = listener;
-
+    }
+    public UserInputManager initTouch(Context context, LinearLayout layout) {
         this.gestureDetector = new GestureDetectorCompat(context, this);
         this.gestureDetector.setOnDoubleTapListener(this);
+        layout.setOnTouchListener(this);
 
-        this.startButton = (ImageButton) stub.findViewById(R.id.start);
+        return this;
+    }
+    public UserInputManager initButtons(ImageButton startButton, ImageButton stopButton) {
+        this.startButton = startButton;
+        this.stopButton = stopButton;
+
+        this.startButton = startButton;
         this.startButton.setOnClickListener(this);
 
-        this.stopButton = (ImageButton) stub.findViewById(R.id.stop);
+        this.stopButton = stopButton;
         this.stopButton.setOnClickListener(this);
         this.stopButton.setVisibility(View.GONE);
 
-        LinearLayout mainLayout = (LinearLayout)stub.findViewById(R.id.main_layout);
-        mainLayout.setOnTouchListener(this);
-
+        return this;
     }
+
     @Override
     public void onClick(View view) {
         if (view.getId() == R.id.start) {
