@@ -13,12 +13,18 @@ public class HeartRateView implements Runnable {
 
     }
 
-    public void setCurrentRate(int rate) {
+    public HeartRateView setCurrentRate(int rate) {
         this.currentRate = rate;
+
+        return this;
+    }
+
+    public void refresh() {
+        this.bpmText.setText(String.valueOf(this.currentRate));
     }
 
     @Override
     public void run() {
-        this.bpmText.setText(String.valueOf(this.currentRate));
+        this.refresh();
     }
 }

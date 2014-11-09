@@ -13,12 +13,18 @@ public class StepCountView implements Runnable {
 
     }
 
-    public void setStepCount(int stepCount) {
+    public StepCountView setStepCount(int stepCount) {
         this.stepCount = stepCount;
+
+        return this;
+    }
+
+    public void refresh() {
+        this.stepCountText.setText(String.valueOf(this.stepCount));
     }
 
     @Override
     public void run() {
-        this.stepCountText.setText(String.valueOf(this.stepCount));
+        this.refresh();
     }
 }

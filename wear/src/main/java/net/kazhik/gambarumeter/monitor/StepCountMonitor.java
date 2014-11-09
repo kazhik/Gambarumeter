@@ -27,6 +27,9 @@ public class StepCountMonitor implements SensorEventListener {
         this.detailedStepCountSensor = this.sensorManager.getDefaultSensor(SENSORTYPE_DETAILED_STEP_COUNTER);
 
     }
+    public int getStepCount() {
+        return (int)this.currentValue.getValue();
+    }
     public void start() {
         this.initialValue = 0;
         this.sensorManager.registerListener(this, this.stepCountSensor, SensorManager.SENSOR_DELAY_NORMAL);

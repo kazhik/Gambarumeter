@@ -54,6 +54,9 @@ public class HeartRateMonitor extends Service implements SensorEventListener {
 
         this.printDataList();
     }
+    public List<SensorValue> getDataList() {
+        return this.dataList;
+    }
     public void printDataList() {
         for (SensorValue val: this.dataList) {
             Calendar cal = Calendar.getInstance();

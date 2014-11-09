@@ -15,6 +15,7 @@ public class Stopwatch implements Handler.Callback {
         void onTick(long elapsed);
     }
     private long startTime = -1;
+    private long stopTime;
     private List<Long> laps = new ArrayList<Long>();
     private Handler handler = new Handler(this);
     private OnTickListener listener;
@@ -27,30 +28,43 @@ public class Stopwatch implements Handler.Callback {
         this.listener = listener;
     }
     public void start() {
-        this.startTime = SystemClock.elapsedRealtime();
+        this.startTime = System.currentTimeMillis();
         this.running = true;
         this.handler.sendEmptyMessage(TICK);
     }
+
+    public long getStartTime() {
+        return startTime;
+    }
+
+    public long getStopTime() {
+        return stopTime;
+    }
+
     public long stop() {
         this.handler.removeMessages(TICK);
         this.running = false;
-        return SystemClock.elapsedRealtime() - this.startTime;
+        this.stopTime = System.currentTimeMillis() - this.startTime;
+        return this.stopTime;
+
     }
 
     public void lap() {
-        this.laps.add(SystemClock.elapsedRealtime());
+        this.laps.add(System.currentTimeMillis());
     }
     public List<Long> getLaps() {
         return this.laps;
     }
     public void reset() {
+        this.startTime = 0;
+        this.stopTime = 0;
         this.laps.clear();
     }
 
     @Override
     public boolean handleMessage(Message message) {
         if (message.what == TICK && this.running == true) {
-            this.listener.onTick(SystemClock.elapsedRealtime() - this.startTime);
+            this.listener.onTick(System.currentTimeMillis() - this.startTime);
             this.handler.sendEmptyMessageDelayed(TICK, this.frequency);
         }
         return false;

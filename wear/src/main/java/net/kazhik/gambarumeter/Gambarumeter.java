@@ -5,6 +5,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.database.SQLException;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Bundle;
@@ -15,9 +16,13 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import net.kazhik.gambarumeter.monitor.HeartRateMonitor;
+import net.kazhik.gambarumeter.monitor.SensorValue;
 import net.kazhik.gambarumeter.monitor.SensorValueListener;
 import net.kazhik.gambarumeter.monitor.StepCountMonitor;
 import net.kazhik.gambarumeter.monitor.Stopwatch;
+import net.kazhik.gambarumeter.storage.DataStorage;
+import net.kazhik.gambarumeter.storage.HeartRateTable;
+import net.kazhik.gambarumeter.storage.WorkoutTable;
 
 import java.util.List;
 
@@ -64,6 +69,7 @@ public class Gambarumeter extends Activity
 
         this.initializeSensor();
 
+        this.initializeDatabase();
     }
 
     @Override
@@ -97,7 +103,7 @@ public class Gambarumeter extends Activity
 //        this.userProfileMonitor.init(sensorManager);
     }
     private void initializeUI() {
-        this.splitTimeView.initialize((TextView)this.findViewById(R.id.split_time));
+        this.splitTimeView.initialize((TextView) this.findViewById(R.id.split_time));
         this.heartRateView.initialize((TextView)this.findViewById(R.id.bpm));
         this.stepCountView.initialize((TextView)this.findViewById(R.id.stepcount_value));
 
@@ -112,6 +118,12 @@ public class Gambarumeter extends Activity
 
     }
     private void startWorkout() {
+        this.heartRateView.setCurrentRate(0)
+                .refresh();
+        this.stepCountView.setStepCount(0)
+                .refresh();
+        this.splitTimeView.setTime(0)
+                .refresh();
 
         this.stopwatch.start();
         if (this.heartRateMonitor != null) {
@@ -124,7 +136,7 @@ public class Gambarumeter extends Activity
     }
     private void stopWorkout() {
 
-        this.stopwatch.stop();
+        long stopTime = this.stopwatch.stop();
         if (this.heartRateMonitor != null) {
             this.heartRateMonitor.stop();
         }
@@ -134,6 +146,82 @@ public class Gambarumeter extends Activity
 //        this.userProfileMonitor.stop();
 
         this.notificationView.dismiss();
+
+        this.saveResult();
+        this.stopwatch.reset();
+    }
+    private void initializeDatabase() {
+        try {
+            DataStorage storage = new DataStorage(this);
+            storage.open();
+            storage.close();
+
+            WorkoutTable workoutTable = new WorkoutTable(this);
+            workoutTable.open(false);
+            workoutTable.deleteAll();
+            workoutTable.close();
+
+            HeartRateTable heartRateTable = new HeartRateTable(this);
+            heartRateTable.open(false);
+            heartRateTable.deleteAll();
+            heartRateTable.close();
+
+        } catch (SQLException e) {
+            Log.e(TAG, e.getMessage(), e);
+        }
+    }
+    private void saveResult() {
+        int ret;
+        try {
+            long startTime = this.stopwatch.getStartTime();
+
+            WorkoutTable workoutTable = new WorkoutTable(this);
+            workoutTable.open(false);
+            ret = workoutTable.insert(
+                    startTime,
+                    this.stopwatch.getStopTime(),
+                    this.stepCountMonitor.getStepCount());
+            workoutTable.close();
+
+            Log.d(TAG, "insert: " + ret);
+
+            HeartRateTable heartRateTable = new HeartRateTable(this);
+            heartRateTable.open(false);
+            for (SensorValue sensorValue: this.heartRateMonitor.getDataList()) {
+                heartRateTable.insert(
+                        sensorValue.getTimestamp(),
+                        startTime,
+                        (int)sensorValue.getValue());
+            }
+            heartRateTable.close();
+
+        } catch (SQLException e) {
+            Log.e(TAG, e.getMessage(), e);
+        }
+
+        this.readDatabase();
+    }
+
+    private void readDatabase() {
+        try {
+            WorkoutTable workoutTable = new WorkoutTable(this);
+            workoutTable.open(true);
+            List<String> startTimeList = workoutTable.selectAll(0);
+            Log.d(TAG, "startTimeList: " + startTimeList.size());
+            for (String startTime: startTimeList) {
+                Log.d(TAG, "startTime: " + startTime);
+            }
+            workoutTable.close();
+
+            HeartRateTable heartRateTable = new HeartRateTable(this);
+            heartRateTable.open(true);
+            heartRateTable.close();
+
+
+        } catch (SQLException e) {
+            Log.e(TAG, e.getMessage(), e);
+        }
+
     }
 
     @Override
@@ -143,6 +231,7 @@ public class Gambarumeter extends Activity
 
         Log.d(TAG, "new heart rate: " + rate);
         this.notificationView.updateHeartRate(rate);
+
     }
 
     @Override

@@ -15,13 +15,18 @@ public class SplitTimeView implements Runnable {
         this.splitTime = textView;
 
     }
-    public void setTime(long elapsed) {
+    public SplitTimeView setTime(long elapsed) {
         this.elapsed = elapsed;
+        return this;
+    }
+
+    public void refresh() {
+        this.splitTime.setText(DateUtils.formatElapsedTime(this.elapsed / 1000));
     }
 
     @Override
     public void run() {
-        this.splitTime.setText(DateUtils.formatElapsedTime(this.elapsed / 1000));
+        this.refresh();
     }
 
 
