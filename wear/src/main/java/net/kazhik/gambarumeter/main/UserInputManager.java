@@ -1,14 +1,15 @@
-package net.kazhik.gambarumeter;
+package net.kazhik.gambarumeter.main;
 
 import android.content.Context;
 import android.support.v4.view.GestureDetectorCompat;
-import android.support.wearable.view.WatchViewStub;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+
+import net.kazhik.gambarumeter.R;
 
 /**
  * Created by kazhik on 14/11/02.

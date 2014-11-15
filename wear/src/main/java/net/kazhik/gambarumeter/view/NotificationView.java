@@ -1,4 +1,4 @@
-package net.kazhik.gambarumeter;
+package net.kazhik.gambarumeter.view;
 
 import android.app.PendingIntent;
 import android.content.Context;
@@ -6,6 +6,9 @@ import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.text.format.DateUtils;
+
+import net.kazhik.gambarumeter.Gambarumeter;
+import net.kazhik.gambarumeter.R;
 
 /**
  * Created by kazhik on 14/10/25.

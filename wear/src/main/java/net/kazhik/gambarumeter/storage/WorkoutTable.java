@@ -56,7 +56,7 @@ public class WorkoutTable extends AbstractTable {
         String[] columns = { "start_time" };
         String selection = null;
         String[] selectionArgs = null;
-        String sortOrder = null;
+        String sortOrder = "start_time";
         String limit = (max == 0)? null: Integer.toString(max);
 
         Cursor cursor = qb.query(this.db, columns, selection, selectionArgs, null,

@@ -4,5 +4,7 @@
     <string name="app_name">Gambarumeter</string>
     <string name="bpm">bpm</string>
     <string name="steps">steps</string>
+    <string name="start">start</string>
+    <string name="stop">stop</string>
 
 </resources>
