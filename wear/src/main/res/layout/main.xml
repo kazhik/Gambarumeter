@@ -2,18 +2,19 @@
 <android.support.wearable.view.BoxInsetLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="#000000"
+    android:background="@color/background"
     android:layout_height="match_parent"
-    android:layout_width="match_parent">
+    android:layout_width="match_parent"
+    android:padding="15dp">
 
     <LinearLayout
-        app:layout_box="top"
+        app:layout_box="all"
         android:id="@+id/main_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="vertical"
         android:measureWithLargestChild="true"
-        android:paddingTop="25dp">
+        android:padding="5dp">
 
         <TextView
             android:id="@+id/split_time"
@@ -21,6 +22,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:text="00:00"
+            android:textColor="@color/text"
             android:textSize="32sp" />
 
         <LinearLayout
@@ -35,12 +37,14 @@
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
                 android:text="0"
+                android:textColor="@color/text"
                 android:textSize="30sp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="bottom"
+                android:textColor="@color/text"
                 android:text="@string/bpm"
                 android:textSize="16sp" />
 
@@ -60,6 +64,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
                 android:text="99.99"
+                android:textColor="@color/text"
                 android:textSize="30sp" />
 
             <TextView
@@ -68,6 +73,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="bottom"
                 android:text="km"
+                android:textColor="@color/text"
                 android:textSize="16sp" />
         </LinearLayout>
 
@@ -85,6 +91,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
                 android:text="0"
+                android:textColor="@color/text"
                 android:textSize="30sp" />
 
             <TextView
@@ -93,6 +100,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="bottom"
                 android:text="@string/steps"
+                android:textColor="@color/text"
                 android:textSize="16sp" /> 　
         </LinearLayout>
 

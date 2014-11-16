@@ -9,20 +9,23 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import net.kazhik.gambarumeter.R;
+import net.kazhik.gambarumeter.entity.WorkoutInfo;
 
+import java.text.DateFormat;
+import java.util.Date;
 import java.util.List;
 
 /**
  * Created by kazhik on 14/11/10.
  */
 public class HistoryAdapter extends WearableListView.Adapter {
-    private List<String> dataSet;
+    private List<WorkoutInfo> dataSet;
     private final Context context;
     private final LayoutInflater inflater;
     private static final String TAG = "HistoryAdapter";
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public HistoryAdapter(Context context, List<String> dataset) {
+    public HistoryAdapter(Context context, List<WorkoutInfo> dataset) {
         this.context = context;
         this.inflater = LayoutInflater.from(context);
         this.dataSet = dataset;
@@ -59,9 +62,12 @@ public class HistoryAdapter extends WearableListView.Adapter {
         ItemViewHolder itemHolder = (ItemViewHolder) holder;
         TextView view = itemHolder.textView;
         // replace text contents
-        view.setText(this.dataSet.get(position));
+        WorkoutInfo workout = this.dataSet.get(position);
+        long startTime = workout.getStartTime();
+        String startTimeStr = DateFormat.getDateTimeInstance().format(new Date(startTime));
+        view.setText(startTimeStr);
         // replace list item's metadata
-        holder.itemView.setTag(position);
+        holder.itemView.setTag(startTime);
     }
 
     // Return the size of your dataset

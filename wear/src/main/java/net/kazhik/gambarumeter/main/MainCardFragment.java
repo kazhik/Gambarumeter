@@ -26,7 +26,6 @@ import net.kazhik.gambarumeter.monitor.SensorValue;
 import net.kazhik.gambarumeter.monitor.SensorValueListener;
 import net.kazhik.gambarumeter.monitor.StepCountMonitor;
 import net.kazhik.gambarumeter.monitor.Stopwatch;
-import net.kazhik.gambarumeter.storage.DataStorage;
 import net.kazhik.gambarumeter.storage.HeartRateTable;
 import net.kazhik.gambarumeter.storage.WorkoutTable;
 import net.kazhik.gambarumeter.view.HeartRateView;
@@ -69,8 +68,6 @@ public class MainCardFragment extends Fragment
 
         this.initializeSensor();
 
-        //this.initializeDatabase();
-
     }
 
     @Override
@@ -83,7 +80,9 @@ public class MainCardFragment extends Fragment
     @Override
     public void onDestroy() {
         this.stopWorkout();
-        this.getActivity().getApplicationContext().unbindService(this);
+        if (this.heartRateMonitor != null) {
+            this.getActivity().getApplicationContext().unbindService(this);
+        }
 
         super.onDestroy();
     }
@@ -95,13 +94,6 @@ public class MainCardFragment extends Fragment
         return inflater.inflate(R.layout.main, container, false);
     }
 
-/*
-    @Override
-    public View onCreateContentView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        Log.d(TAG, "onCreateContentView");
-        return inflater.inflate(R.layout.main, container, false);
-    }
-*/
     @Override
     public void onUserStart() {
         this.startWorkout();
@@ -174,7 +166,7 @@ public class MainCardFragment extends Fragment
     }
     private void stopWorkout() {
 
-        long stopTime = this.stopwatch.stop();
+        this.stopwatch.stop();
         if (this.heartRateMonitor != null) {
             this.heartRateMonitor.stop();
         }
@@ -186,50 +178,37 @@ public class MainCardFragment extends Fragment
         this.notificationView.dismiss();
 
     }
-    private void initializeDatabase() {
-        try {
-            DataStorage storage = new DataStorage(this.getActivity());
-            storage.open();
-            storage.close();
 
-            WorkoutTable workoutTable = new WorkoutTable(this.getActivity());
-            workoutTable.open(false);
-            workoutTable.deleteAll();
-            workoutTable.close();
-
-            HeartRateTable heartRateTable = new HeartRateTable(this.getActivity());
-            heartRateTable.open(false);
-            heartRateTable.deleteAll();
-            heartRateTable.close();
-
-        } catch (SQLException e) {
-            Log.e(TAG, e.getMessage(), e);
-        }
-    }
     private void saveResult() {
         int ret;
         try {
             long startTime = this.stopwatch.getStartTime();
+            int stepCount = 0;
+            if (this.stepCountMonitor != null) {
+                stepCount = this.stepCountMonitor.getStepCount();
+            }
 
             WorkoutTable workoutTable = new WorkoutTable(this.getActivity());
             workoutTable.open(false);
             ret = workoutTable.insert(
                     startTime,
                     this.stopwatch.getStopTime(),
-                    this.stepCountMonitor.getStepCount());
+                    stepCount);
             workoutTable.close();
 
             Log.d(TAG, "insert: " + ret + "; " + startTime);
 
-            HeartRateTable heartRateTable = new HeartRateTable(this.getActivity());
-            heartRateTable.open(false);
-            for (SensorValue sensorValue: this.heartRateMonitor.getDataList()) {
-                heartRateTable.insert(
-                        sensorValue.getTimestamp(),
-                        startTime,
-                        (int)sensorValue.getValue());
+            if (this.heartRateMonitor != null) {
+                HeartRateTable heartRateTable = new HeartRateTable(this.getActivity());
+                heartRateTable.open(false);
+                for (SensorValue sensorValue: this.heartRateMonitor.getDataList()) {
+                    heartRateTable.insert(
+                            sensorValue.getTimestamp(),
+                            startTime,
+                            (int)sensorValue.getValue());
+                }
+                heartRateTable.close();
             }
-            heartRateTable.close();
 
         } catch (SQLException e) {
             Log.e(TAG, e.getMessage(), e);

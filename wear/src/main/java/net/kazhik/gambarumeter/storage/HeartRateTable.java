@@ -88,8 +88,10 @@ public class HeartRateTable extends AbstractTable {
 
         return dataList;
     }
-    public boolean delete(String startTime) {
-        int deleted = this.db.delete(TABLE_NAME, "start_time = " + startTime, null);
+    public boolean delete(long startTime) {
+        String where = "start_time = ?";
+        String[] whereArgs = {this.formatDate(startTime)};
+        int deleted = this.db.delete(TABLE_NAME, where, whereArgs);
         return (deleted > 0);
     }
     public String getTableName(){

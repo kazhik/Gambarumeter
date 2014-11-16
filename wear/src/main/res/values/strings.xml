@@ -7,4 +7,9 @@
     <string name="start">start</string>
     <string name="stop">stop</string>
 
+    <string name="confirm_delete">Are you sure to delete this record?</string>
+    <string name="delete">Delete</string>
+    <string name="cancel">Cancel</string>
+
+
 </resources>

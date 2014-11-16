@@ -5,4 +5,8 @@
     <string name="bpm">bpm</string>
     <string name="steps">歩</string>
 
+    <string name="confirm_delete">このレコードを削除しますか？</string>
+    <string name="delete">削除</string>
+    <string name="cancel">キャンセル</string>
+
 </resources>
