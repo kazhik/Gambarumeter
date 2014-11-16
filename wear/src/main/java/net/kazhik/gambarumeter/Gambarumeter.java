@@ -54,12 +54,10 @@ public class Gambarumeter extends Activity
 
             WorkoutTable workoutTable = new WorkoutTable(this);
             workoutTable.open(false);
-//            workoutTable.deleteAll();
             workoutTable.close();
 
             HeartRateTable heartRateTable = new HeartRateTable(this);
             heartRateTable.open(false);
-//            heartRateTable.deleteAll();
             heartRateTable.close();
 
         } catch (SQLException e) {

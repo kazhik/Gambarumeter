@@ -24,8 +24,9 @@ import java.util.List;
 /**
  * Created by kazhik on 14/11/11.
  */
-public class HistoryCardFragment extends Fragment
-        implements WearableListView.ClickListener,DialogInterface.OnClickListener {
+public class HistoryFragment extends Fragment
+        implements WearableListView.ClickListener,
+        DialogInterface.OnClickListener {
     private static final String TAG = "HistoryCardFragment";
     private long startTimeToDelete;
 
@@ -87,7 +88,7 @@ public class HistoryCardFragment extends Fragment
         this.startTimeToDelete = (Long)viewHolder.itemView.getTag();
 
         AlertDialog confirmDelete =
-                new AlertDialog.Builder(this.getActivity(), AlertDialog.THEME_HOLO_DARK)
+                new AlertDialog.Builder(this.getActivity())
                 .setMessage(R.string.confirm_delete)
                 .setPositiveButton(R.string.delete, this)
                 .setNegativeButton(R.string.cancel, this)

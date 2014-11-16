@@ -38,7 +38,7 @@ import java.util.List;
 /**
  * Created by kazhik on 14/11/11.
  */
-public class MainCardFragment extends Fragment
+public class MainFragment extends Fragment
         implements Stopwatch.OnTickListener,
         SensorValueListener,
         ServiceConnection,

@@ -3,6 +3,8 @@ package net.kazhik.gambarumeter.view;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.text.format.DateUtils;
@@ -32,9 +34,12 @@ public class NotificationView {
         NotificationCompat.Action openMain
                 = new NotificationCompat.Action(R.drawable.empty, null, pendingIntent);
 
+        Bitmap bmp = BitmapFactory.decodeResource(this.context.getResources(), R.drawable.background);
+
         NotificationCompat.WearableExtender extender = new NotificationCompat.WearableExtender()
                 .setHintHideIcon(true)
                 .setContentAction(0)
+                .setBackground(bmp)
                 .addAction(openMain);
 
         this.notificationBuilder = new NotificationCompat.Builder(context)
