@@ -1,9 +1,7 @@
 package net.kazhik.gambarumeter.history;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.database.SQLException;
 import android.os.Bundle;
@@ -27,8 +25,8 @@ import java.util.List;
 public class HistoryFragment extends Fragment
         implements WearableListView.ClickListener,
         DialogInterface.OnClickListener {
-    private static final String TAG = "HistoryCardFragment";
-    private long startTimeToDelete;
+    private static final String TAG = "HistoryFragment";
+    private long startTime;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -53,6 +51,9 @@ public class HistoryFragment extends Fragment
         }
 
     }
+    public long getStartTime() {
+        return this.startTime;
+    }
 
     public void refreshListItem() {
         WorkoutTable workoutTable = new WorkoutTable(this.getActivity());
@@ -69,6 +70,7 @@ public class HistoryFragment extends Fragment
         listView.setGreedyTouchMode(true);
         adapter.notifyDataSetChanged();
 
+        this.startTime = workoutInfos.get(0).getStartTime();
     }
 
     @Override
@@ -85,14 +87,13 @@ public class HistoryFragment extends Fragment
 
     @Override
     public void onClick(WearableListView.ViewHolder viewHolder) {
-        this.startTimeToDelete = (Long)viewHolder.itemView.getTag();
+        this.startTime = (Long)viewHolder.itemView.getTag();
 
         AlertDialog confirmDelete =
                 new AlertDialog.Builder(this.getActivity())
                 .setMessage(R.string.confirm_delete)
                 .setPositiveButton(R.string.delete, this)
                 .setNegativeButton(R.string.cancel, this)
-                .setInverseBackgroundForced(true)
                 .create();
 
         confirmDelete.show();
@@ -100,17 +101,18 @@ public class HistoryFragment extends Fragment
 
     @Override
     public void onTopEmptyRegionClick() {
+        Log.d(TAG, "onTopEmptyRegionClick");
 
     }
 
     @Override
     public void onClick(DialogInterface dialog, int which) {
         if (which == DialogInterface.BUTTON_POSITIVE) {
-            Log.d(TAG, "Delete: " + this.startTimeToDelete);
+            Log.d(TAG, "Delete: " + this.startTime);
 
             WorkoutTable workoutTable = new WorkoutTable(this.getActivity());
             workoutTable.open(false);
-            workoutTable.delete(this.startTimeToDelete);
+            workoutTable.delete(this.startTime);
             workoutTable.close();
 
             this.refreshListItem();
@@ -119,4 +121,5 @@ public class HistoryFragment extends Fragment
         }
 
     }
+
 }
