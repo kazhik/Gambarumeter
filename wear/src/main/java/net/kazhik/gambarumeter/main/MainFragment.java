@@ -58,7 +58,7 @@ public class MainFragment extends Fragment
 
     private UserInputManager userInputManager;
 
-    private static final String TAG = "MainCardFragment";
+    private static final String TAG = "MainFragment";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -133,7 +133,7 @@ public class MainFragment extends Fragment
     private void initializeUI() {
         Activity activity = this.getActivity();
 
-        this.splitTimeView.initialize((TextView) activity.findViewById(R.id.split_time));
+        this.splitTimeView.initialize((TextView)activity.findViewById(R.id.split_time));
         this.heartRateView.initialize((TextView)activity.findViewById(R.id.bpm));
         this.stepCountView.initialize((TextView)activity.findViewById(R.id.stepcount_value));
 
@@ -154,6 +154,7 @@ public class MainFragment extends Fragment
                 .refresh();
         this.splitTimeView.setTime(0)
                 .refresh();
+        this.notificationView.clear();
 
         this.stopwatch.start();
         if (this.heartRateMonitor != null) {
