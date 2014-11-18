@@ -53,14 +53,14 @@ public class HeartRateTable extends AbstractTable {
         return (int)this.db.insert(TABLE_NAME, null, values);
 
     }
-    public List<SensorValue> selectAll(String startTime, int max) {
+    public List<SensorValue> selectAll(long startTime, int max) {
 
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
         qb.setTables(TABLE_NAME);
 
         String[] columns = { "timestamp, start_time, heart_rate" };
         String selection = "start_time";
-        String[] selectionArgs = {startTime};
+        String[] selectionArgs = {this.formatDate(startTime)};
         String sortOrder = "timestamp";
         String limit = (max == 0)? null: Integer.toString(max);
 
