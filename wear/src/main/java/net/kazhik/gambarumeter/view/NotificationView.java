@@ -50,6 +50,10 @@ public class NotificationView {
                 .setOngoing(true);
 
     }
+    public void clear() {
+        this.heartRate = 0;
+        this.stepCount = 0;
+    }
     public void updateHeartRate(int heartRate) {
 
         this.heartRate = heartRate;
@@ -57,20 +61,16 @@ public class NotificationView {
     public void updateStepCount(int stepCount) {
         this.stepCount = stepCount;
     }
-    private String makeText(long elapsed) {
-
-        return DateUtils.formatElapsedTime(elapsed / 1000)
-                + "/"
-                + this.heartRate
+    private String makeText() {
+        return  + this.heartRate
                 + this.context.getString(R.string.bpm)
                 + "/"
                 + this.stepCount
                 + this.context.getString(R.string.steps);
     }
     public void show(long elapsed) {
-        NotificationCompat.BigTextStyle bigTextStyle = new NotificationCompat.BigTextStyle();
-        bigTextStyle.bigText(this.makeText(elapsed));
-        this.notificationBuilder.setStyle(bigTextStyle);
+        this.notificationBuilder.setContentTitle(DateUtils.formatElapsedTime(elapsed / 1000))
+                .setContentText(this.makeText());
 
         NotificationManagerCompat.from(this.context)
                 .notify(NOTIFICATION_ID, this.notificationBuilder.build());
