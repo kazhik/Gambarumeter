@@ -11,5 +11,8 @@
     <string name="delete">Delete</string>
     <string name="cancel">Cancel</string>
 
+    <string name="min">Min</string>
+    <string name="max">Max</string>
+    <string name="avg">Avg</string>
 
 </resources>

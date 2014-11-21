@@ -2,10 +2,13 @@ package net.kazhik.gambarumeter.history;
 
 import android.app.AlertDialog;
 import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.database.SQLException;
 import android.os.Bundle;
 import android.support.wearable.view.BoxInsetLayout;
+import android.support.wearable.view.CardFragment;
 import android.support.wearable.view.WearableListView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import net.kazhik.gambarumeter.R;
+import net.kazhik.gambarumeter.detail.DetailFragment;
 import net.kazhik.gambarumeter.entity.WorkoutInfo;
 import net.kazhik.gambarumeter.storage.HeartRateTable;
 import net.kazhik.gambarumeter.storage.WorkoutTable;
@@ -23,8 +27,7 @@ import java.util.List;
  * Created by kazhik on 14/11/11.
  */
 public class HistoryFragment extends Fragment
-        implements WearableListView.ClickListener,
-        DialogInterface.OnClickListener {
+        implements WearableListView.ClickListener, View.OnLongClickListener {
     private static final String TAG = "HistoryFragment";
     private long startTime;
 
@@ -68,6 +71,8 @@ public class HistoryFragment extends Fragment
         listView.setAdapter(adapter);
         listView.setClickListener(this);
         listView.setGreedyTouchMode(true);
+        listView.setLongClickable(true);
+        listView.setOnLongClickListener(this);
         adapter.notifyDataSetChanged();
 
         this.startTime = workoutInfos.get(0).getStartTime();
@@ -87,16 +92,16 @@ public class HistoryFragment extends Fragment
 
     @Override
     public void onClick(WearableListView.ViewHolder viewHolder) {
-        this.startTime = (Long)viewHolder.itemView.getTag();
+        long startTime = (Long)viewHolder.itemView.getTag();
 
-        AlertDialog confirmDelete =
-                new AlertDialog.Builder(this.getActivity())
-                .setMessage(R.string.confirm_delete)
-                .setPositiveButton(R.string.delete, this)
-                .setNegativeButton(R.string.cancel, this)
-                .create();
+        DetailFragment fragment = new DetailFragment();
+        fragment.read(startTime);
 
-        confirmDelete.show();
+        FragmentManager fragmentManager = getFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.add(R.id.frame_layout, fragment);
+        fragmentTransaction.commit();
+
     }
 
     @Override
@@ -106,20 +111,8 @@ public class HistoryFragment extends Fragment
     }
 
     @Override
-    public void onClick(DialogInterface dialog, int which) {
-        if (which == DialogInterface.BUTTON_POSITIVE) {
-            Log.d(TAG, "Delete: " + this.startTime);
-
-            WorkoutTable workoutTable = new WorkoutTable(this.getActivity());
-            workoutTable.open(false);
-            workoutTable.delete(this.startTime);
-            workoutTable.close();
-
-            this.refreshListItem();
-        } else if (which == DialogInterface.BUTTON_NEGATIVE) {
-            Log.d(TAG, "Cancel");
-        }
-
+    public boolean onLongClick(View v) {
+        Log.d(TAG, "onLongClick");
+        return false;
     }
-
 }
