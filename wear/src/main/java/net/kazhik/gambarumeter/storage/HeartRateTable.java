@@ -59,7 +59,7 @@ public class HeartRateTable extends AbstractTable {
         qb.setTables(TABLE_NAME);
 
         String[] columns = { "timestamp, start_time, heart_rate" };
-        String selection = "start_time";
+        String selection = "start_time = ?";
         String[] selectionArgs = {this.formatDate(startTime)};
         String sortOrder = "timestamp";
         String limit = (max == 0)? null: Integer.toString(max);
