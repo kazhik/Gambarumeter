@@ -15,4 +15,7 @@
     <string name="max">Max</string>
     <string name="avg">Avg</string>
 
+    <string name="edit_mode">Edit mode</string>
+    <string name="view_mode">View mode</string>
+
 </resources>

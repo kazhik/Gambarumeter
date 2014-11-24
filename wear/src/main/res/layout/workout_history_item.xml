@@ -4,20 +4,27 @@
     android:layout_width="match_parent"
     android:layout_height="80dp">
     <LinearLayout
-        android:gravity="center_horizontal"
-        android:layout_gravity="center_vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="@color/listitem_background"
+        android:gravity="center_vertical|center_horizontal"
+        android:orientation="vertical">
 
         <TextView
             android:id="@+id/start_time"
             android:layout_margin="5dp"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:background="@color/listitem_background"
+            android:layout_height="wrap_content"
             android:text="hello"
             android:textSize="16dp"
-            android:textColor="@color/text"
-            android:gravity="center_vertical" />
+            android:textColor="@color/text" />
+        <TextView
+            android:id="@+id/split_time"
+            android:layout_margin="5dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="hello"
+            android:textSize="16dp"
+            android:textColor="@color/text" />
     </LinearLayout>
 </net.kazhik.gambarumeter.history.WorkoutHistoryItem>

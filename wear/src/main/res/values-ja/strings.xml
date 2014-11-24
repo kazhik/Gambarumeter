@@ -13,4 +13,7 @@
     <string name="max">最高</string>
     <string name="avg">平均</string>
 
+    <string name="edit_mode">編集モード</string>
+    <string name="view_mode">閲覧モード</string>
+
 </resources>

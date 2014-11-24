@@ -33,11 +33,13 @@ public class HistoryAdapter extends WearableListView.Adapter {
 
     // Provide a reference to the type of views you're using
     public static class ItemViewHolder extends WearableListView.ViewHolder {
-        private TextView textView;
+        private TextView startTimeText;
+        private TextView splitTimeText;
         public ItemViewHolder(View itemView) {
             super(itemView);
             // find the text view within the custom item's layout
-            this.textView = (TextView) itemView.findViewById(R.id.start_time);
+            this.startTimeText = (TextView) itemView.findViewById(R.id.start_time);
+            this.splitTimeText = (TextView) itemView.findViewById(R.id.split_time);
         }
     }
 
@@ -57,17 +59,31 @@ public class HistoryAdapter extends WearableListView.Adapter {
     @Override
     public void onBindViewHolder(WearableListView.ViewHolder holder,
                                  int position) {
-        Log.d(TAG, "onBindViewHolder: " + position + "; " + this.dataSet.get(position));
         // retrieve the text view
         ItemViewHolder itemHolder = (ItemViewHolder) holder;
-        TextView view = itemHolder.textView;
+        TextView startTimeText = itemHolder.startTimeText;
+        TextView splitTimeText = itemHolder.splitTimeText;
+
         // replace text contents
         WorkoutInfo workout = this.dataSet.get(position);
         long startTime = workout.getStartTime();
+        long stopTime = workout.getStopTime();
         String startTimeStr = DateFormat.getDateTimeInstance().format(new Date(startTime));
-        view.setText(startTimeStr);
+        startTimeText.setText(startTimeStr);
+        Log.d(TAG, startTime + ":" + stopTime);
+        String splitTimeStr = this.formatSplitTime(stopTime - startTime);
+        splitTimeText.setText(splitTimeStr);
         // replace list item's metadata
         holder.itemView.setTag(startTime);
+    }
+    private String formatSplitTime(long splitTime) {
+        long splitTimeSec = splitTime / 1000;
+
+        long hour = splitTimeSec / 60 / 60;
+        long min = splitTimeSec / 60 - (hour * 60);
+        long sec = splitTimeSec % 60;
+
+        return String.format("%02d:%02d:%02d", hour, min, sec);
     }
 
     // Return the size of your dataset

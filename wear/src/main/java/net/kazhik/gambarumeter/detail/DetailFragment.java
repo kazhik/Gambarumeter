@@ -27,7 +27,7 @@ import java.util.List;
  * Created by kazhik on 14/11/18.
  */
 public class DetailFragment extends Fragment
-        implements View.OnClickListener,DialogInterface.OnClickListener {
+        implements View.OnClickListener {
 
     private class Result {
         private int average;
@@ -64,13 +64,11 @@ public class DetailFragment extends Fragment
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        Log.d(TAG, "onCreateView");
         return inflater.inflate(R.layout.detail, container, false);
     }
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        Log.d(TAG, "onActivityCreated:" + this.startTime);
 
         Activity activity = this.getActivity();
 
@@ -138,22 +136,6 @@ public class DetailFragment extends Fragment
     }
 
     @Override
-    public void onClick(DialogInterface dialog, int which) {
-        if (which == DialogInterface.BUTTON_POSITIVE) {
-            Log.d(TAG, "Delete: " + this.startTime);
-
-            WorkoutTable workoutTable = new WorkoutTable(this.getActivity());
-            workoutTable.open(false);
-            workoutTable.delete(this.startTime);
-            workoutTable.close();
-
-        } else if (which == DialogInterface.BUTTON_NEGATIVE) {
-            Log.d(TAG, "Cancel");
-        }
-
-    }
-
-    @Override
     public void onClick(View v) {
 
         FragmentManager fragmentManager = getFragmentManager();
@@ -161,17 +143,6 @@ public class DetailFragment extends Fragment
         fragmentTransaction.remove(this);
         fragmentTransaction.commit();
 
-
-        /*
-        AlertDialog confirmDelete =
-                new AlertDialog.Builder(this.getActivity())
-                        .setMessage(R.string.confirm_delete)
-                        .setPositiveButton(R.string.delete, this)
-                        .setNegativeButton(R.string.cancel, this)
-                        .create();
-
-        confirmDelete.show();
-        */
 
     }
 }

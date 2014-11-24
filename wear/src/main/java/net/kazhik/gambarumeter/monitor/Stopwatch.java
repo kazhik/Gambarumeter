@@ -44,7 +44,7 @@ public class Stopwatch implements Handler.Callback {
     public long stop() {
         this.handler.removeMessages(TICK);
         this.running = false;
-        this.stopTime = System.currentTimeMillis() - this.startTime;
+        this.stopTime = System.currentTimeMillis();
         return this.stopTime;
 
     }

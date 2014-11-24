@@ -5,15 +5,16 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.DialogInterface;
+import android.content.res.Resources;
 import android.database.SQLException;
 import android.os.Bundle;
 import android.support.wearable.view.BoxInsetLayout;
-import android.support.wearable.view.CardFragment;
 import android.support.wearable.view.WearableListView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import net.kazhik.gambarumeter.R;
 import net.kazhik.gambarumeter.detail.DetailFragment;
@@ -27,9 +28,12 @@ import java.util.List;
  * Created by kazhik on 14/11/11.
  */
 public class HistoryFragment extends Fragment
-        implements WearableListView.ClickListener, View.OnLongClickListener {
+        implements WearableListView.ClickListener,
+        View.OnLongClickListener,
+        DialogInterface.OnClickListener {
     private static final String TAG = "HistoryFragment";
     private long startTime;
+    private boolean editMode = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -75,7 +79,9 @@ public class HistoryFragment extends Fragment
         listView.setOnLongClickListener(this);
         adapter.notifyDataSetChanged();
 
-        this.startTime = workoutInfos.get(0).getStartTime();
+        if (!workoutInfos.isEmpty()) {
+            this.startTime = workoutInfos.get(0).getStartTime();
+        }
     }
 
     @Override
@@ -94,21 +100,54 @@ public class HistoryFragment extends Fragment
     public void onClick(WearableListView.ViewHolder viewHolder) {
         long startTime = (Long)viewHolder.itemView.getTag();
 
-        DetailFragment fragment = new DetailFragment();
-        fragment.read(startTime);
+        if (this.editMode) {
+            AlertDialog confirmDelete =
+                    new AlertDialog.Builder(this.getActivity())
+                            .setMessage(R.string.confirm_delete)
+                            .setPositiveButton(R.string.delete, this)
+                            .setNegativeButton(R.string.cancel, this)
+                            .create();
 
-        FragmentManager fragmentManager = getFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.add(R.id.frame_layout, fragment);
-        fragmentTransaction.commit();
+            confirmDelete.show();
+        } else {
+            DetailFragment fragment = new DetailFragment();
+            fragment.read(startTime);
+
+            FragmentManager fragmentManager = getFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.add(R.id.frame_layout, fragment);
+            fragmentTransaction.commit();
+        }
 
     }
 
     @Override
     public void onTopEmptyRegionClick() {
-        Log.d(TAG, "onTopEmptyRegionClick");
+        this.editMode = !this.editMode;
+
+        Resources res = this.getActivity().getResources();
+        String msg = this.editMode ? res.getString(R.string.edit_mode): res.getString(R.string.view_mode);
+
+        Toast toast = Toast.makeText(this.getActivity(), msg, Toast.LENGTH_SHORT);
+        toast.show();
+    }
+    @Override
+    public void onClick(DialogInterface dialog, int which) {
+        if (which == DialogInterface.BUTTON_POSITIVE) {
+            Log.d(TAG, "Delete: " + this.startTime);
+
+            WorkoutTable workoutTable = new WorkoutTable(this.getActivity());
+            workoutTable.open(false);
+            workoutTable.delete(this.startTime);
+            workoutTable.close();
+
+            this.refreshListItem();
+        } else if (which == DialogInterface.BUTTON_NEGATIVE) {
+            Log.d(TAG, "Cancel");
+        }
 
     }
+
 
     @Override
     public boolean onLongClick(View v) {
