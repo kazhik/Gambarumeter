@@ -65,6 +65,15 @@ public class HeartRateMonitor extends Service implements SensorEventListener {
         }
     }
 
+    private void storeHeartRate(long timestamp, float heartRate) {
+        long lastTimestamp = 0;
+        if (!this.dataList.isEmpty()) {
+            lastTimestamp = this.dataList.get(this.dataList.size() - 1).getTimestamp();
+        }
+        if (timestamp >= lastTimestamp + (1000 * 60)) {
+            this.dataList.add(new SensorValue(timestamp, heartRate));
+        }
+    }
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
         switch (sensorEvent.accuracy) {
@@ -75,16 +84,13 @@ public class HeartRateMonitor extends Service implements SensorEventListener {
             default:
                 return;
         }
+        long newTimestamp = sensorEvent.timestamp / (1000 * 1000);
         if (sensorEvent.values[0] != this.currentValue.getValue()) {
-
-            long newTimestamp = sensorEvent.timestamp / (1000 * 1000);
             this.listener.onHeartRateChanged(newTimestamp, (int)sensorEvent.values[0]);
-            if (newTimestamp >= this.currentValue.getTimestamp() + (1000 * 60)) {
-                this.dataList.add(new SensorValue(newTimestamp, sensorEvent.values[0]));
-            }
+            this.storeHeartRate(newTimestamp, sensorEvent.values[0]);
         }
 
-        this.currentValue.setTimestamp(sensorEvent.timestamp);
+        this.currentValue.setTimestamp(newTimestamp);
         this.currentValue.setValue(sensorEvent.values[0]);
 
     }
