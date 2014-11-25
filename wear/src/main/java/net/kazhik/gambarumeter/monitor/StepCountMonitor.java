@@ -25,7 +25,7 @@ public class StepCountMonitor implements SensorEventListener {
 
     }
     public int getStepCount() {
-        return (int)this.currentValue.getValue();
+        return ((int)this.currentValue.getValue()) - this.initialValue;
     }
     public void start() {
         this.initialValue = 0;
