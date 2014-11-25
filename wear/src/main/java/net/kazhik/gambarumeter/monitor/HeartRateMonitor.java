@@ -79,8 +79,8 @@ public class HeartRateMonitor extends Service implements SensorEventListener {
         switch (sensorEvent.accuracy) {
             case SensorManager.SENSOR_STATUS_ACCURACY_HIGH:
             case SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM:
-            case SensorManager.SENSOR_STATUS_ACCURACY_LOW:
                 break;
+            case SensorManager.SENSOR_STATUS_ACCURACY_LOW:
             default:
                 return;
         }
@@ -97,31 +97,11 @@ public class HeartRateMonitor extends Service implements SensorEventListener {
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {
-        String status = "";
-        switch (i) {
-            case SensorManager.SENSOR_STATUS_ACCURACY_HIGH:
-                status = "high";
-                break;
-            case SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM:
-                status = "medium";
-                break;
-            case SensorManager.SENSOR_STATUS_ACCURACY_LOW:
-                status = "low";
-                break;
-            case SensorManager.SENSOR_STATUS_NO_CONTACT:
-                status = "no contact";
-                break;
-            case SensorManager.SENSOR_STATUS_UNRELIABLE:
-                status = "unreliable";
-                break;
-        }
-        Log.d(TAG, "accuracy: " + status);
 
     }
 
     @Override
     public IBinder onBind(Intent intent) {
-        Log.d(TAG, "onBind");
         return this.binder;
     }
 }
