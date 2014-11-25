@@ -34,12 +34,12 @@ public class HistoryAdapter extends WearableListView.Adapter {
     // Provide a reference to the type of views you're using
     public static class ItemViewHolder extends WearableListView.ViewHolder {
         private TextView startTimeText;
-        private TextView splitTimeText;
+        private TextView resultText;
         public ItemViewHolder(View itemView) {
             super(itemView);
             // find the text view within the custom item's layout
             this.startTimeText = (TextView) itemView.findViewById(R.id.start_time);
-            this.splitTimeText = (TextView) itemView.findViewById(R.id.split_time);
+            this.resultText = (TextView) itemView.findViewById(R.id.result);
         }
     }
 
@@ -62,17 +62,19 @@ public class HistoryAdapter extends WearableListView.Adapter {
         // retrieve the text view
         ItemViewHolder itemHolder = (ItemViewHolder) holder;
         TextView startTimeText = itemHolder.startTimeText;
-        TextView splitTimeText = itemHolder.splitTimeText;
+        TextView resultText = itemHolder.resultText;
 
         // replace text contents
         WorkoutInfo workout = this.dataSet.get(position);
         long startTime = workout.getStartTime();
         long stopTime = workout.getStopTime();
+        int stepCount = workout.getStepCount();
+
         String startTimeStr = DateFormat.getDateTimeInstance().format(new Date(startTime));
         startTimeText.setText(startTimeStr);
-        Log.d(TAG, startTime + ":" + stopTime);
         String splitTimeStr = this.formatSplitTime(stopTime - startTime);
-        splitTimeText.setText(splitTimeStr);
+        String stepCountStr = stepCount + this.context.getResources().getString(R.string.steps);
+        resultText.setText(splitTimeStr + "/" + stepCountStr);
         // replace list item's metadata
         holder.itemView.setTag(startTime);
     }

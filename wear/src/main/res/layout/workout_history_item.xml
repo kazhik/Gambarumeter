@@ -15,15 +15,15 @@
             android:layout_margin="5dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="hello"
+            android:text="start_time"
             android:textSize="16dp"
             android:textColor="@color/text" />
         <TextView
-            android:id="@+id/split_time"
+            android:id="@+id/result"
             android:layout_margin="5dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="hello"
+            android:text="result"
             android:textSize="16dp"
             android:textColor="@color/text" />
     </LinearLayout>
