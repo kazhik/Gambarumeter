@@ -40,7 +40,6 @@ public class PagerAdapter extends FragmentGridPagerAdapter
 
     @Override
     public void onPageSelected(int row, int col) {
-        Log.d(TAG, "onPageSelected: " + row + "; " + col);
         Fragment fragment = fragments[row][col];
         if (fragment instanceof HistoryFragment) {
             ((HistoryFragment)fragment).refreshListItem();

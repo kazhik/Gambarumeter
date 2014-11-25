@@ -6,9 +6,7 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.content.res.Resources;
-import android.database.SQLException;
 import android.os.Bundle;
-import android.support.wearable.view.BoxInsetLayout;
 import android.support.wearable.view.WearableListView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -19,7 +17,6 @@ import android.widget.Toast;
 import net.kazhik.gambarumeter.R;
 import net.kazhik.gambarumeter.detail.DetailFragment;
 import net.kazhik.gambarumeter.entity.WorkoutInfo;
-import net.kazhik.gambarumeter.storage.HeartRateTable;
 import net.kazhik.gambarumeter.storage.WorkoutTable;
 
 import java.util.List;
@@ -40,24 +37,6 @@ public class HistoryFragment extends Fragment
         return inflater.inflate(R.layout.workout_history, container, false);
     }
 
-    private void readDatabase() {
-        try {
-            WorkoutTable workoutTable = new WorkoutTable(this.getActivity());
-            workoutTable.open(true);
-            List<WorkoutInfo> workoutInfos = workoutTable.selectAll(0);
-            Log.d(TAG, "workoutInfos: " + workoutInfos.size());
-            workoutTable.close();
-
-            HeartRateTable heartRateTable = new HeartRateTable(this.getActivity());
-            heartRateTable.open(true);
-            heartRateTable.close();
-
-
-        } catch (SQLException e) {
-            Log.e(TAG, e.getMessage(), e);
-        }
-
-    }
     public long getStartTime() {
         return this.startTime;
     }
@@ -67,8 +46,6 @@ public class HistoryFragment extends Fragment
         workoutTable.open(true);
         List<WorkoutInfo> workoutInfos = workoutTable.selectAll(0);
         workoutTable.close();
-
-        Log.d(TAG, "workoutInfos: " + workoutInfos.size());
 
         HistoryAdapter adapter = new HistoryAdapter(this.getActivity(), workoutInfos);
         WearableListView listView = (WearableListView)this.getActivity().findViewById(R.id.history_list);
@@ -87,9 +64,6 @@ public class HistoryFragment extends Fragment
     @Override
     public void onStart() {
         super.onStart();
-
-        BoxInsetLayout historyLayout = (BoxInsetLayout)this.getActivity().findViewById(R.id.history_layout);
-        Log.d(TAG, "historyLayout:" + historyLayout.isRound());
 
         this.refreshListItem();
 
