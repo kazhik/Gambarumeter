@@ -2,16 +2,26 @@
 <android.support.wearable.view.BoxInsetLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/history_layout"
+    android:id="@+id/history"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background">
 
     <FrameLayout
-        android:id="@+id/frame_layout"
+        android:id="@+id/history_layout"
         android:layout_height="match_parent"
         android:layout_width="match_parent"
         app:layout_box="left|bottom|right">
+
+        <TextView
+            android:id="@+id/mode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/view_mode"
+            android:textColor="@color/text"
+            android:textSize="16sp"
+            android:layout_marginTop="16sp" />
 
         <android.support.wearable.view.WearableListView
             android:id="@+id/history_list"

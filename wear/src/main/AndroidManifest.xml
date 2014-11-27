@@ -12,12 +12,28 @@
         <activity
             android:name=".Gambarumeter"
             android:label="@string/app_name"
-            android:launchMode="singleTop">
+            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="vnd.google.fitness.TRACK" />
+                <data android:mimeType="vnd.google.fitness.activity/running" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="vnd.google.fitness.TRACK" />
+                <data android:mimeType="vnd.google.fitness.activity/other" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="vnd.google.fitness.VIEW" />
+                <data android:mimeType="vnd.google.fitness.data_type/com.google.heart_rate.bpm" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+
         </activity>
         <service android:name=".monitor.HeartRateMonitor" />
 

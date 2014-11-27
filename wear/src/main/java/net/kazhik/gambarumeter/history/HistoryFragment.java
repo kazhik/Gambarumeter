@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import net.kazhik.gambarumeter.R;
@@ -89,7 +90,7 @@ public class HistoryFragment extends Fragment
 
             FragmentManager fragmentManager = getFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.add(R.id.frame_layout, fragment);
+            fragmentTransaction.add(R.id.history_layout, fragment);
             fragmentTransaction.commit();
         }
 
@@ -99,11 +100,9 @@ public class HistoryFragment extends Fragment
     public void onTopEmptyRegionClick() {
         this.editMode = !this.editMode;
 
-        Resources res = this.getActivity().getResources();
-        String msg = this.editMode ? res.getString(R.string.edit_mode): res.getString(R.string.view_mode);
-
-        Toast toast = Toast.makeText(this.getActivity(), msg, Toast.LENGTH_SHORT);
-        toast.show();
+        TextView modeText = (TextView)this.getActivity().findViewById(R.id.mode);
+        int msgId = this.editMode? R.string.edit_mode: R.string.view_mode;
+        modeText.setText(msgId);
     }
     @Override
     public void onClick(DialogInterface dialog, int which) {
