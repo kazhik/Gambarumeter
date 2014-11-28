@@ -48,7 +48,6 @@ public class MainFragment extends Fragment
     private Stopwatch stopwatch;
     private HeartRateMonitor heartRateMonitor;
     private StepCountMonitor stepCountMonitor;
-//    private UserProfileMonitor userProfileMonitor = new UserProfileMonitor();
 
     private SplitTimeView splitTimeView = new SplitTimeView();
     private HeartRateView heartRateView = new HeartRateView();
@@ -61,13 +60,29 @@ public class MainFragment extends Fragment
     private static final String TAG = "MainFragment";
 
     @Override
+    public void onSaveInstanceState(Bundle outState) {
+
+        outState.putLong("start_time", this.stopwatch.getStartTime());
+
+        super.onSaveInstanceState(outState);
+        Log.d(TAG, "onSaveInstanceState: " + outState.getLong("start_time"));
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Log.d(TAG, "onCreate");
+        Log.d(TAG, "onCreate:" + savedInstanceState);
 
         this.initializeSensor();
 
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+
+        Log.d(TAG, "onDestroyView: ");
     }
 
     @Override
@@ -75,6 +90,28 @@ public class MainFragment extends Fragment
         super.onActivityCreated(savedInstanceState);
 
         this.initializeUI();
+
+        String actionStatus = this.getActivity().getIntent().getStringExtra("actionStatus");
+
+        Log.d(TAG, "onActivityCreated: " + actionStatus);
+        if (actionStatus != null) {
+            if (actionStatus.equals("ActiveActionStatus")) {
+                this.startWorkout();
+            } else if (actionStatus.equals("CompletedActionStatus")) {
+                if (savedInstanceState != null && savedInstanceState.getLong("start_time") > 0) {
+                    Log.d(TAG, "workout stop");
+                } else {
+                    Log.d(TAG, "savedInstanceState:" + savedInstanceState);
+                }
+            }
+        }
+
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.d(TAG, "onStop");
     }
 
     @Override
@@ -128,7 +165,6 @@ public class MainFragment extends Fragment
 
         this.stopwatch = new Stopwatch(1000L, this);
 
-//        this.userProfileMonitor.init(sensorManager);
     }
     private void initializeUI() {
         Activity activity = this.getActivity();
@@ -163,7 +199,6 @@ public class MainFragment extends Fragment
         if (this.stepCountMonitor != null) {
             this.stepCountMonitor.start();
         }
-//        this.userProfileMonitor.start();
     }
     private void stopWorkout() {
 
@@ -174,7 +209,6 @@ public class MainFragment extends Fragment
         if (this.stepCountMonitor != null) {
             this.stepCountMonitor.stop();
         }
-//        this.userProfileMonitor.stop();
 
         this.notificationView.dismiss();
 
@@ -231,8 +265,6 @@ public class MainFragment extends Fragment
     public void onStepCountChanged(long timestamp, int stepCount) {
         this.stepCountView.setStepCount(stepCount);
         this.getActivity().runOnUiThread(this.stepCountView);
-
-        Log.d(TAG, "step count: " + stepCount);
 
         this.notificationView.updateStepCount(stepCount);
     }
