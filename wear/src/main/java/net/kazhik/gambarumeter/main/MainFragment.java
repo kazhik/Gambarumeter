@@ -6,6 +6,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.database.SQLException;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
@@ -21,6 +22,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import net.kazhik.gambarumeter.R;
+import net.kazhik.gambarumeter.monitor.GeolocationMonitor;
 import net.kazhik.gambarumeter.monitor.HeartRateMonitor;
 import net.kazhik.gambarumeter.monitor.SensorValue;
 import net.kazhik.gambarumeter.monitor.SensorValueListener;
@@ -48,6 +50,7 @@ public class MainFragment extends Fragment
     private Stopwatch stopwatch;
     private HeartRateMonitor heartRateMonitor;
     private StepCountMonitor stepCountMonitor;
+    private GeolocationMonitor locationMonitor;
 
     private SplitTimeView splitTimeView = new SplitTimeView();
     private HeartRateView heartRateView = new HeartRateView();
@@ -89,21 +92,31 @@ public class MainFragment extends Fragment
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        Log.d(TAG, "onActivityCreated: ");
+
         this.initializeUI();
 
+        this.voiceAction(savedInstanceState);
+    }
+    private void voiceAction(Bundle savedInstanceState) {
         String actionStatus = this.getActivity().getIntent().getStringExtra("actionStatus");
+        if (actionStatus == null) {
+            return;
+        }
 
-        Log.d(TAG, "onActivityCreated: " + actionStatus);
-        if (actionStatus != null) {
-            if (actionStatus.equals("ActiveActionStatus")) {
-                this.startWorkout();
-            } else if (actionStatus.equals("CompletedActionStatus")) {
-                if (savedInstanceState != null && savedInstanceState.getLong("start_time") > 0) {
-                    Log.d(TAG, "workout stop");
-                } else {
-                    Log.d(TAG, "savedInstanceState:" + savedInstanceState);
-                }
+        if (actionStatus.equals("ActiveActionStatus")) {
+            this.startWorkout();
+        } else if (actionStatus.equals("CompletedActionStatus")) {
+            if (savedInstanceState == null) {
+                Log.d(TAG, "savedInstanceState is null");
+                return;
             }
+            if (savedInstanceState.getLong("start_time") == 0) {
+                Log.d(TAG, "Not started:");
+                return;
+            }
+            Log.d(TAG, "workout stop");
+            this.stopWorkout();
         }
 
     }
@@ -163,6 +176,13 @@ public class MainFragment extends Fragment
             }
         }
 
+        if (this.getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_LOCATION_GPS)) {
+            this.locationMonitor = new GeolocationMonitor();
+            this.locationMonitor.init(this.getActivity(), this);
+
+        }
+
+
         this.stopwatch = new Stopwatch(1000L, this);
 
     }
@@ -199,6 +219,9 @@ public class MainFragment extends Fragment
         if (this.stepCountMonitor != null) {
             this.stepCountMonitor.start();
         }
+        if (this.locationMonitor != null) {
+            this.locationMonitor.start();
+        }
     }
     private void stopWorkout() {
 
@@ -208,6 +231,9 @@ public class MainFragment extends Fragment
         }
         if (this.stepCountMonitor != null) {
             this.stepCountMonitor.stop();
+        }
+        if (this.locationMonitor != null) {
+            this.locationMonitor.stop();
         }
 
         this.notificationView.dismiss();
@@ -228,7 +254,7 @@ public class MainFragment extends Fragment
             ret = workoutTable.insert(
                     startTime,
                     this.stopwatch.getStopTime(),
-                    stepCount);
+                    stepCount, 0);
             workoutTable.close();
 
             Log.d(TAG, "insert: " + ret + "; " + startTime);
@@ -268,6 +294,18 @@ public class MainFragment extends Fragment
 
         this.notificationView.updateStepCount(stepCount);
     }
+
+    @Override
+    public void onLocationChanged(long timestamp, float distance) {
+
+    }
+
+    @Override
+    public void onLap(long timestamp, long lap) {
+
+    }
+
+
     @Override
     public void onTick(long elapsed) {
         this.splitTimeView.setTime(elapsed);

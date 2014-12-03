@@ -22,7 +22,9 @@ public class WorkoutTable extends AbstractTable {
             "CREATE TABLE " + TABLE_NAME + " (" +
                     "start_time DATETIME PRIMARY KEY," +
                     "stop_time DATETIME," +
-                    "step_count INTEGER)";
+                    "step_count INTEGER," +
+                    "distance REAL" +
+                    ")";
     private static final String TAG = "WorkoutTable";
 
     public WorkoutTable(Context context) {
@@ -36,12 +38,13 @@ public class WorkoutTable extends AbstractTable {
         AbstractTable.upgrade(db, TABLE_NAME, CREATE_TABLE);
     }
 
-    public int insert(long startTime, long stopTime, int stepCount) {
+    public int insert(long startTime, long stopTime, int stepCount, float distance) {
         ContentValues values = new ContentValues();
 
         values.put("start_time", this.formatDate(startTime));
         values.put("stop_time", this.formatDate(stopTime));
         values.put("step_count", stepCount);
+        values.put("distance", distance);
 
         return (int)this.db.insert(TABLE_NAME, null, values);
 
@@ -50,7 +53,7 @@ public class WorkoutTable extends AbstractTable {
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
         qb.setTables(TABLE_NAME);
 
-        String[] columns = { "start_time", "stop_time", "step_count" };
+        String[] columns = { "start_time", "stop_time", "step_count", "distance" };
         String selection = null;
         String[] selectionArgs = null;
         String sortOrder = "start_time desc";
@@ -71,7 +74,8 @@ public class WorkoutTable extends AbstractTable {
                 WorkoutInfo workout = new WorkoutInfo(
                         this.parseDate(cursor.getString(0)),
                         this.parseDate(cursor.getString(1)),
-                        cursor.getInt(2));
+                        cursor.getInt(2),
+                        cursor.getFloat(3));
                 dataList.add(workout);
                 cursor.moveToNext();
             }

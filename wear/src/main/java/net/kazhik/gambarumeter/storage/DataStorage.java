@@ -9,7 +9,7 @@ import android.util.Log;
 public class DataStorage {
 
     public static final String DATABASE_NAME = "gambarumeter.sqlite";
-    public static final int DATABASE_VERSION = 2;
+    public static final int DATABASE_VERSION = 3;
 
     private final Context context;
     private DatabaseHelper DBHelper;
