@@ -10,6 +10,8 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
+import net.kazhik.gambarumeter.entity.SensorValue;
+
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;

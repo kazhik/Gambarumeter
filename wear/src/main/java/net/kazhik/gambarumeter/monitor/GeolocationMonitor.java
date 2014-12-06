@@ -1,13 +1,19 @@
 package net.kazhik.gambarumeter.monitor;
 
+import android.app.Service;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Location;
+import android.os.Binder;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.Result;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationListener;
@@ -15,24 +21,37 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.wearable.Wearable;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by kazhik on 14/11/29.
  */
-public class GeolocationMonitor implements GoogleApiClient.ConnectionCallbacks,
+public class GeolocationMonitor extends Service
+        implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener, ResultCallback<Status> {
     private GoogleApiClient googleApiClient;
-    private static final int UPDATE_INTERVAL_MS = 5000;
-    private static final int FASTEST_INTERVAL_MS = 1000;
 
+    private GeolocationBinder binder = new GeolocationBinder();
     private SensorValueListener listener;
     private LocationRecord record = new LocationRecord();
     private boolean started = false;
 
+    private static final int UPDATE_INTERVAL_MS = 5000;
+    private static final int FASTEST_INTERVAL_MS = 3000;
     private static final String TAG = "GeolocationMonitor";
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        return this.binder;
+    }
+
+    public class GeolocationBinder extends Binder {
+
+        public GeolocationMonitor getService() {
+            return GeolocationMonitor.this;
+        }
+    }
 
     public void init(Context context, SensorValueListener listener) {
         this.listener = listener;
@@ -44,13 +63,15 @@ public class GeolocationMonitor implements GoogleApiClient.ConnectionCallbacks,
                 .addOnConnectionFailedListener(this)
                 .build();
 
+        this.googleApiClient.connect();
     }
-    public void start() {
+    public void start(float lapDistance) {
+        if (this.googleApiClient == null) {
+            return;
+        }
         if (!this.googleApiClient.isConnected()) {
             return;
         }
-        float lapDistance = 1000; // 1km
-
         this.record.init(lapDistance);
         this.record.addLap(System.currentTimeMillis());
         this.started = true;
@@ -59,12 +80,15 @@ public class GeolocationMonitor implements GoogleApiClient.ConnectionCallbacks,
         this.started = false;
 
     }
-
-    public void connect() {
-        this.googleApiClient.connect();
-
+    public float getDistance() {
+        return this.record.getDistance();
     }
+    public List<Location> getLocationList() {
+        return this.record.getLocationList();
+    }
+
     public void disconnect() {
+        Log.d(TAG, "disconnect");
         if (this.googleApiClient.isConnected()) {
             LocationServices.FusedLocationApi
                     .removeLocationUpdates(this.googleApiClient, this);
@@ -74,6 +98,7 @@ public class GeolocationMonitor implements GoogleApiClient.ConnectionCallbacks,
 
     @Override
     public void onConnected(Bundle bundle) {
+        Log.d(TAG, "onConnected");
 
         LocationRequest locationRequest = LocationRequest.create()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
@@ -87,7 +112,22 @@ public class GeolocationMonitor implements GoogleApiClient.ConnectionCallbacks,
     }
 
     @Override
+    public void onResult(Status status) {
+        if (status.isSuccess()) {
+            Log.d(TAG, "Successfully requested location updates");
+        } else {
+            Log.e(TAG,
+                    "Failed in requesting location updates, "
+                            + "status code: "
+                            + status.getStatusCode()
+                            + ", message: "
+                            + status.getStatusMessage());
+        }
+    }
+
+    @Override
     public void onConnectionSuspended(int i) {
+        Log.d(TAG, "onConnectionSuspended");
 
     }
 
@@ -99,7 +139,7 @@ public class GeolocationMonitor implements GoogleApiClient.ConnectionCallbacks,
         }
         long lap = this.record.setCurrentLocation(location);
         if (lap > 0) {
-            this.listener.onLap(location.getTime(), lap);
+            this.listener.onLap(location.getTime(), this.record.getDistance(), lap);
         }
         this.listener.onLocationChanged(location.getTime(), this.record.getDistance());
 
@@ -108,22 +148,8 @@ public class GeolocationMonitor implements GoogleApiClient.ConnectionCallbacks,
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
+        Log.e(TAG, "connection failed: " + connectionResult.getErrorCode());
 
     }
 
-    @Override
-    public void onResult(Status status) {
-        if (status.isSuccess()) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "Successfully requested location updates");
-            }
-        } else {
-            Log.e(TAG,
-                    "Failed in requesting location updates, "
-                            + "status code: "
-                            + status.getStatusCode()
-                            + ", message: "
-                            + status.getStatusMessage());
-        }
-    }
 }

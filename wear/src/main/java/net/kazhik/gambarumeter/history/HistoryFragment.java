@@ -5,7 +5,6 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.DialogInterface;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.wearable.view.WearableListView;
 import android.util.Log;
@@ -13,10 +12,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import net.kazhik.gambarumeter.R;
-import net.kazhik.gambarumeter.detail.DetailFragment;
+import net.kazhik.gambarumeter.detail.HeartRateDetailFragment;
 import net.kazhik.gambarumeter.entity.WorkoutInfo;
 import net.kazhik.gambarumeter.storage.WorkoutTable;
 
@@ -73,7 +71,7 @@ public class HistoryFragment extends Fragment
 
     @Override
     public void onClick(WearableListView.ViewHolder viewHolder) {
-        long startTime = (Long)viewHolder.itemView.getTag();
+        this.startTime = (Long)viewHolder.itemView.getTag();
 
         if (this.editMode) {
             AlertDialog confirmDelete =
@@ -85,7 +83,7 @@ public class HistoryFragment extends Fragment
 
             confirmDelete.show();
         } else {
-            DetailFragment fragment = new DetailFragment();
+            HeartRateDetailFragment fragment = new HeartRateDetailFragment();
             fragment.read(startTime);
 
             FragmentManager fragmentManager = getFragmentManager();

@@ -2,6 +2,8 @@ package net.kazhik.gambarumeter.monitor;
 
 import android.location.Location;
 
+import net.kazhik.gambarumeter.entity.Distance;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,7 +19,6 @@ public class LocationRecord {
 
     private float lapDistance = 1000;
 
-    private final int MIN_INTERVAL = 5 * 1000; // 5 seconds
     private final int MIN_ACCURACY = 10; // 10 metre
 
     public void init(float lapDistance) {
@@ -86,10 +87,7 @@ public class LocationRecord {
 
         Distance latestMove = this.calculateDistance(location);
         if (this.prevLocation != null) {
-            if (latestMove.getDistance() == 0) {
-                return 0;
-            }
-            if (location.getTime() - this.prevLocation.getTime() < MIN_INTERVAL) {
+            if (latestMove.getDistance() == 0.0f) {
                 return 0;
             }
         }
@@ -122,4 +120,7 @@ public class LocationRecord {
         return this.elevationGain;
     }
 
+    public List<Location> getLocationList() {
+        return this.locations;
+    }
 }

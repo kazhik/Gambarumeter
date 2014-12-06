@@ -6,12 +6,15 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.SQLException;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -24,12 +27,14 @@ import android.widget.TextView;
 import net.kazhik.gambarumeter.R;
 import net.kazhik.gambarumeter.monitor.GeolocationMonitor;
 import net.kazhik.gambarumeter.monitor.HeartRateMonitor;
-import net.kazhik.gambarumeter.monitor.SensorValue;
+import net.kazhik.gambarumeter.entity.SensorValue;
 import net.kazhik.gambarumeter.monitor.SensorValueListener;
 import net.kazhik.gambarumeter.monitor.StepCountMonitor;
 import net.kazhik.gambarumeter.monitor.Stopwatch;
 import net.kazhik.gambarumeter.storage.HeartRateTable;
+import net.kazhik.gambarumeter.storage.LocationTable;
 import net.kazhik.gambarumeter.storage.WorkoutTable;
+import net.kazhik.gambarumeter.view.DistanceView;
 import net.kazhik.gambarumeter.view.HeartRateView;
 import net.kazhik.gambarumeter.view.NotificationView;
 import net.kazhik.gambarumeter.view.SplitTimeView;
@@ -54,9 +59,12 @@ public class MainFragment extends Fragment
 
     private SplitTimeView splitTimeView = new SplitTimeView();
     private HeartRateView heartRateView = new HeartRateView();
+    private DistanceView distanceView = new DistanceView();
     private StepCountView stepCountView = new StepCountView();
 
     private NotificationView notificationView = new NotificationView();
+
+    private SharedPreferences prefs;
 
     private UserInputManager userInputManager;
 
@@ -79,6 +87,8 @@ public class MainFragment extends Fragment
 
         this.initializeSensor();
 
+        this.prefs =
+                PreferenceManager.getDefaultSharedPreferences(this.getActivity());
     }
 
     @Override
@@ -122,15 +132,12 @@ public class MainFragment extends Fragment
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
-        Log.d(TAG, "onStop");
-    }
-
-    @Override
     public void onDestroy() {
         this.stopWorkout();
-        if (this.heartRateMonitor != null) {
+        if (this.heartRateMonitor != null || this.locationMonitor != null) {
+            if (this.locationMonitor != null) {
+                this.locationMonitor.disconnect();
+            }
             this.getActivity().getApplicationContext().unbindService(this);
         }
 
@@ -139,7 +146,8 @@ public class MainFragment extends Fragment
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
         Log.d(TAG, "onCreateView");
         return inflater.inflate(R.layout.main, container, false);
     }
@@ -157,15 +165,20 @@ public class MainFragment extends Fragment
         this.stopwatch.reset();
     }
     private void initializeSensor() {
-        this.sensorManager = (SensorManager)this.getActivity().getSystemService(Activity.SENSOR_SERVICE);
+        Activity activity = this.getActivity();
+        Context appContext = activity.getApplicationContext();
+
+        this.sensorManager =
+                (SensorManager)activity.getSystemService(Activity.SENSOR_SERVICE);
 
         List<Sensor> sensorList = this.sensorManager.getSensorList(Sensor.TYPE_ALL);
         for (Sensor sensor: sensorList) {
             Log.i(TAG, "Sensor:" + sensor.getName() + "; " + sensor.getType());
             switch (sensor.getType()) {
                 case Sensor.TYPE_HEART_RATE:
-                    Intent intent = new Intent(this.getActivity(), HeartRateMonitor.class);
-                    this.getActivity().getApplicationContext().bindService(intent, this, Context.BIND_AUTO_CREATE);
+                    Intent intent = new Intent(activity, HeartRateMonitor.class);
+                    appContext.bindService(intent, this, Context.BIND_AUTO_CREATE);
+                    this.heartRateMonitor = new HeartRateMonitor(); // temporary
                     break;
                 case Sensor.TYPE_STEP_COUNTER:
                     this.stepCountMonitor = new StepCountMonitor();
@@ -176,10 +189,10 @@ public class MainFragment extends Fragment
             }
         }
 
-        if (this.getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_LOCATION_GPS)) {
-            this.locationMonitor = new GeolocationMonitor();
-            this.locationMonitor.init(this.getActivity(), this);
-
+        if (activity.getPackageManager().hasSystemFeature(PackageManager.FEATURE_LOCATION_GPS)) {
+            Intent intent = new Intent(activity, GeolocationMonitor.class);
+            appContext.bindService(intent, this, Context.BIND_AUTO_CREATE);
+            this.locationMonitor = new GeolocationMonitor(); // temporary
         }
 
 
@@ -190,7 +203,18 @@ public class MainFragment extends Fragment
         Activity activity = this.getActivity();
 
         this.splitTimeView.initialize((TextView)activity.findViewById(R.id.split_time));
-        this.heartRateView.initialize((TextView)activity.findViewById(R.id.bpm));
+        if (this.heartRateMonitor != null) {
+            this.heartRateView.initialize((TextView)activity.findViewById(R.id.bpm));
+            activity.findViewById(R.id.heart_rate).setVisibility(View.VISIBLE);
+        } else {
+            activity.findViewById(R.id.heart_rate).setVisibility(View.GONE);
+        }
+        if (this.locationMonitor != null) {
+            this.distanceView.initialize((TextView)activity.findViewById(R.id.distance_value));
+            activity.findViewById(R.id.distance).setVisibility(View.VISIBLE);
+        } else {
+            activity.findViewById(R.id.distance).setVisibility(View.GONE);
+        }
         this.stepCountView.initialize((TextView)activity.findViewById(R.id.stepcount_value));
 
         this.notificationView.initialize(activity);
@@ -203,11 +227,20 @@ public class MainFragment extends Fragment
                 );
 
     }
+
     private void startWorkout() {
-        this.heartRateView.setCurrentRate(0)
-                .refresh();
-        this.stepCountView.setStepCount(0)
-                .refresh();
+        if (this.heartRateMonitor != null) {
+            this.heartRateView.setCurrentRate(0)
+                    .refresh();
+        }
+        if (this.locationMonitor != null) {
+            this.distanceView.setDistance(0)
+                    .refresh();
+        }
+        if (this.stepCountMonitor != null) {
+            this.stepCountView.setStepCount(0)
+                    .refresh();
+        }
         this.splitTimeView.setTime(0)
                 .refresh();
         this.notificationView.clear();
@@ -220,7 +253,12 @@ public class MainFragment extends Fragment
             this.stepCountMonitor.start();
         }
         if (this.locationMonitor != null) {
-            this.locationMonitor.start();
+            float lapDistance = 1000f;
+            String distanceUnit = this.prefs.getString("distanceUnit", "metre");
+            if (distanceUnit.equals("mile")) {
+            }
+            // float lapDistance
+            this.locationMonitor.start(lapDistance);
         }
     }
     private void stopWorkout() {
@@ -248,13 +286,18 @@ public class MainFragment extends Fragment
             if (this.stepCountMonitor != null) {
                 stepCount = this.stepCountMonitor.getStepCount();
             }
+            float distance = 0;
+            if (this.locationMonitor != null) {
+                distance = this.locationMonitor.getDistance();
+            }
 
             WorkoutTable workoutTable = new WorkoutTable(this.getActivity());
             workoutTable.open(false);
             ret = workoutTable.insert(
                     startTime,
                     this.stopwatch.getStopTime(),
-                    stepCount, 0);
+                    stepCount,
+                    distance);
             workoutTable.close();
 
             Log.d(TAG, "insert: " + ret + "; " + startTime);
@@ -269,6 +312,20 @@ public class MainFragment extends Fragment
                             (int)sensorValue.getValue());
                 }
                 heartRateTable.close();
+            }
+            if (this.locationMonitor != null) {
+                LocationTable locTable = new LocationTable(this.getActivity());
+                locTable.open(false);
+                for (Location loc: this.locationMonitor.getLocationList()) {
+                    locTable.insert(loc.getTime(),
+                            startTime,
+                            loc.getLatitude(),
+                            loc.getLongitude(),
+                            loc.getAltitude(),
+                            loc.getAccuracy());
+                }
+                locTable.close();
+
             }
 
         } catch (SQLException e) {
@@ -297,11 +354,20 @@ public class MainFragment extends Fragment
 
     @Override
     public void onLocationChanged(long timestamp, float distance) {
+        String distanceUnit = this.prefs.getString("distanceUnit", "metre");
+        if (distanceUnit.equals("mile")) {
+        } else if (distanceUnit.equals("metre")) {
+            distance /= 1000f;
+        }
 
+        this.distanceView.setDistance(distance);
+        this.getActivity().runOnUiThread(this.distanceView);
+
+        this.notificationView.updateDistance(distance);
     }
 
     @Override
-    public void onLap(long timestamp, long lap) {
+    public void onLap(long timestamp, float distance, long lap) {
 
     }
 
@@ -321,7 +387,11 @@ public class MainFragment extends Fragment
         if (iBinder instanceof HeartRateMonitor.HeartRateBinder) {
             this.heartRateMonitor = ((HeartRateMonitor.HeartRateBinder)iBinder).getService();
             this.heartRateMonitor.init(sensorManager, this);
+        } else if (iBinder instanceof GeolocationMonitor.GeolocationBinder) {
+            this.locationMonitor = ((GeolocationMonitor.GeolocationBinder)iBinder).getService();
+            this.locationMonitor.init(this.getActivity(), this);
         }
+
     }
 
     @Override

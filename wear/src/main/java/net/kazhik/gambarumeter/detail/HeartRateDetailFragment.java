@@ -1,11 +1,9 @@
 package net.kazhik.gambarumeter.detail;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
-import android.content.DialogInterface;
 import android.database.SQLException;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,9 +14,8 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import net.kazhik.gambarumeter.R;
-import net.kazhik.gambarumeter.monitor.SensorValue;
+import net.kazhik.gambarumeter.entity.SensorValue;
 import net.kazhik.gambarumeter.storage.HeartRateTable;
-import net.kazhik.gambarumeter.storage.WorkoutTable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +23,7 @@ import java.util.List;
 /**
  * Created by kazhik on 14/11/18.
  */
-public class DetailFragment extends Fragment
+public class HeartRateDetailFragment extends Fragment
         implements View.OnClickListener {
 
     private class Result {

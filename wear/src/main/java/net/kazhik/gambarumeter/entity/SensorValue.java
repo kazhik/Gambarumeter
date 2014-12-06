@@ -1,4 +1,4 @@
-package net.kazhik.gambarumeter.monitor;
+package net.kazhik.gambarumeter.entity;
 
 /**
  * Created by kazhik on 14/10/15.

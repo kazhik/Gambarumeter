@@ -27,6 +27,8 @@
             android:textSize="32sp" />
 
         <LinearLayout
+            android:id="@+id/heart_rate"
+            android:visibility="visible"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
@@ -52,11 +54,11 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/distance"
+            android:visibility="gone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:id="@+id/distance"
-            android:visibility="gone"
             android:gravity="center_horizontal">
 
             <TextView
@@ -64,7 +66,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
-                android:text="99.99"
+                android:text="0.00"
                 android:textColor="@color/text"
                 android:textSize="30sp" />
 

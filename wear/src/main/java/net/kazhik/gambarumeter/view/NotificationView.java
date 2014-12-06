@@ -18,8 +18,9 @@ import net.kazhik.gambarumeter.R;
 public class NotificationView {
     private Context context;
     private NotificationCompat.Builder notificationBuilder;
-    private int heartRate = 0;
+    private int heartRate = -1;
     private int stepCount = 0;
+    private float distance = -1.0f;
 
     private static final int NOTIFICATION_ID = 3000;
 
@@ -51,8 +52,12 @@ public class NotificationView {
 
     }
     public void clear() {
-        this.heartRate = 0;
+        this.heartRate = -1;
         this.stepCount = 0;
+        this.distance = -1.0f;
+    }
+    public void updateDistance(float distance) {
+        this.distance = distance;
     }
     public void updateHeartRate(int heartRate) {
 
@@ -62,11 +67,22 @@ public class NotificationView {
         this.stepCount = stepCount;
     }
     private String makeText() {
-        return  + this.heartRate
-                + this.context.getString(R.string.bpm)
-                + "/"
-                + this.stepCount
-                + this.context.getString(R.string.steps);
+        String str = "";
+        if (this.heartRate > 0) {
+            str += this.heartRate + this.context.getString(R.string.bpm);
+        }
+        if (this.distance > 0) {
+            if (this.heartRate > 0) {
+                str += "/";
+            }
+            str += this.distance + "km";
+        }
+        if (this.heartRate > 0 || this.distance > 0) {
+            str += "/";
+        }
+        str += this.stepCount + this.context.getString(R.string.steps);
+
+        return str;
     }
     public void show(long elapsed) {
         this.notificationBuilder.setContentTitle(DateUtils.formatElapsedTime(elapsed / 1000))

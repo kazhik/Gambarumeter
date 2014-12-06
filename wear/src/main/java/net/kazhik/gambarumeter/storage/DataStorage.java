@@ -9,7 +9,7 @@ import android.util.Log;
 public class DataStorage {
 
     public static final String DATABASE_NAME = "gambarumeter.sqlite";
-    public static final int DATABASE_VERSION = 3;
+    public static final int DATABASE_VERSION = 4;
 
     private final Context context;
     private DatabaseHelper DBHelper;
@@ -37,7 +37,7 @@ public class DataStorage {
         public void onCreate(SQLiteDatabase db) {
             WorkoutTable.init(db);
             HeartRateTable.init(db);
-
+            LocationTable.init(db);
         }
 
         @Override
@@ -53,6 +53,7 @@ public class DataStorage {
             try {
                 WorkoutTable.upgrade(db);
                 HeartRateTable.upgrade(db);
+                LocationTable.upgrade(db);
                 db.setTransactionSuccessful();
             } catch (Exception e) {
                 Log.e(TAG, e.getMessage(), e);

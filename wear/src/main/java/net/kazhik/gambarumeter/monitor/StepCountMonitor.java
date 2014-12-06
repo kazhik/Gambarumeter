@@ -5,6 +5,8 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 
+import net.kazhik.gambarumeter.entity.SensorValue;
+
 /**
  * Created by kazhik on 14/10/12.
  */

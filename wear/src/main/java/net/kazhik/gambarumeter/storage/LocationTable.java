@@ -5,27 +5,27 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
-import android.util.Log;
+import android.location.Location;
 
-import net.kazhik.gambarumeter.entity.SensorValue;
-
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by kazhik on 14/11/08.
  */
-public class HeartRateTable extends AbstractTable {
-    public static final String TABLE_NAME = "gm_heartrate";
+public class LocationTable extends AbstractTable {
+    public static final String TABLE_NAME = "gm_location";
     private static final String CREATE_TABLE =
             "CREATE TABLE " + TABLE_NAME + " (" +
                     "timestamp DATETIME PRIMARY KEY," +
                     "start_time DATETIME," +
-                    "heart_rate INTEGER)";
-    private static final String TAG = "HeartRateTable";
+                    "latitude REAL," +
+                    "longitude REAL," +
+                    "altitude REAL," +
+                    "accuracy REAL)";
+    private static final String TAG = "LocationTable";
 
-    public HeartRateTable(Context context) {
+    public LocationTable(Context context) {
         super(context);
     }
     public static void init(SQLiteDatabase db){
@@ -36,22 +36,26 @@ public class HeartRateTable extends AbstractTable {
         AbstractTable.upgrade(db, TABLE_NAME, CREATE_TABLE);
     }
 
-    public int insert(long timestamp, long startTime, int heartRate) {
+    public int insert(long timestamp, long startTime,
+                      double latitude, double longitude, double altitude, float accuracy) {
         ContentValues values = new ContentValues();
 
         values.put("timestamp", this.formatDate(timestamp));
         values.put("start_time", this.formatDate(startTime));
-        values.put("heart_rate", heartRate);
+        values.put("latitude", latitude);
+        values.put("longitude", longitude);
+        values.put("altitude", altitude);
+        values.put("accuracy", accuracy);
 
         return (int)this.db.insert(TABLE_NAME, null, values);
 
     }
-    public List<SensorValue> selectAll(long startTime, int max) {
+    public List<Location> selectAll(long startTime, int max) {
 
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
         qb.setTables(TABLE_NAME);
 
-        String[] columns = { "timestamp, start_time, heart_rate" };
+        String[] columns = { "timestamp, latitude, longitude, altitude, accuracy" };
         String selection = "start_time = ?";
         String[] selectionArgs = {this.formatDate(startTime)};
         String sortOrder = "timestamp";
@@ -60,22 +64,22 @@ public class HeartRateTable extends AbstractTable {
         Cursor cursor = qb.query(this.db, columns, selection, selectionArgs, null,
                 null, sortOrder, limit);
 
-        List<SensorValue> dataList = new ArrayList<SensorValue>();
+        List<Location> dataList = new ArrayList<Location>();
 
         if (cursor.getCount() == 0) {
             return dataList;
         }
 
         cursor.moveToFirst();
-        try {
-            while (cursor.isAfterLast() == false) {
-                SensorValue v =
-                        new SensorValue(this.parseDate(cursor.getString(0)), cursor.getInt(2));
-                dataList.add(v);
-                cursor.moveToNext();
-            }
-        } catch (ParseException e) {
-            Log.e(TAG, e.getMessage(), e);
+        while (cursor.isAfterLast() == false) {
+            Location loc = new Location("");
+            loc.setTime(cursor.getLong(0));
+            loc.setLatitude(cursor.getDouble(1));
+            loc.setLongitude(cursor.getDouble(2));
+            loc.setAltitude(cursor.getDouble(3));
+            loc.setAccuracy(cursor.getFloat(4));
+            dataList.add(loc);
+            cursor.moveToNext();
         }
         cursor.close();
 
