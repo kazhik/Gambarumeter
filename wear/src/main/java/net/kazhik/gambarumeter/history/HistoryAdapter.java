@@ -1,6 +1,8 @@
 package net.kazhik.gambarumeter.history;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.wearable.view.WearableListView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -22,6 +24,7 @@ public class HistoryAdapter extends WearableListView.Adapter {
     private List<WorkoutInfo> dataSet;
     private final Context context;
     private final LayoutInflater inflater;
+    private String distanceUnit;
     private static final String TAG = "HistoryAdapter";
 
     // Provide a suitable constructor (depends on the kind of dataset)
@@ -29,6 +32,15 @@ public class HistoryAdapter extends WearableListView.Adapter {
         this.context = context;
         this.inflater = LayoutInflater.from(context);
         this.dataSet = dataset;
+
+        SharedPreferences prefs =
+                PreferenceManager.getDefaultSharedPreferences(context);
+        if (prefs.getString("distanceUnit", "metre").equals("mile")) {
+            this.distanceUnit = context.getResources().getString(R.string.mile);
+        } else {
+            this.distanceUnit = context.getResources().getString(R.string.km);
+        }
+
     }
 
     // Provide a reference to the type of views you're using
@@ -69,12 +81,32 @@ public class HistoryAdapter extends WearableListView.Adapter {
         long startTime = workout.getStartTime();
         long stopTime = workout.getStopTime();
         int stepCount = workout.getStepCount();
+        float distance = workout.getDistance();
+        int heartRate = workout.getHeartRate();
 
-        String startTimeStr = DateFormat.getDateTimeInstance().format(new Date(startTime));
+        String startTimeStr =
+                DateFormat.getDateTimeInstance().format(new Date(startTime));
         startTimeText.setText(startTimeStr);
-        String splitTimeStr = this.formatSplitTime(stopTime - startTime);
-        String stepCountStr = stepCount + this.context.getResources().getString(R.string.steps);
-        resultText.setText(splitTimeStr + "/" + stepCountStr);
+
+        String resultStr = this.formatSplitTime(stopTime - startTime);
+        if (distance > 0.0f) {
+            distance /= 1000f;
+
+            String distanceStr = String.format("%.2f%s",
+                    distance, this.distanceUnit);
+
+            resultStr += "/" + distanceStr;
+        } else if (heartRate > 0) {
+            String heartRateStr = String.format("%d%s", heartRate,
+                    this.context.getResources().getString(R.string.bpm));
+            resultStr += "/" + heartRateStr;
+        }
+        String stepCountStr = stepCount +
+                this.context.getResources().getString(R.string.steps);
+        resultStr += "/" + stepCountStr;
+
+        resultText.setText(resultStr);
+
         // replace list item's metadata
         holder.itemView.setTag(startTime);
     }
@@ -85,7 +117,7 @@ public class HistoryAdapter extends WearableListView.Adapter {
         long min = splitTimeSec / 60 - (hour * 60);
         long sec = splitTimeSec % 60;
 
-        return String.format("%02d:%02d:%02d", hour, min, sec);
+        return String.format("%d:%02d:%02d", hour, min, sec);
     }
 
     // Return the size of your dataset

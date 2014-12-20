@@ -6,7 +6,11 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.location.Location;
+import android.util.Log;
 
+import net.kazhik.gambarumeter.entity.SensorValue;
+
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,15 +75,19 @@ public class LocationTable extends AbstractTable {
         }
 
         cursor.moveToFirst();
-        while (cursor.isAfterLast() == false) {
-            Location loc = new Location("");
-            loc.setTime(cursor.getLong(0));
-            loc.setLatitude(cursor.getDouble(1));
-            loc.setLongitude(cursor.getDouble(2));
-            loc.setAltitude(cursor.getDouble(3));
-            loc.setAccuracy(cursor.getFloat(4));
-            dataList.add(loc);
-            cursor.moveToNext();
+        try {
+            while (cursor.isAfterLast() == false) {
+                Location loc = new Location("");
+                loc.setTime(this.parseDate(cursor.getString(0)));
+                loc.setLatitude(cursor.getDouble(1));
+                loc.setLongitude(cursor.getDouble(2));
+                loc.setAltitude(cursor.getDouble(3));
+                loc.setAccuracy(cursor.getFloat(4));
+                dataList.add(loc);
+                cursor.moveToNext();
+            }
+        } catch (ParseException e) {
+            Log.e(TAG, e.getMessage(), e);
         }
         cursor.close();
 

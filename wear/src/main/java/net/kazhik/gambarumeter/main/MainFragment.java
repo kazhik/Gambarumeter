@@ -25,13 +25,15 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import net.kazhik.gambarumeter.R;
+import net.kazhik.gambarumeter.entity.Lap;
+import net.kazhik.gambarumeter.entity.SensorValue;
 import net.kazhik.gambarumeter.monitor.GeolocationMonitor;
 import net.kazhik.gambarumeter.monitor.HeartRateMonitor;
-import net.kazhik.gambarumeter.entity.SensorValue;
 import net.kazhik.gambarumeter.monitor.SensorValueListener;
 import net.kazhik.gambarumeter.monitor.StepCountMonitor;
 import net.kazhik.gambarumeter.monitor.Stopwatch;
 import net.kazhik.gambarumeter.storage.HeartRateTable;
+import net.kazhik.gambarumeter.storage.LapTable;
 import net.kazhik.gambarumeter.storage.LocationTable;
 import net.kazhik.gambarumeter.storage.WorkoutTable;
 import net.kazhik.gambarumeter.view.DistanceView;
@@ -136,7 +138,10 @@ public class MainFragment extends Fragment
         this.stopWorkout();
         if (this.heartRateMonitor != null || this.locationMonitor != null) {
             if (this.locationMonitor != null) {
-                this.locationMonitor.disconnect();
+                this.locationMonitor.terminate();
+            }
+            if (this.heartRateMonitor != null) {
+                this.heartRateMonitor.terminate();
             }
             this.getActivity().getApplicationContext().unbindService(this);
         }
@@ -253,9 +258,12 @@ public class MainFragment extends Fragment
             this.stepCountMonitor.start();
         }
         if (this.locationMonitor != null) {
-            float lapDistance = 1000f;
+            float lapDistance;
             String distanceUnit = this.prefs.getString("distanceUnit", "metre");
             if (distanceUnit.equals("mile")) {
+                lapDistance = 1609.344f; //  lap/mile
+            } else {
+                lapDistance = 1000f;  // lap/km
             }
             // float lapDistance
             this.locationMonitor.start(lapDistance);
@@ -282,6 +290,8 @@ public class MainFragment extends Fragment
         int ret;
         try {
             long startTime = this.stopwatch.getStartTime();
+
+            // WorkoutTable
             int stepCount = 0;
             if (this.stepCountMonitor != null) {
                 stepCount = this.stepCountMonitor.getStepCount();
@@ -290,6 +300,10 @@ public class MainFragment extends Fragment
             if (this.locationMonitor != null) {
                 distance = this.locationMonitor.getDistance();
             }
+            int heartRate = 0;
+            if (this.heartRateMonitor != null) {
+                heartRate = this.heartRateMonitor.getAverageHeartRate();
+            }
 
             WorkoutTable workoutTable = new WorkoutTable(this.getActivity());
             workoutTable.open(false);
@@ -297,11 +311,13 @@ public class MainFragment extends Fragment
                     startTime,
                     this.stopwatch.getStopTime(),
                     stepCount,
-                    distance);
+                    distance,
+                    heartRate);
             workoutTable.close();
 
             Log.d(TAG, "insert: " + ret + "; " + startTime);
 
+            // HeartRateTable
             if (this.heartRateMonitor != null) {
                 HeartRateTable heartRateTable = new HeartRateTable(this.getActivity());
                 heartRateTable.open(false);
@@ -313,10 +329,13 @@ public class MainFragment extends Fragment
                 }
                 heartRateTable.close();
             }
+
+            // LocationTable, LapTable
             if (this.locationMonitor != null) {
                 LocationTable locTable = new LocationTable(this.getActivity());
                 locTable.open(false);
                 for (Location loc: this.locationMonitor.getLocationList()) {
+                    Log.d(TAG, "saveResult:" + loc.getTime());
                     locTable.insert(loc.getTime(),
                             startTime,
                             loc.getLatitude(),
@@ -326,6 +345,12 @@ public class MainFragment extends Fragment
                 }
                 locTable.close();
 
+                LapTable lapTable = new LapTable(this.getActivity());
+                lapTable.open(false);
+                for (Lap lap: this.locationMonitor.getLaps()) {
+                    lapTable.insert(lap.getTimestamp(), startTime, lap.getDistance());
+                }
+                lapTable.close();
             }
 
         } catch (SQLException e) {
@@ -353,9 +378,10 @@ public class MainFragment extends Fragment
     }
 
     @Override
-    public void onLocationChanged(long timestamp, float distance) {
+    public void onLocationChanged(long timestamp, float distance, float speed) {
         String distanceUnit = this.prefs.getString("distanceUnit", "metre");
         if (distanceUnit.equals("mile")) {
+            distance /= 1609.344f;
         } else if (distanceUnit.equals("metre")) {
             distance /= 1000f;
         }
@@ -364,6 +390,11 @@ public class MainFragment extends Fragment
         this.getActivity().runOnUiThread(this.distanceView);
 
         this.notificationView.updateDistance(distance);
+    }
+
+    @Override
+    public void onLocationAvailable() {
+
     }
 
     @Override

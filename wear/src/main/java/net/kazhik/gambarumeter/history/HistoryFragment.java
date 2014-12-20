@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import net.kazhik.gambarumeter.R;
 import net.kazhik.gambarumeter.detail.HeartRateDetailFragment;
+import net.kazhik.gambarumeter.detail.LocationDetailFragment;
 import net.kazhik.gambarumeter.entity.WorkoutInfo;
 import net.kazhik.gambarumeter.storage.WorkoutTable;
 
@@ -27,9 +28,16 @@ public class HistoryFragment extends Fragment
         implements WearableListView.ClickListener,
         View.OnLongClickListener,
         DialogInterface.OnClickListener {
-    private static final String TAG = "HistoryFragment";
+
+    private enum DetailMode {
+        HEART_RATE,
+        LOCATION
+    };
+
+    private DetailMode detailMode;
     private long startTime;
     private boolean editMode = false;
+    private static final String TAG = "HistoryFragment";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -48,6 +56,10 @@ public class HistoryFragment extends Fragment
 
         HistoryAdapter adapter = new HistoryAdapter(this.getActivity(), workoutInfos);
         WearableListView listView = (WearableListView)this.getActivity().findViewById(R.id.history_list);
+        if (listView == null) {
+            Log.d(TAG, "historyList not found");
+            return;
+        }
         listView.setAdapter(adapter);
         listView.setClickListener(this);
         listView.setGreedyTouchMode(true);
@@ -56,7 +68,11 @@ public class HistoryFragment extends Fragment
         adapter.notifyDataSetChanged();
 
         if (!workoutInfos.isEmpty()) {
-            this.startTime = workoutInfos.get(0).getStartTime();
+            WorkoutInfo workoutInfo = workoutInfos.get(0);
+            this.startTime = workoutInfo.getStartTime();
+            this.detailMode = (workoutInfo.getHeartRate() > 0?
+                    DetailMode.HEART_RATE: DetailMode.LOCATION);
+
         }
     }
 
@@ -83,12 +99,17 @@ public class HistoryFragment extends Fragment
 
             confirmDelete.show();
         } else {
-            HeartRateDetailFragment fragment = new HeartRateDetailFragment();
-            fragment.read(startTime);
-
             FragmentManager fragmentManager = getFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.add(R.id.history_layout, fragment);
+            if (this.detailMode == DetailMode.HEART_RATE) {
+                HeartRateDetailFragment fragment = new HeartRateDetailFragment();
+                fragment.setStartTime(startTime);
+                fragmentTransaction.add(R.id.history_layout, fragment);
+            } else if (this.detailMode == DetailMode.LOCATION) {
+                LocationDetailFragment fragment = new LocationDetailFragment();
+                fragment.setStartTime(startTime);
+                fragmentTransaction.add(R.id.history_layout, fragment);
+            }
             fragmentTransaction.commit();
         }
 

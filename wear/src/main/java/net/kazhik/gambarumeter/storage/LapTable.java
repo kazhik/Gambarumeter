@@ -5,9 +5,10 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
+import android.location.Location;
 import android.util.Log;
 
-import net.kazhik.gambarumeter.entity.WorkoutInfo;
+import net.kazhik.gambarumeter.entity.Lap;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -16,19 +17,16 @@ import java.util.List;
 /**
  * Created by kazhik on 14/11/08.
  */
-public class WorkoutTable extends AbstractTable {
-    public static final String TABLE_NAME = "gm_workout";
+public class LapTable extends AbstractTable {
+    public static final String TABLE_NAME = "gm_lap";
     private static final String CREATE_TABLE =
             "CREATE TABLE " + TABLE_NAME + " (" +
-                    "start_time DATETIME PRIMARY KEY," +
-                    "stop_time DATETIME," +
-                    "step_count INTEGER," +
-                    "heart_rate INTEGER," +
-                    "distance REAL" +
-                    ")";
-    private static final String TAG = "WorkoutTable";
+                    "timestamp DATETIME PRIMARY KEY," +
+                    "start_time DATETIME," +
+                    "distance REAL)";
+    private static final String TAG = "LapTable";
 
-    public WorkoutTable(Context context) {
+    public LapTable(Context context) {
         super(context);
     }
     public static void init(SQLiteDatabase db){
@@ -39,59 +37,51 @@ public class WorkoutTable extends AbstractTable {
         AbstractTable.upgrade(db, TABLE_NAME, CREATE_TABLE);
     }
 
-    public int insert(long startTime, long stopTime, int stepCount, float distance, int heartRate) {
+    public int insert(long timestamp, long startTime,
+                      float distance) {
         ContentValues values = new ContentValues();
 
+        values.put("timestamp", this.formatDate(timestamp));
         values.put("start_time", this.formatDate(startTime));
-        values.put("stop_time", this.formatDate(stopTime));
-        values.put("step_count", stepCount);
         values.put("distance", distance);
-        values.put("heart_rate", heartRate);
 
         return (int)this.db.insert(TABLE_NAME, null, values);
 
     }
-    public List<WorkoutInfo> selectAll(int max) {
+    public List<Lap> selectAll(long startTime, int max) {
+
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
         qb.setTables(TABLE_NAME);
 
-        String[] columns = { "start_time", "stop_time", "step_count", "distance", "heart_rate" };
-        String selection = null;
-        String[] selectionArgs = null;
-        String sortOrder = "start_time desc";
+        String[] columns = { "timestamp, distance" };
+        String selection = "start_time = ?";
+        String[] selectionArgs = {this.formatDate(startTime)};
+        String sortOrder = "timestamp";
         String limit = (max == 0)? null: Integer.toString(max);
 
         Cursor cursor = qb.query(this.db, columns, selection, selectionArgs, null,
                 null, sortOrder, limit);
 
-        List<WorkoutInfo> dataList = new ArrayList<WorkoutInfo>();
+        List<Lap> dataList = new ArrayList<Lap>();
 
         if (cursor.getCount() == 0) {
             return dataList;
         }
 
+        cursor.moveToFirst();
         try {
-            cursor.moveToFirst();
-            while (!cursor.isAfterLast()) {
-                WorkoutInfo workout = new WorkoutInfo(
-                        this.parseDate(cursor.getString(0)),
-                        this.parseDate(cursor.getString(1)),
-                        cursor.getInt(2),
-                        cursor.getFloat(3),
-                        cursor.getInt(4));
-                dataList.add(workout);
+            while (cursor.isAfterLast() == false) {
+                Lap lap = new Lap(this.parseDate(cursor.getString(0)), cursor.getFloat(1));
+                dataList.add(lap);
                 cursor.moveToNext();
             }
         } catch (ParseException e) {
             Log.e(TAG, e.getMessage(), e);
-        } finally {
-            cursor.close();
         }
+        cursor.close();
 
         return dataList;
-
     }
-
     public boolean delete(long startTime) {
         String where = "start_time = ?";
         String[] whereArgs = {this.formatDate(startTime)};
@@ -101,5 +91,6 @@ public class WorkoutTable extends AbstractTable {
     public String getTableName(){
         return TABLE_NAME;
     }
+
 
 }

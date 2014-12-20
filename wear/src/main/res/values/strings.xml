@@ -18,4 +18,7 @@
     <string name="edit_mode">Edit mode</string>
     <string name="view_mode">View mode</string>
 
+    <string name="mile">mile</string>
+    <string name="km">km</string>
+
 </resources>

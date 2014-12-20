@@ -57,11 +57,11 @@ public class HeartRateDetailFragment extends Fragment
     }
 
     private long startTime;
-    private static final String TAG = "DetailFragment";
+    private static final String TAG = "HeartRateDetailFragment";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.detail, container, false);
+        return inflater.inflate(R.layout.heartrate_detail, container, false);
     }
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -91,7 +91,7 @@ public class HeartRateDetailFragment extends Fragment
 
         this.refreshView(result);
     }
-    public void read(long startTime) {
+    public void setStartTime(long startTime) {
         this.startTime = startTime;
 
     }

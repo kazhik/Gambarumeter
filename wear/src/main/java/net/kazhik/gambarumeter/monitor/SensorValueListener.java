@@ -8,6 +8,7 @@ import android.location.Location;
 public interface SensorValueListener {
     public void onHeartRateChanged(long timestamp, int rate);
     public void onStepCountChanged(long timestamp, int stepCount);
-    public void onLocationChanged(long timestamp, float distance);
+    public void onLocationChanged(long timestamp, float distance, float speed);
+    public void onLocationAvailable();
     public void onLap(long timestamp, float distance, long lap);
 }

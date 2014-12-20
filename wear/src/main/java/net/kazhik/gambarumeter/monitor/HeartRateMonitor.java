@@ -28,6 +28,7 @@ public class HeartRateMonitor extends Service implements SensorEventListener {
     private List<SensorValue> dataList = new ArrayList<SensorValue>();
     private HeartRateBinder binder = new HeartRateBinder();
     private static final String TAG = "HeartRateMonitor";
+    private boolean started = false;
 
     public class HeartRateBinder extends Binder {
 
@@ -44,17 +45,33 @@ public class HeartRateMonitor extends Service implements SensorEventListener {
         this.heartRateSensor = this.sensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
         if (this.heartRateSensor == null) {
             Log.w(TAG, "no heart rate sensor");
+            return;
         }
+        this.sensorManager.registerListener(this, this.heartRateSensor, SensorManager.SENSOR_DELAY_NORMAL);
+    }
+    public void terminate() {
+        this.sensorManager.unregisterListener(this, this.heartRateSensor);
+
     }
     public void start() {
         this.dataList.clear();
-        this.sensorManager.registerListener(this, this.heartRateSensor, SensorManager.SENSOR_DELAY_NORMAL);
 
+        this.started = true;
     }
     public void stop() {
-        this.sensorManager.unregisterListener(this, this.heartRateSensor);
+        this.started = false;
 
         this.printDataList();
+    }
+    public int getAverageHeartRate() {
+        if (this.dataList.isEmpty()) {
+            return 0;
+        }
+        long sum = 0;
+        for (SensorValue val: this.dataList) {
+            sum += val.getValue();
+        }
+        return (int)(sum / this.dataList.size());
     }
     public List<SensorValue> getDataList() {
         return this.dataList;
@@ -89,7 +106,9 @@ public class HeartRateMonitor extends Service implements SensorEventListener {
         long newTimestamp = sensorEvent.timestamp / (1000 * 1000);
         if (sensorEvent.values[0] != this.currentValue.getValue()) {
             this.listener.onHeartRateChanged(newTimestamp, (int)sensorEvent.values[0]);
-            this.storeHeartRate(newTimestamp, sensorEvent.values[0]);
+            if (this.started) {
+                this.storeHeartRate(newTimestamp, sensorEvent.values[0]);
+            }
         }
 
         this.currentValue.setTimestamp(newTimestamp);

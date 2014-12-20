@@ -3,14 +3,11 @@ package net.kazhik.gambarumeter.monitor;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.preference.PreferenceManager;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -20,6 +17,8 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.wearable.Wearable;
+
+import net.kazhik.gambarumeter.entity.Lap;
 
 import java.util.List;
 
@@ -77,6 +76,7 @@ public class GeolocationMonitor extends Service
         this.started = true;
     }
     public void stop() {
+        this.record.addLap(System.currentTimeMillis());
         this.started = false;
 
     }
@@ -86,9 +86,12 @@ public class GeolocationMonitor extends Service
     public List<Location> getLocationList() {
         return this.record.getLocationList();
     }
+    public List<Lap> getLaps() {
+        return this.record.getLaps();
+    }
 
-    public void disconnect() {
-        Log.d(TAG, "disconnect");
+    public void terminate() {
+        Log.d(TAG, "terminate");
         if (this.googleApiClient.isConnected()) {
             LocationServices.FusedLocationApi
                     .removeLocationUpdates(this.googleApiClient, this);
@@ -133,15 +136,21 @@ public class GeolocationMonitor extends Service
 
     @Override
     public void onLocationChanged(Location location) {
+        Log.d(TAG, "onLocationChanged: ");
 
         if (this.started == false) {
+            this.listener.onLocationAvailable();
             return;
         }
         long lap = this.record.setCurrentLocation(location);
         if (lap > 0) {
-            this.listener.onLap(location.getTime(), this.record.getDistance(), lap);
+            this.listener.onLap(location.getTime(),
+                    this.record.getDistance(),
+                    lap);
         }
-        this.listener.onLocationChanged(location.getTime(), this.record.getDistance());
+        this.listener.onLocationChanged(location.getTime(),
+                this.record.getDistance(),
+                location.getSpeed());
 
     }
 

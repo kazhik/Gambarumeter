@@ -8,12 +8,14 @@ public class WorkoutInfo {
     private long stopTime;
     private int stepCount;
     private float distance;
+    private int heartRate;
 
-    public WorkoutInfo(long startTime, long stopTime, int stepCount, float distance) {
+    public WorkoutInfo(long startTime, long stopTime, int stepCount, float distance, int heartRate) {
         this.startTime = startTime;
         this.stopTime = stopTime;
         this.stepCount = stepCount;
         this.distance = distance;
+        this.heartRate = heartRate;
     }
 
     public long getStartTime() {
@@ -47,4 +49,12 @@ public class WorkoutInfo {
     public void setDistance(float distance) {
         this.distance = distance;
     }
+
+    public int getHeartRate() {
+        return this.heartRate;
+    }
+    public void setHeartRate(int heartRate) {
+        this.heartRate = heartRate;
+    }
+
 }

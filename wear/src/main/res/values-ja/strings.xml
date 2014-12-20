@@ -16,4 +16,7 @@
     <string name="edit_mode">編集モード</string>
     <string name="view_mode">閲覧モード</string>
 
+    <string name="mile">mile</string>
+    <string name="km">km</string>
+
 </resources>

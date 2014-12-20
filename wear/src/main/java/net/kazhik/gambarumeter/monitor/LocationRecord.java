@@ -1,8 +1,10 @@
 package net.kazhik.gambarumeter.monitor;
 
 import android.location.Location;
+import android.util.Log;
 
 import net.kazhik.gambarumeter.entity.Distance;
+import net.kazhik.gambarumeter.entity.Lap;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,11 +17,12 @@ public class LocationRecord {
     private float realDistance = 0;
     private double elevationGain = 0;
     private List<Location> locations = new ArrayList<Location>();
-    private List<Long> laptimes = new ArrayList<Long>();
+    private List<Lap> laptimes = new ArrayList<Lap>();
 
     private float lapDistance = 1000;
 
     private final int MIN_ACCURACY = 10; // 10 metre
+    private static final String TAG = "LocationRecord";
 
     public void init(float lapDistance) {
         this.lapDistance = lapDistance;
@@ -62,7 +65,7 @@ public class LocationRecord {
 
     }
     public void addLap(long timestamp) {
-        this.laptimes.add(timestamp);
+        this.laptimes.add(new Lap(timestamp, this.realDistance));
     }
     private long autoLap(long timestamp, float distance) {
         float oldDistance = this.realDistance;
@@ -70,9 +73,9 @@ public class LocationRecord {
 
         if (Math.floor(oldDistance / this.lapDistance) !=
                 Math.floor(newDistance / this.lapDistance)) {
-            this.laptimes.add(timestamp);
+            this.laptimes.add(new Lap(timestamp, newDistance));
             if (this.laptimes.size() > 1) {
-                return timestamp - this.laptimes.get(this.laptimes.size() - 2).longValue();
+                return timestamp - this.laptimes.get(this.laptimes.size() - 2).getTimestamp();
             } else {
                 return 0;
             }
@@ -81,20 +84,19 @@ public class LocationRecord {
 
     }
     public long setCurrentLocation(Location location) {
-        if (location.getAccuracy() > MIN_ACCURACY) {
-            return 0;
-        }
+        Log.d(TAG, "setCurrentLocation: " + location.getTime());
 
         Distance latestMove = this.calculateDistance(location);
         if (this.prevLocation != null) {
             if (latestMove.getDistance() == 0.0f) {
+                Log.d(TAG, "Not moved");
                 return 0;
             }
         }
 
         long lap = this.autoLap(location.getTime(), latestMove.getDistance());
 
-        this.locations.add(location);
+        this.locations.add(new Location(location));
 
         if (this.prevLocation == null) {
             this.prevLocation = location;
@@ -120,6 +122,9 @@ public class LocationRecord {
         return this.elevationGain;
     }
 
+    public List<Lap> getLaps() {
+        return this.laptimes;
+    }
     public List<Location> getLocationList() {
         return this.locations;
     }
