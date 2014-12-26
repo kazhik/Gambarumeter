@@ -4,32 +4,15 @@ import android.app.Activity;
 import android.database.SQLException;
 import android.os.Bundle;
 import android.support.wearable.view.GridViewPager;
-import android.support.wearable.view.WatchViewStub;
 import android.util.Log;
-import android.widget.TextView;
 
 import net.kazhik.gambarumeter.storage.DataStorage;
 import net.kazhik.gambarumeter.storage.HeartRateTable;
 import net.kazhik.gambarumeter.storage.WorkoutTable;
 
-public class Gambarumeter extends Activity
-        implements WatchViewStub.OnLayoutInflatedListener {
+public class Gambarumeter extends Activity {
 
     private static final String TAG = "Gambarumeter";
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        if (savedInstanceState != null) {
-            Log.d(TAG, "onRestoreInstanceState: " + savedInstanceState.getLong("start_time"));
-        }
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        outState.putLong("start_time", 566);
-        super.onSaveInstanceState(outState);
-    }
 
     @Override
     protected void onDestroy() {
@@ -44,29 +27,17 @@ public class Gambarumeter extends Activity
 
         Log.d(TAG, "onCreate");
 
-        setContentView(R.layout.stub);
+        setContentView(R.layout.pager);
 
         this.initializeDatabase();
 
-        WatchViewStub stub = (WatchViewStub) findViewById(R.id.stub);
-        stub.setOnLayoutInflatedListener(this);
-
-    }
-
-    @Override
-    public void onLayoutInflated(WatchViewStub watchViewStub) {
-        this.initPager();
-    }
-
-    private void initPager() {
-        Log.d(TAG, "initPager: ");
-        PagerAdapter pagerAdapter = new PagerAdapter(this, this.getFragmentManager());
-
         GridViewPager pager = (GridViewPager) findViewById(R.id.pager);
+        PagerAdapter pagerAdapter = new PagerAdapter(this, this.getFragmentManager());
         pager.setOnPageChangeListener(pagerAdapter);
         pager.setAdapter(pagerAdapter);
 
     }
+
     private void initializeDatabase() {
         try {
             DataStorage storage = new DataStorage(this);
