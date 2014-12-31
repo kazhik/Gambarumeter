@@ -72,6 +72,8 @@ public class HeartRateDetailFragment extends Fragment
         ImageButton deleteButton = (ImageButton)activity.findViewById(R.id.delete);
         deleteButton.setOnClickListener(this);
 
+        Log.d(TAG, "onActivityCreated");
+
         List<SensorValue> heartRates = new ArrayList<SensorValue>();
         try {
 
@@ -135,6 +137,7 @@ public class HeartRateDetailFragment extends Fragment
     @Override
     public void onClick(View v) {
 
+        Log.d(TAG, "onClick");
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.remove(this);

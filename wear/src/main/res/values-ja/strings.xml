@@ -8,6 +8,7 @@
     <string name="confirm_delete">このレコードを削除しますか？</string>
     <string name="delete">削除</string>
     <string name="cancel">キャンセル</string>
+    <string name="close">閉じる</string>
 
     <string name="min">最低</string>
     <string name="max">最高</string>
@@ -19,4 +20,5 @@
     <string name="mile">mile</string>
     <string name="km">km</string>
 
+    <string name="gps_off">位置情報がOFFになっています</string>
 </resources>

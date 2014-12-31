@@ -30,11 +30,12 @@ public class HistoryFragment extends Fragment
         DialogInterface.OnClickListener {
 
     private enum DetailMode {
+        NONE,
         HEART_RATE,
         LOCATION
     };
 
-    private DetailMode detailMode;
+    private DetailMode detailMode = DetailMode.NONE;
     private long startTime;
     private boolean editMode = false;
     private static final String TAG = "HistoryFragment";
@@ -70,8 +71,11 @@ public class HistoryFragment extends Fragment
         if (!workoutInfos.isEmpty()) {
             WorkoutInfo workoutInfo = workoutInfos.get(0);
             this.startTime = workoutInfo.getStartTime();
-            this.detailMode = (workoutInfo.getHeartRate() > 0?
-                    DetailMode.HEART_RATE: DetailMode.LOCATION);
+            if (workoutInfo.getHeartRate() > 0) {
+                this.detailMode = DetailMode.HEART_RATE;
+            } else if (workoutInfo.getDistance() > 0) {
+                this.detailMode = DetailMode.LOCATION;
+            }
 
         }
     }
@@ -102,10 +106,12 @@ public class HistoryFragment extends Fragment
             FragmentManager fragmentManager = getFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             if (this.detailMode == DetailMode.HEART_RATE) {
+                Log.d(TAG, "onClick, heart rate");
                 HeartRateDetailFragment fragment = new HeartRateDetailFragment();
                 fragment.setStartTime(startTime);
                 fragmentTransaction.add(R.id.history_layout, fragment);
             } else if (this.detailMode == DetailMode.LOCATION) {
+                Log.d(TAG, "onClick, location");
                 LocationDetailFragment fragment = new LocationDetailFragment();
                 fragment.setStartTime(startTime);
                 fragmentTransaction.add(R.id.history_layout, fragment);

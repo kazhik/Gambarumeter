@@ -7,6 +7,7 @@ import android.app.FragmentTransaction;
 import android.database.SQLException;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.wearable.view.WearableListView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,9 +16,15 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import net.kazhik.gambarumeter.R;
+import net.kazhik.gambarumeter.entity.Lap;
 import net.kazhik.gambarumeter.entity.SensorValue;
+import net.kazhik.gambarumeter.entity.WorkoutInfo;
+import net.kazhik.gambarumeter.history.HistoryAdapter;
+import net.kazhik.gambarumeter.net.kazhik.gambarumeter.util.Util;
 import net.kazhik.gambarumeter.storage.HeartRateTable;
+import net.kazhik.gambarumeter.storage.LapTable;
 import net.kazhik.gambarumeter.storage.LocationTable;
+import net.kazhik.gambarumeter.storage.WorkoutTable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,21 +32,17 @@ import java.util.List;
 /**
  * Created by kazhik on 14/11/18.
  */
-public class LocationDetailFragment extends Fragment implements View.OnClickListener {
+public class LocationDetailFragment extends Fragment
+        implements WearableListView.ClickListener {
 
     private long startTime;
     private static final String TAG = "LocationDetailFragment";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.heartrate_detail, container, false);
+        return inflater.inflate(R.layout.location_detail, container, false);
     }
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        Activity activity = this.getActivity();
-
+    private void getLocations() {
         List<Location> locations = new ArrayList<Location>();
         try {
             LocationTable locTable = new LocationTable(this.getActivity());
@@ -57,26 +60,115 @@ public class LocationDetailFragment extends Fragment implements View.OnClickList
 
         for (Location loc: locations) {
             Log.d(TAG, loc.getTime() + "; Lat: " + loc.getLatitude()
-                    + "; Lon: " + loc.getLongitude()
-                    + "; Alt: " + loc.getAltitude()
-                    + "; Accuracy: " + loc.getAccuracy()
+                            + "; Lon: " + loc.getLongitude()
+                            + "; Alt: " + loc.getAltitude()
+                            + "; Accuracy: " + loc.getAccuracy()
             );
         }
 
+
     }
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        this.refreshListItem();
+    }
+    public void refreshListItem() {
+        Activity activity = this.getActivity();
+        List<Lap> laps = new ArrayList<Lap>();
+        try {
+            LapTable lapTable = new LapTable(activity);
+            lapTable.open(true);
+            laps = lapTable.selectAll(this.startTime, 0);
+            lapTable.close();
+
+        } catch (SQLException e) {
+            Log.e(TAG, e.getMessage(), e);
+        }
+
+        if (laps.isEmpty()) {
+            return;
+        }
+
+        List<Lap> laptimes = new ArrayList<Lap>();
+        long prevTimestamp = 0;
+        for (Lap lap: laps) {
+            long currentLap = (lap.getTimestamp() - prevTimestamp) / 1000;
+            if (prevTimestamp != 0) {
+                Log.d(TAG, lap.getDistance() + ": " + currentLap);
+
+                laptimes.add(new Lap(lap.getTimestamp(), lap.getDistance(), currentLap));
+            }
+            prevTimestamp = lap.getTimestamp();
+        }
+
+        LocationDetailAdapter adapter =
+                new LocationDetailAdapter(this.getActivity(), laptimes);
+
+        WearableListView listView =
+                (WearableListView)this.getActivity().findViewById(R.id.location_list);
+        if (listView == null) {
+            Log.d(TAG, "locationList not found");
+            return;
+        }
+        listView.setAdapter(adapter);
+        listView.setGreedyTouchMode(true);
+        listView.setClickListener(this);
+        adapter.notifyDataSetChanged();
+
+    }
+    /*
+    public void refreshListItem() {
+        WorkoutTable workoutTable = new WorkoutTable(this.getActivity());
+        workoutTable.open(true);
+        List<WorkoutInfo> workoutInfos = workoutTable.selectAll(0);
+        workoutTable.close();
+
+        HistoryAdapter adapter = new HistoryAdapter(this.getActivity(), workoutInfos);
+        WearableListView listView = (WearableListView)this.getActivity().findViewById(R.id.history_list);
+        if (listView == null) {
+            Log.d(TAG, "historyList not found");
+            return;
+        }
+        listView.setAdapter(adapter);
+        listView.setClickListener(this);
+        listView.setGreedyTouchMode(true);
+        listView.setLongClickable(true);
+        listView.setOnLongClickListener(this);
+        adapter.notifyDataSetChanged();
+
+        if (!workoutInfos.isEmpty()) {
+            WorkoutInfo workoutInfo = workoutInfos.get(0);
+            this.startTime = workoutInfo.getStartTime();
+            if (workoutInfo.getHeartRate() > 0) {
+                this.detailMode = DetailMode.HEART_RATE;
+            } else if (workoutInfo.getDistance() > 0) {
+                this.detailMode = DetailMode.LOCATION;
+            }
+
+        }
+    }
+    */
+
+
     public void setStartTime(long startTime) {
         this.startTime = startTime;
 
     }
 
     @Override
-    public void onClick(View v) {
+    public void onClick(WearableListView.ViewHolder viewHolder) {
+        Log.d(TAG, "onClick");
 
+    }
+
+    @Override
+    public void onTopEmptyRegionClick() {
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.remove(this);
         fragmentTransaction.commit();
-
 
     }
 }

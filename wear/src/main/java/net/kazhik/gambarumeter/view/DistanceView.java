@@ -13,12 +13,20 @@ public class DistanceView implements Runnable {
     public void initialize(TextView textView) {
         this.distanceText = textView;
 
+        this.setEnable(false);
     }
 
     public DistanceView setDistance(float distance) {
         this.distance = distance;
 
         return this;
+    }
+    public void setEnable(boolean enabled) {
+        if (enabled) {
+            this.distanceText.setText("0.00");
+        } else {
+            this.distanceText.setText("-.--");
+        }
     }
 
     public void refresh() {

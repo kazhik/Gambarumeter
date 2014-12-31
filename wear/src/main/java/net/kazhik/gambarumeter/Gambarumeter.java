@@ -36,8 +36,8 @@ public class Gambarumeter extends Activity {
         pager.setOnPageChangeListener(pagerAdapter);
         pager.setAdapter(pagerAdapter);
 
-    }
 
+    }
     private void initializeDatabase() {
         try {
             DataStorage storage = new DataStorage(this);

@@ -10,6 +10,7 @@
     <string name="confirm_delete">Are you sure to delete this record?</string>
     <string name="delete">Delete</string>
     <string name="cancel">Cancel</string>
+    <string name="close">Close</string>
 
     <string name="min">Min</string>
     <string name="max">Max</string>
@@ -20,5 +21,7 @@
 
     <string name="mile">mile</string>
     <string name="km">km</string>
+
+    <string name="gps_off">Geolocation setting is off</string>
 
 </resources>

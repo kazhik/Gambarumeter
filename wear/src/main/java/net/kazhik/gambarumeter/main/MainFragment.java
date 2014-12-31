@@ -12,6 +12,7 @@ import android.database.SQLException;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
@@ -23,6 +24,7 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import net.kazhik.gambarumeter.R;
 import net.kazhik.gambarumeter.entity.Lap;
@@ -32,6 +34,7 @@ import net.kazhik.gambarumeter.monitor.HeartRateMonitor;
 import net.kazhik.gambarumeter.monitor.SensorValueListener;
 import net.kazhik.gambarumeter.monitor.StepCountMonitor;
 import net.kazhik.gambarumeter.monitor.Stopwatch;
+import net.kazhik.gambarumeter.net.kazhik.gambarumeter.util.Util;
 import net.kazhik.gambarumeter.storage.HeartRateTable;
 import net.kazhik.gambarumeter.storage.LapTable;
 import net.kazhik.gambarumeter.storage.LocationTable;
@@ -195,14 +198,26 @@ public class MainFragment extends Fragment
         }
 
         if (activity.getPackageManager().hasSystemFeature(PackageManager.FEATURE_LOCATION_GPS)) {
-            Intent intent = new Intent(activity, GeolocationMonitor.class);
-            appContext.bindService(intent, this, Context.BIND_AUTO_CREATE);
-            this.locationMonitor = new GeolocationMonitor(); // temporary
+
+            if (this.isGpsEnabled(appContext)) {
+                Intent intent = new Intent(activity, GeolocationMonitor.class);
+                appContext.bindService(intent, this, Context.BIND_AUTO_CREATE);
+                this.locationMonitor = new GeolocationMonitor(); // temporary
+            } else {
+                Toast.makeText(appContext, appContext.getString(R.string.gps_off), Toast.LENGTH_LONG)
+                        .show();
+            }
+
         }
 
 
         this.stopwatch = new Stopwatch(1000L, this);
 
+    }
+    private boolean isGpsEnabled(Context context) {
+
+        LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        return lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
     }
     private void initializeUI() {
         Activity activity = this.getActivity();
@@ -380,11 +395,7 @@ public class MainFragment extends Fragment
     @Override
     public void onLocationChanged(long timestamp, float distance, float speed) {
         String distanceUnit = this.prefs.getString("distanceUnit", "metre");
-        if (distanceUnit.equals("mile")) {
-            distance /= 1609.344f;
-        } else if (distanceUnit.equals("metre")) {
-            distance /= 1000f;
-        }
+        distance = Util.convertMeter(distance, distanceUnit);
 
         this.distanceView.setDistance(distance);
         this.getActivity().runOnUiThread(this.distanceView);
@@ -394,7 +405,7 @@ public class MainFragment extends Fragment
 
     @Override
     public void onLocationAvailable() {
-
+        this.distanceView.setEnable(true);
     }
 
     @Override
