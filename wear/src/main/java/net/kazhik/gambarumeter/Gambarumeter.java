@@ -8,6 +8,7 @@ import android.util.Log;
 
 import net.kazhik.gambarumeter.storage.DataStorage;
 import net.kazhik.gambarumeter.storage.HeartRateTable;
+import net.kazhik.gambarumeter.storage.LocationTable;
 import net.kazhik.gambarumeter.storage.WorkoutTable;
 
 public class Gambarumeter extends Activity {
@@ -51,6 +52,10 @@ public class Gambarumeter extends Activity {
             HeartRateTable heartRateTable = new HeartRateTable(this);
             heartRateTable.open(false);
             heartRateTable.close();
+
+            LocationTable locationTable = new LocationTable(this);
+            locationTable.open(false);
+            locationTable.close();
 
         } catch (SQLException e) {
             Log.e(TAG, e.getMessage(), e);

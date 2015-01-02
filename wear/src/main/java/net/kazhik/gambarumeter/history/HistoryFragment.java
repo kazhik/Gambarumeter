@@ -52,7 +52,7 @@ public class HistoryFragment extends Fragment
     public void refreshListItem() {
         WorkoutTable workoutTable = new WorkoutTable(this.getActivity());
         workoutTable.open(true);
-        List<WorkoutInfo> workoutInfos = workoutTable.selectAll(0);
+        List<WorkoutInfo> workoutInfos = workoutTable.selectAll();
         workoutTable.close();
 
         HistoryAdapter adapter = new HistoryAdapter(this.getActivity(), workoutInfos);

@@ -11,7 +11,6 @@ public class DataStorage {
     public static final String DATABASE_NAME = "gambarumeter.sqlite";
     public static final int DATABASE_VERSION = 6;
 
-    private final Context context;
     private DatabaseHelper DBHelper;
     private static final String TAG = "DataStorage";
 
@@ -21,16 +20,12 @@ public class DataStorage {
      * @param ctx
      */
     public DataStorage(Context ctx) {
-        this.context = ctx;
-        this.DBHelper = new DatabaseHelper(this.context);
+        this.DBHelper = new DatabaseHelper(ctx);
     }
 
     private static class DatabaseHelper extends SQLiteOpenHelper {
-        private Context context;
-
         DatabaseHelper(Context context) {
             super(context, DATABASE_NAME, null, DATABASE_VERSION);
-            this.context = context;
         }
 
         @Override

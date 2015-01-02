@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
-import android.location.Location;
 import android.util.Log;
 
 import net.kazhik.gambarumeter.entity.Lap;
@@ -47,6 +46,9 @@ public class LapTable extends AbstractTable {
 
         return (int)this.db.insert(TABLE_NAME, null, values);
 
+    }
+    public List<Lap> selectAll(long startTime) {
+        return this.selectAll(startTime, 0);
     }
     public List<Lap> selectAll(long startTime, int max) {
 

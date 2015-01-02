@@ -8,8 +8,6 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.location.Location;
 import android.util.Log;
 
-import net.kazhik.gambarumeter.entity.SensorValue;
-
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,19 +38,22 @@ public class LocationTable extends AbstractTable {
         AbstractTable.upgrade(db, TABLE_NAME, CREATE_TABLE);
     }
 
-    public int insert(long timestamp, long startTime,
-                      double latitude, double longitude, double altitude, float accuracy) {
+    public int insert(long startTime, Location loc) {
         ContentValues values = new ContentValues();
 
-        values.put("timestamp", this.formatDate(timestamp));
+        values.put("timestamp", this.formatDate(loc.getTime()));
         values.put("start_time", this.formatDate(startTime));
-        values.put("latitude", latitude);
-        values.put("longitude", longitude);
-        values.put("altitude", altitude);
-        values.put("accuracy", accuracy);
+        values.put("latitude", loc.getLatitude());
+        values.put("longitude", loc.getLongitude());
+        values.put("altitude", loc.getAltitude());
+        values.put("accuracy", loc.getAccuracy());
 
         return (int)this.db.insert(TABLE_NAME, null, values);
 
+    }
+
+    public List<Location> selectAll(long startTime) {
+        return this.selectAll(startTime, 0);
     }
     public List<Location> selectAll(long startTime, int max) {
 

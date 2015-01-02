@@ -51,6 +51,9 @@ public class WorkoutTable extends AbstractTable {
         return (int)this.db.insert(TABLE_NAME, null, values);
 
     }
+    public List<WorkoutInfo> selectAll() {
+        return this.selectAll(0);
+    }
     public List<WorkoutInfo> selectAll(int max) {
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
         qb.setTables(TABLE_NAME);

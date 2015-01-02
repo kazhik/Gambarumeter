@@ -46,6 +46,10 @@ public class HeartRateTable extends AbstractTable {
         return (int)this.db.insert(TABLE_NAME, null, values);
 
     }
+    public List<SensorValue> selectAll(long startTime) {
+        return this.selectAll(startTime, 0);
+    }
+
     public List<SensorValue> selectAll(long startTime, int max) {
 
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();

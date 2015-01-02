@@ -3,7 +3,9 @@ package net.kazhik.gambarumeter.monitor;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.location.GpsStatus;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -28,13 +30,12 @@ import java.util.List;
 public class GeolocationMonitor extends Service
         implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        LocationListener, ResultCallback<Status> {
+        LocationListener, GpsStatus.Listener, ResultCallback<Status> {
     private GoogleApiClient googleApiClient;
 
     private GeolocationBinder binder = new GeolocationBinder();
     private SensorValueListener listener;
     private LocationRecord record = new LocationRecord();
-    private boolean started = false;
 
     private static final int UPDATE_INTERVAL_MS = 5000;
     private static final int FASTEST_INTERVAL_MS = 3000;
@@ -63,6 +64,11 @@ public class GeolocationMonitor extends Service
                 .build();
 
         this.googleApiClient.connect();
+
+        LocationManager locationManager =
+                (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        locationManager.addGpsStatusListener(this);
+
     }
     public void start(float lapDistance) {
         if (this.googleApiClient == null) {
@@ -73,11 +79,9 @@ public class GeolocationMonitor extends Service
         }
         this.record.init(lapDistance);
         this.record.addLap(System.currentTimeMillis());
-        this.started = true;
     }
     public void stop() {
         this.record.addLap(System.currentTimeMillis());
-        this.started = false;
 
     }
     public float getDistance() {
@@ -99,6 +103,7 @@ public class GeolocationMonitor extends Service
         this.googleApiClient.disconnect();
     }
 
+    // GoogleApiClient.ConnectionCallbacks
     @Override
     public void onConnected(Bundle bundle) {
         Log.d(TAG, "onConnected");
@@ -114,6 +119,14 @@ public class GeolocationMonitor extends Service
 
     }
 
+    // GoogleApiClient.ConnectionCallbacks
+    @Override
+    public void onConnectionSuspended(int i) {
+        Log.d(TAG, "onConnectionSuspended");
+
+    }
+
+    // ResultCallback
     @Override
     public void onResult(Status status) {
         if (status.isSuccess()) {
@@ -128,20 +141,11 @@ public class GeolocationMonitor extends Service
         }
     }
 
-    @Override
-    public void onConnectionSuspended(int i) {
-        Log.d(TAG, "onConnectionSuspended");
-
-    }
-
+    // LocationListener
     @Override
     public void onLocationChanged(Location location) {
         Log.d(TAG, "onLocationChanged: ");
 
-        if (this.started == false) {
-            this.listener.onLocationAvailable();
-            return;
-        }
         long lap = this.record.setCurrentLocation(location);
         if (lap > 0) {
             this.listener.onLap(location.getTime(),
@@ -154,11 +158,22 @@ public class GeolocationMonitor extends Service
 
     }
 
-
+    // GoogleApiClient.OnConnectionFailedListener
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
         Log.e(TAG, "connection failed: " + connectionResult.getErrorCode());
 
     }
+
+    // GpsStatus.Listener
+    @Override
+    public void onGpsStatusChanged(int event) {
+        if (event == GpsStatus.GPS_EVENT_FIRST_FIX) {
+            this.listener.onLocationAvailable();
+
+        }
+
+    }
+
 
 }

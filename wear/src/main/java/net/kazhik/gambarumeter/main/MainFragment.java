@@ -160,18 +160,6 @@ public class MainFragment extends Fragment
         return inflater.inflate(R.layout.main, container, false);
     }
 
-    @Override
-    public void onUserStart() {
-        this.startWorkout();
-    }
-
-    @Override
-    public void onUserStop() {
-        this.stopWorkout();
-
-        this.saveResult();
-        this.stopwatch.reset();
-    }
     private void initializeSensor() {
         Activity activity = this.getActivity();
         Context appContext = activity.getApplicationContext();
@@ -249,40 +237,28 @@ public class MainFragment extends Fragment
     }
 
     private void startWorkout() {
+        this.notificationView.clear();
+
         if (this.heartRateMonitor != null) {
             this.heartRateView.setCurrentRate(0)
                     .refresh();
+            this.heartRateMonitor.start();
         }
         if (this.locationMonitor != null) {
             this.distanceView.setDistance(0)
                     .refresh();
+            String distanceUnit = this.prefs.getString("distanceUnit", "metre");
+            this.locationMonitor.start(Util.lapDistance(distanceUnit));
         }
         if (this.stepCountMonitor != null) {
             this.stepCountView.setStepCount(0)
                     .refresh();
+            this.stepCountMonitor.start();
         }
         this.splitTimeView.setTime(0)
                 .refresh();
-        this.notificationView.clear();
 
         this.stopwatch.start();
-        if (this.heartRateMonitor != null) {
-            this.heartRateMonitor.start();
-        }
-        if (this.stepCountMonitor != null) {
-            this.stepCountMonitor.start();
-        }
-        if (this.locationMonitor != null) {
-            float lapDistance;
-            String distanceUnit = this.prefs.getString("distanceUnit", "metre");
-            if (distanceUnit.equals("mile")) {
-                lapDistance = 1609.344f; //  lap/mile
-            } else {
-                lapDistance = 1000f;  // lap/km
-            }
-            // float lapDistance
-            this.locationMonitor.start(lapDistance);
-        }
     }
     private void stopWorkout() {
 
@@ -306,18 +282,48 @@ public class MainFragment extends Fragment
         try {
             long startTime = this.stopwatch.getStartTime();
 
+            // LocationTable, LapTable
+            float distance = 0;
+            if (this.locationMonitor != null) {
+                distance = this.locationMonitor.getDistance();
+
+                LocationTable locTable = new LocationTable(this.getActivity());
+                locTable.open(false);
+                for (Location loc: this.locationMonitor.getLocationList()) {
+                    Log.d(TAG, "saveResult:" + loc.getTime());
+                    locTable.insert(startTime, loc);
+                }
+                locTable.close();
+
+                LapTable lapTable = new LapTable(this.getActivity());
+                lapTable.open(false);
+                for (Lap lap: this.locationMonitor.getLaps()) {
+                    lapTable.insert(lap.getTimestamp(), startTime, lap.getDistance());
+                }
+                lapTable.close();
+
+            }
+
+            // HeartRateTable
+            int heartRate = 0;
+            if (this.heartRateMonitor != null) {
+                heartRate = this.heartRateMonitor.getAverageHeartRate();
+
+                HeartRateTable heartRateTable = new HeartRateTable(this.getActivity());
+                heartRateTable.open(false);
+                for (SensorValue sensorValue: this.heartRateMonitor.getDataList()) {
+                    heartRateTable.insert(
+                            sensorValue.getTimestamp(),
+                            startTime,
+                            (int)sensorValue.getValue());
+                }
+                heartRateTable.close();
+            }
+
             // WorkoutTable
             int stepCount = 0;
             if (this.stepCountMonitor != null) {
                 stepCount = this.stepCountMonitor.getStepCount();
-            }
-            float distance = 0;
-            if (this.locationMonitor != null) {
-                distance = this.locationMonitor.getDistance();
-            }
-            int heartRate = 0;
-            if (this.heartRateMonitor != null) {
-                heartRate = this.heartRateMonitor.getAverageHeartRate();
             }
 
             WorkoutTable workoutTable = new WorkoutTable(this.getActivity());
@@ -332,48 +338,27 @@ public class MainFragment extends Fragment
 
             Log.d(TAG, "insert: " + ret + "; " + startTime);
 
-            // HeartRateTable
-            if (this.heartRateMonitor != null) {
-                HeartRateTable heartRateTable = new HeartRateTable(this.getActivity());
-                heartRateTable.open(false);
-                for (SensorValue sensorValue: this.heartRateMonitor.getDataList()) {
-                    heartRateTable.insert(
-                            sensorValue.getTimestamp(),
-                            startTime,
-                            (int)sensorValue.getValue());
-                }
-                heartRateTable.close();
-            }
-
-            // LocationTable, LapTable
-            if (this.locationMonitor != null) {
-                LocationTable locTable = new LocationTable(this.getActivity());
-                locTable.open(false);
-                for (Location loc: this.locationMonitor.getLocationList()) {
-                    Log.d(TAG, "saveResult:" + loc.getTime());
-                    locTable.insert(loc.getTime(),
-                            startTime,
-                            loc.getLatitude(),
-                            loc.getLongitude(),
-                            loc.getAltitude(),
-                            loc.getAccuracy());
-                }
-                locTable.close();
-
-                LapTable lapTable = new LapTable(this.getActivity());
-                lapTable.open(false);
-                for (Lap lap: this.locationMonitor.getLaps()) {
-                    lapTable.insert(lap.getTimestamp(), startTime, lap.getDistance());
-                }
-                lapTable.close();
-            }
-
         } catch (SQLException e) {
             Log.e(TAG, e.getMessage(), e);
         }
 
     }
 
+    // UserInputManager.UserInputListener
+    @Override
+    public void onUserStart() {
+        this.startWorkout();
+    }
+
+    // UserInputManager.UserInputListener
+    @Override
+    public void onUserStop() {
+        this.stopWorkout();
+
+        this.saveResult();
+        this.stopwatch.reset();
+    }
+    // SensorValueListener
     @Override
     public void onHeartRateChanged(long timestamp, int rate) {
         this.heartRateView.setCurrentRate(rate);
@@ -384,6 +369,7 @@ public class MainFragment extends Fragment
 
     }
 
+    // SensorValueListener
     @Override
     public void onStepCountChanged(long timestamp, int stepCount) {
         this.stepCountView.setStepCount(stepCount);
@@ -392,6 +378,7 @@ public class MainFragment extends Fragment
         this.notificationView.updateStepCount(stepCount);
     }
 
+    // SensorValueListener
     @Override
     public void onLocationChanged(long timestamp, float distance, float speed) {
         String distanceUnit = this.prefs.getString("distanceUnit", "metre");
@@ -403,17 +390,19 @@ public class MainFragment extends Fragment
         this.notificationView.updateDistance(distance);
     }
 
+    // SensorValueListener
     @Override
     public void onLocationAvailable() {
         this.distanceView.setEnable(true);
     }
 
+    // SensorValueListener
     @Override
     public void onLap(long timestamp, float distance, long lap) {
 
     }
 
-
+    // Stopwatch.OnTickListener
     @Override
     public void onTick(long elapsed) {
         this.splitTimeView.setTime(elapsed);
@@ -422,6 +411,7 @@ public class MainFragment extends Fragment
         this.notificationView.show(elapsed);
     }
 
+    // ServiceConnection
     @Override
     public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
         Log.d(TAG, "onServiceConnected: " + componentName.toString());
@@ -436,6 +426,7 @@ public class MainFragment extends Fragment
 
     }
 
+    // ServiceConnection
     @Override
     public void onServiceDisconnected(ComponentName componentName) {
         Log.d(TAG, "onServiceDisconnected: " + componentName.toString());

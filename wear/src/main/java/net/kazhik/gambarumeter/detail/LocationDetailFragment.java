@@ -47,7 +47,7 @@ public class LocationDetailFragment extends Fragment
         try {
             LocationTable locTable = new LocationTable(this.getActivity());
             locTable.open(true);
-            locations = locTable.selectAll(this.startTime, 0);
+            locations = locTable.selectAll(this.startTime);
             locTable.close();
 
         } catch (SQLException e) {
@@ -80,7 +80,7 @@ public class LocationDetailFragment extends Fragment
         try {
             LapTable lapTable = new LapTable(activity);
             lapTable.open(true);
-            laps = lapTable.selectAll(this.startTime, 0);
+            laps = lapTable.selectAll(this.startTime);
             lapTable.close();
 
         } catch (SQLException e) {

@@ -79,7 +79,7 @@ public class HeartRateDetailFragment extends Fragment
 
             HeartRateTable heartRateTable = new HeartRateTable(this.getActivity());
             heartRateTable.open(true);
-            heartRates = heartRateTable.selectAll(this.startTime, 0);
+            heartRates = heartRateTable.selectAll(this.startTime);
             heartRateTable.close();
 
         } catch (SQLException e) {
