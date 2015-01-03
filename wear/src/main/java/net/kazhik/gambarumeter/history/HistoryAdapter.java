@@ -4,13 +4,13 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.wearable.view.WearableListView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import net.kazhik.gambarumeter.R;
+import net.kazhik.gambarumeter.Util;
 import net.kazhik.gambarumeter.entity.WorkoutInfo;
 
 import java.text.DateFormat;
@@ -24,7 +24,7 @@ public class HistoryAdapter extends WearableListView.Adapter {
     private List<WorkoutInfo> dataSet;
     private final Context context;
     private final LayoutInflater inflater;
-    private String distanceUnit;
+    private String prefDistanceUnit;
     private static final String TAG = "HistoryAdapter";
 
     // Provide a suitable constructor (depends on the kind of dataset)
@@ -35,11 +35,7 @@ public class HistoryAdapter extends WearableListView.Adapter {
 
         SharedPreferences prefs =
                 PreferenceManager.getDefaultSharedPreferences(context);
-        if (prefs.getString("distanceUnit", "metre").equals("mile")) {
-            this.distanceUnit = context.getResources().getString(R.string.mile);
-        } else {
-            this.distanceUnit = context.getResources().getString(R.string.km);
-        }
+        this.prefDistanceUnit = prefs.getString("distanceUnit", "metre");
 
     }
 
@@ -90,10 +86,13 @@ public class HistoryAdapter extends WearableListView.Adapter {
 
         String resultStr = this.formatSplitTime(stopTime - startTime);
         if (distance > 0.0f) {
-            distance /= 1000f;
+            distance /= Util.lapDistance(this.prefDistanceUnit);
+
+            String distanceUnit =
+                    Util.distanceUnitDisplayStr(this.prefDistanceUnit, this.context.getResources());
 
             String distanceStr = String.format("%.2f%s",
-                    distance, this.distanceUnit);
+                    distance, distanceUnit);
 
             resultStr += "/" + distanceStr;
         } else if (heartRate > 0) {

@@ -17,8 +17,12 @@
     <string name="edit_mode">編集モード</string>
     <string name="view_mode">閲覧モード</string>
 
-    <string name="mile">mile</string>
+    <string name="mile">mi</string>
     <string name="km">km</string>
 
     <string name="gps_off">位置情報がOFFになっています</string>
+
+    <string name="settings_title">設定</string>
+    <string name="distance_unit">距離の単位</string>
+
 </resources>

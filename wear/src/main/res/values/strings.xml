@@ -19,9 +19,12 @@
     <string name="edit_mode">Edit mode</string>
     <string name="view_mode">View mode</string>
 
-    <string name="mile">mile</string>
+    <string name="mile">mi</string>
     <string name="km">km</string>
 
     <string name="gps_off">Geolocation setting is off</string>
+
+    <string name="settings_title">Settings</string>
+    <string name="distance_unit">Distance Unit</string>
 
 </resources>

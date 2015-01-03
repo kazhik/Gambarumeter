@@ -34,7 +34,7 @@ import net.kazhik.gambarumeter.monitor.HeartRateMonitor;
 import net.kazhik.gambarumeter.monitor.SensorValueListener;
 import net.kazhik.gambarumeter.monitor.StepCountMonitor;
 import net.kazhik.gambarumeter.monitor.Stopwatch;
-import net.kazhik.gambarumeter.net.kazhik.gambarumeter.util.Util;
+import net.kazhik.gambarumeter.Util;
 import net.kazhik.gambarumeter.storage.HeartRateTable;
 import net.kazhik.gambarumeter.storage.LapTable;
 import net.kazhik.gambarumeter.storage.LocationTable;
@@ -76,15 +76,6 @@ public class MainFragment extends Fragment
     private static final String TAG = "MainFragment";
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
-
-        outState.putLong("start_time", this.stopwatch.getStartTime());
-
-        super.onSaveInstanceState(outState);
-        Log.d(TAG, "onSaveInstanceState: " + outState.getLong("start_time"));
-    }
-
-    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -96,13 +87,13 @@ public class MainFragment extends Fragment
                 PreferenceManager.getDefaultSharedPreferences(this.getActivity());
     }
 
+    @Nullable
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-
-        Log.d(TAG, "onDestroyView: ");
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        Log.d(TAG, "onCreateView");
+        return inflater.inflate(R.layout.main, container, false);
     }
-
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -113,6 +104,22 @@ public class MainFragment extends Fragment
 
         this.voiceAction(savedInstanceState);
     }
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+
+        outState.putLong("start_time", this.stopwatch.getStartTime());
+
+        super.onSaveInstanceState(outState);
+        Log.d(TAG, "onSaveInstanceState: " + outState.getLong("start_time"));
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+
+        Log.d(TAG, "onDestroyView: ");
+    }
+
     private void voiceAction(Bundle savedInstanceState) {
         String actionStatus = this.getActivity().getIntent().getStringExtra("actionStatus");
         if (actionStatus == null) {
@@ -150,14 +157,6 @@ public class MainFragment extends Fragment
         }
 
         super.onDestroy();
-    }
-
-    @Nullable
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        Log.d(TAG, "onCreateView");
-        return inflater.inflate(R.layout.main, container, false);
     }
 
     private void initializeSensor() {
@@ -218,6 +217,13 @@ public class MainFragment extends Fragment
             activity.findViewById(R.id.heart_rate).setVisibility(View.GONE);
         }
         if (this.locationMonitor != null) {
+            String prefDistanceUnit = this.prefs.getString("distanceUnit", "metre");
+            String distanceUnit =
+                    Util.distanceUnitDisplayStr(prefDistanceUnit, getResources());
+            TextView distanceUnitLabel
+                    = (TextView)activity.findViewById(R.id.distance_label);
+            distanceUnitLabel.setText(distanceUnit);
+
             this.distanceView.initialize((TextView)activity.findViewById(R.id.distance_value));
             activity.findViewById(R.id.distance).setVisibility(View.VISIBLE);
         } else {

@@ -13,6 +13,7 @@ import android.text.format.DateUtils;
 
 import net.kazhik.gambarumeter.Gambarumeter;
 import net.kazhik.gambarumeter.R;
+import net.kazhik.gambarumeter.Util;
 
 /**
  * Created by kazhik on 14/10/25.
@@ -21,7 +22,7 @@ public class NotificationView {
     private Context context;
     private NotificationCompat.Builder notificationBuilder;
     private int heartRate = -1;
-    private int stepCount = 0;
+    private int stepCount = -1;
     private float distance = -1.0f;
     private String distanceUnit;
 
@@ -33,12 +34,9 @@ public class NotificationView {
 
         SharedPreferences prefs =
                 PreferenceManager.getDefaultSharedPreferences(context);
-        if (prefs.getString("distanceUnit", "metre").equals("mile")) {
-            this.distanceUnit = context.getResources().getString(R.string.mile);
-        } else {
-            this.distanceUnit = context.getResources().getString(R.string.km);
-        }
-
+        String prefDistanceUnit = prefs.getString("distanceUnit", "metre");
+        this.distanceUnit =
+                Util.distanceUnitDisplayStr(prefDistanceUnit, context.getResources());
 
         Intent intent = new Intent(context, Gambarumeter.class);
         PendingIntent pendingIntent
@@ -51,9 +49,10 @@ public class NotificationView {
 
         NotificationCompat.WearableExtender extender = new NotificationCompat.WearableExtender()
                 .setHintHideIcon(true)
-                .setContentAction(0)
                 .setBackground(bmp)
-                .setCustomSizePreset(NotificationCompat.WearableExtender.SIZE_FULL_SCREEN)
+//                .setDisplayIntent(pendingIntent)
+//                .setCustomSizePreset(NotificationCompat.WearableExtender.SIZE_LARGE)
+                .setContentAction(0)
                 .addAction(openMain);
 
         this.notificationBuilder = new NotificationCompat.Builder(context)
@@ -79,27 +78,39 @@ public class NotificationView {
     public void updateStepCount(int stepCount) {
         this.stepCount = stepCount;
     }
-    private String makeText() {
+    private String makeDetailedText() {
         String str = "";
-        if (this.heartRate > 0) {
-            str += this.heartRate + this.context.getString(R.string.bpm);
+
+        if (this.stepCount > 0) {
+            str += this.stepCount + this.context.getString(R.string.steps);
         }
-        if (this.distance > 0) {
-            if (this.heartRate > 0) {
-                str += "/";
-            }
-            str += String.format("%.2f%s", this.distance, this.distanceUnit);
-        }
-        if (this.heartRate > 0 || this.distance > 0) {
-            str += "/";
-        }
-        str += this.stepCount + this.context.getString(R.string.steps);
 
         return str;
     }
+    private String makeSummaryText(long elapsed) {
+        String str = DateUtils.formatElapsedTime(elapsed / 1000);
+
+        str += this.makeSensorDataText();
+
+        return str;
+    }
+    private String makeSensorDataText() {
+        String str = "";
+        if (this.heartRate > 0) {
+            str += "/";
+            str += this.heartRate + this.context.getString(R.string.bpm);
+        }
+        if (this.distance > 0) {
+            str += "/";
+            str += String.format("%.2f%s", this.distance, this.distanceUnit);
+        }
+        return str;
+    }
     public void show(long elapsed) {
-        this.notificationBuilder.setContentTitle(DateUtils.formatElapsedTime(elapsed / 1000))
-                .setContentText(this.makeText());
+
+        this.notificationBuilder
+                .setContentTitle(this.makeSummaryText(elapsed))
+                .setContentText(this.makeDetailedText());
 
         NotificationManagerCompat.from(this.context)
                 .notify(NOTIFICATION_ID, this.notificationBuilder.build());

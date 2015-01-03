@@ -12,11 +12,8 @@ import android.widget.TextView;
 
 import net.kazhik.gambarumeter.R;
 import net.kazhik.gambarumeter.entity.Lap;
-import net.kazhik.gambarumeter.entity.WorkoutInfo;
-import net.kazhik.gambarumeter.net.kazhik.gambarumeter.util.Util;
+import net.kazhik.gambarumeter.Util;
 
-import java.text.DateFormat;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -79,12 +76,8 @@ public class LocationDetailAdapter extends WearableListView.Adapter {
         long laptime = lapInfo.getLaptime();
         float distance = Util.convertMeter(lapInfo.getDistance(), this.prefDistanceUnit);
         Log.d(TAG, "distance: " + lapInfo.getDistance() + "; laptime: " + laptime);
-        String distanceUnitStr;
-        if (this.prefDistanceUnit.equals("mile")) {
-            distanceUnitStr = context.getResources().getString(R.string.mile);
-        } else {
-            distanceUnitStr = context.getResources().getString(R.string.km);
-        }
+        String distanceUnitStr =
+                Util.distanceUnitDisplayStr(this.prefDistanceUnit, context.getResources());
         String distanceStr = String.format("%.2f%s", distance, distanceUnitStr);
         distanceText.setText(distanceStr);
 

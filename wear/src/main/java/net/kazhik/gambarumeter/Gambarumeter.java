@@ -1,15 +1,20 @@
 package net.kazhik.gambarumeter;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.database.SQLException;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.wearable.view.GridViewPager;
 import android.util.Log;
 
+import net.kazhik.gambarumeter.main.UserInputManager;
 import net.kazhik.gambarumeter.storage.DataStorage;
 import net.kazhik.gambarumeter.storage.HeartRateTable;
 import net.kazhik.gambarumeter.storage.LocationTable;
 import net.kazhik.gambarumeter.storage.WorkoutTable;
+
+import java.util.Locale;
 
 public class Gambarumeter extends Activity {
 
@@ -30,6 +35,7 @@ public class Gambarumeter extends Activity {
 
         setContentView(R.layout.pager);
 
+        this.initializeSettings();
         this.initializeDatabase();
 
         GridViewPager pager = (GridViewPager) findViewById(R.id.pager);
@@ -62,5 +68,24 @@ public class Gambarumeter extends Activity {
         }
     }
 
+    private void initializeSettings() {
+        SharedPreferences prefs =
+                PreferenceManager.getDefaultSharedPreferences(this);
+
+        if (prefs.contains("distanceUnit")) {
+            return;
+        }
+        SharedPreferences.Editor editor = prefs.edit();
+        
+        Locale locale = Locale.getDefault();
+        Log.d(TAG, "country: " + locale.getCountry());
+        if (locale.getCountry().equals("US")) {
+            editor.putString("distanceUnit", "mile");
+        } else {
+            editor.putString("distanceUnit", "metre");
+        }
+        editor.commit();
+
+    }
 
 }

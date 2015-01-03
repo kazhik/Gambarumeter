@@ -12,19 +12,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
-import android.widget.TextView;
 
 import net.kazhik.gambarumeter.R;
 import net.kazhik.gambarumeter.entity.Lap;
-import net.kazhik.gambarumeter.entity.SensorValue;
-import net.kazhik.gambarumeter.entity.WorkoutInfo;
-import net.kazhik.gambarumeter.history.HistoryAdapter;
-import net.kazhik.gambarumeter.net.kazhik.gambarumeter.util.Util;
-import net.kazhik.gambarumeter.storage.HeartRateTable;
 import net.kazhik.gambarumeter.storage.LapTable;
 import net.kazhik.gambarumeter.storage.LocationTable;
-import net.kazhik.gambarumeter.storage.WorkoutTable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -118,39 +110,6 @@ public class LocationDetailFragment extends Fragment
         adapter.notifyDataSetChanged();
 
     }
-    /*
-    public void refreshListItem() {
-        WorkoutTable workoutTable = new WorkoutTable(this.getActivity());
-        workoutTable.open(true);
-        List<WorkoutInfo> workoutInfos = workoutTable.selectAll(0);
-        workoutTable.close();
-
-        HistoryAdapter adapter = new HistoryAdapter(this.getActivity(), workoutInfos);
-        WearableListView listView = (WearableListView)this.getActivity().findViewById(R.id.history_list);
-        if (listView == null) {
-            Log.d(TAG, "historyList not found");
-            return;
-        }
-        listView.setAdapter(adapter);
-        listView.setClickListener(this);
-        listView.setGreedyTouchMode(true);
-        listView.setLongClickable(true);
-        listView.setOnLongClickListener(this);
-        adapter.notifyDataSetChanged();
-
-        if (!workoutInfos.isEmpty()) {
-            WorkoutInfo workoutInfo = workoutInfos.get(0);
-            this.startTime = workoutInfo.getStartTime();
-            if (workoutInfo.getHeartRate() > 0) {
-                this.detailMode = DetailMode.HEART_RATE;
-            } else if (workoutInfo.getDistance() > 0) {
-                this.detailMode = DetailMode.LOCATION;
-            }
-
-        }
-    }
-    */
-
 
     public void setStartTime(long startTime) {
         this.startTime = startTime;

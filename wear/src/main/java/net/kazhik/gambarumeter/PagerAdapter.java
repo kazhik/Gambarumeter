@@ -3,12 +3,13 @@ package net.kazhik.gambarumeter;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.support.wearable.view.FragmentGridPagerAdapter;
 import android.support.wearable.view.GridViewPager;
-import android.util.Log;
 
 import net.kazhik.gambarumeter.history.HistoryFragment;
 import net.kazhik.gambarumeter.main.MainFragment;
+import net.kazhik.gambarumeter.settings.SettingsFragment;
 
 /**
  * Created by kazhik on 14/11/11.
@@ -16,13 +17,25 @@ import net.kazhik.gambarumeter.main.MainFragment;
 public class PagerAdapter extends FragmentGridPagerAdapter
         implements GridViewPager.OnPageChangeListener {
 
-    private final Fragment[][] fragments = {
-            {new MainFragment(), new HistoryFragment()}
-    };
+    private Fragment[][] fragments;
     private static final String TAG = "PagerAdapter";
 
     public PagerAdapter(Context context, FragmentManager fm) {
         super(fm);
+
+        PackageManager pm = context.getPackageManager();
+        if (pm.hasSystemFeature(PackageManager.FEATURE_LOCATION_GPS)) {
+            this.fragments = new Fragment[][]{
+                    {new MainFragment(), new HistoryFragment(), new SettingsFragment()}
+            };
+        } else {
+            this.fragments = new Fragment[][]{
+                    {new MainFragment(), new HistoryFragment()}
+            };
+        }
+        
+        
+        
     }
 
     @Override
