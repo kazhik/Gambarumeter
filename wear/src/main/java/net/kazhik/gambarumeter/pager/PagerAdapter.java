@@ -1,4 +1,4 @@
-package net.kazhik.gambarumeter;
+package net.kazhik.gambarumeter.pager;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -17,7 +17,7 @@ import net.kazhik.gambarumeter.settings.SettingsFragment;
 public class PagerAdapter extends FragmentGridPagerAdapter
         implements GridViewPager.OnPageChangeListener {
 
-    private Fragment[][] fragments;
+    private PagerFragment[][] fragments;
     private static final String TAG = "PagerAdapter";
 
     public PagerAdapter(Context context, FragmentManager fm) {
@@ -25,11 +25,11 @@ public class PagerAdapter extends FragmentGridPagerAdapter
 
         PackageManager pm = context.getPackageManager();
         if (pm.hasSystemFeature(PackageManager.FEATURE_LOCATION_GPS)) {
-            this.fragments = new Fragment[][]{
+            this.fragments = new PagerFragment[][]{
                     {new MainFragment(), new HistoryFragment(), new SettingsFragment()}
             };
         } else {
-            this.fragments = new Fragment[][]{
+            this.fragments = new PagerFragment[][]{
                     {new MainFragment(), new HistoryFragment()}
             };
         }
@@ -53,10 +53,8 @@ public class PagerAdapter extends FragmentGridPagerAdapter
 
     @Override
     public void onPageSelected(int row, int col) {
-        Fragment fragment = fragments[row][col];
-        if (fragment instanceof HistoryFragment) {
-            ((HistoryFragment)fragment).refreshListItem();
-        }
+        PagerFragment fragment = fragments[row][col];
+        fragment.refreshView();
     }
 
     @Override

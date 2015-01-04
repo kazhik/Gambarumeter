@@ -1,6 +1,6 @@
 package net.kazhik.gambarumeter.settings;
 
-import android.app.Fragment;
+import android.app.Activity;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -11,55 +11,66 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import net.kazhik.gambarumeter.pager.PagerFragment;
 import net.kazhik.gambarumeter.R;
 import net.kazhik.gambarumeter.entity.Preference;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by kazhik on 14/11/11.
  */
-public class SettingsFragment extends Fragment implements WearableListView.ClickListener {
-    private List<Preference> prefs = new ArrayList<Preference>();
-    
+public class SettingsFragment extends PagerFragment
+        implements WearableListView.ClickListener {
+    private List<Preference> prefList = new ArrayList<Preference>();
+    private SharedPreferences prefs;
     private static final String TAG = "SettingsFragment";
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater,
+                             ViewGroup container,
+                             Bundle savedInstanceState) {
 
+        Log.d(TAG, "onCreateView: ");
         return inflater.inflate(R.layout.settings, container, false);
 
     }
 
-    public void refreshListItem() {
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
 
-        Resources res = this.getActivity().getResources();
-        this.prefs.add(new Preference("distanceUnit",
-                res.getString(R.string.distance_unit), "metre"));
+        Log.d(TAG, "onActivityCreated: ");
+        this.prefs =
+                PreferenceManager.getDefaultSharedPreferences(this.getActivity());
 
-        SettingsAdapter adapter = new SettingsAdapter(this.getActivity(), this.prefs);
+        if (this.prefList.isEmpty()) {
+            Resources res = this.getActivity().getResources();
+            this.prefList.add(new Preference("distanceUnit",
+                    res.getString(R.string.distance_unit),
+                    this.prefs.getString("distanceUnit", "metre")));
+        }
+        Activity activity = this.getActivity();
+        SettingsAdapter adapter = new SettingsAdapter(activity, this.prefList);
 
         WearableListView listView =
-                (WearableListView)this.getActivity().findViewById(R.id.settings_list);
-        if (listView == null) {
-            Log.d(TAG, "settings_list not found");
-            return;
-        }
+                (WearableListView)activity.findViewById(R.id.settings_list);
+
         listView.setAdapter(adapter);
         listView.setClickListener(this);
         listView.setGreedyTouchMode(true);
         adapter.notifyDataSetChanged();
-
     }
 
     @Override
+    public void refreshView() {
+        
+        
+    }
+    @Override
     public void onStart() {
         super.onStart();
-
-        this.refreshListItem();
 
     }
 
@@ -67,11 +78,8 @@ public class SettingsFragment extends Fragment implements WearableListView.Click
     public void onClick(WearableListView.ViewHolder viewHolder) {
         int position = (Integer)viewHolder.itemView.getTag();
 
-        SharedPreferences prefs =
-                PreferenceManager.getDefaultSharedPreferences(this.getActivity());
-
-        SharedPreferences.Editor editor = prefs.edit();
-        Preference pref = this.prefs.get(position);
+        SharedPreferences.Editor editor = this.prefs.edit();
+        Preference pref = this.prefList.get(position);
         if (pref.getKey().equals("distanceUnit")) {
             if (pref.getStringValue().equals("mile")) {
                 editor.putString("distanceUnit", "metre");
@@ -81,7 +89,7 @@ public class SettingsFragment extends Fragment implements WearableListView.Click
                 pref.setStringValue("mile");
             }
         }
-        this.prefs.set(position, pref);
+        this.prefList.set(position, pref);
         
         WearableListView listView =
                 (WearableListView)this.getActivity().findViewById(R.id.settings_list);

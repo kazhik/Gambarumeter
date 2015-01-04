@@ -32,12 +32,6 @@ public class NotificationView {
 
         this.context = context;
 
-        SharedPreferences prefs =
-                PreferenceManager.getDefaultSharedPreferences(context);
-        String prefDistanceUnit = prefs.getString("distanceUnit", "metre");
-        this.distanceUnit =
-                Util.distanceUnitDisplayStr(prefDistanceUnit, context.getResources());
-
         Intent intent = new Intent(context, Gambarumeter.class);
         PendingIntent pendingIntent
                 = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -68,8 +62,9 @@ public class NotificationView {
         this.stepCount = 0;
         this.distance = -1.0f;
     }
-    public void updateDistance(float distance) {
+    public void updateDistance(float distance, String distanceUnit) {
         this.distance = distance;
+        this.distanceUnit = distanceUnit;
     }
     public void updateHeartRate(int heartRate) {
 
@@ -101,8 +96,13 @@ public class NotificationView {
             str += this.heartRate + this.context.getString(R.string.bpm);
         }
         if (this.distance > 0) {
+            String distanceUnitStr =
+                    Util.distanceUnitDisplayStr(this.distanceUnit,
+                            this.context.getResources());
+            float distance = Util.convertMeter(this.distance, this.distanceUnit);
+
             str += "/";
-            str += String.format("%.2f%s", this.distance, this.distanceUnit);
+            str += String.format("%.2f%s", distance, distanceUnitStr);
         }
         return str;
     }

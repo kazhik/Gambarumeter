@@ -1,7 +1,6 @@
 package net.kazhik.gambarumeter.main;
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -26,6 +25,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import net.kazhik.gambarumeter.pager.PagerFragment;
 import net.kazhik.gambarumeter.R;
 import net.kazhik.gambarumeter.entity.Lap;
 import net.kazhik.gambarumeter.entity.SensorValue;
@@ -50,7 +50,7 @@ import java.util.List;
 /**
  * Created by kazhik on 14/11/11.
  */
-public class MainFragment extends Fragment
+public class MainFragment extends PagerFragment
         implements Stopwatch.OnTickListener,
         SensorValueListener,
         ServiceConnection,
@@ -104,6 +104,22 @@ public class MainFragment extends Fragment
 
         this.voiceAction(savedInstanceState);
     }
+
+    @Override
+    public void refreshView() {
+        String distanceUnit = this.prefs.getString("distanceUnit", "metre");
+        String distanceUnitStr =
+                Util.distanceUnitDisplayStr(distanceUnit,
+                        this.getActivity().getResources());
+
+        Log.d(TAG, "refreshView: " + distanceUnit);
+        this.distanceView
+                .setDistanceUnit(distanceUnit)
+                .setDistanceUnitStr(distanceUnitStr);
+        this.getActivity().runOnUiThread(this.distanceView);
+
+    }
+
     @Override
     public void onSaveInstanceState(Bundle outState) {
 
@@ -191,7 +207,9 @@ public class MainFragment extends Fragment
                 appContext.bindService(intent, this, Context.BIND_AUTO_CREATE);
                 this.locationMonitor = new GeolocationMonitor(); // temporary
             } else {
-                Toast.makeText(appContext, appContext.getString(R.string.gps_off), Toast.LENGTH_LONG)
+                Toast.makeText(appContext,
+                        appContext.getString(R.string.gps_off),
+                        Toast.LENGTH_LONG)
                         .show();
             }
 
@@ -203,7 +221,8 @@ public class MainFragment extends Fragment
     }
     private boolean isGpsEnabled(Context context) {
 
-        LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        LocationManager lm =
+                (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         return lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
     }
     private void initializeUI() {
@@ -224,7 +243,8 @@ public class MainFragment extends Fragment
                     = (TextView)activity.findViewById(R.id.distance_label);
             distanceUnitLabel.setText(distanceUnit);
 
-            this.distanceView.initialize((TextView)activity.findViewById(R.id.distance_value));
+            TextView distanceValue = (TextView)activity.findViewById(R.id.distance_value);
+            this.distanceView.initialize(distanceValue, distanceUnitLabel);
             activity.findViewById(R.id.distance).setVisibility(View.VISIBLE);
         } else {
             activity.findViewById(R.id.distance).setVisibility(View.GONE);
@@ -388,12 +408,16 @@ public class MainFragment extends Fragment
     @Override
     public void onLocationChanged(long timestamp, float distance, float speed) {
         String distanceUnit = this.prefs.getString("distanceUnit", "metre");
-        distance = Util.convertMeter(distance, distanceUnit);
+        String distanceUnitStr =
+                Util.distanceUnitDisplayStr(distanceUnit,
+                        this.getActivity().getResources());
 
-        this.distanceView.setDistance(distance);
+        this.distanceView.setDistance(distance)
+            .setDistanceUnit(distanceUnit)
+            .setDistanceUnitStr(distanceUnitStr);
         this.getActivity().runOnUiThread(this.distanceView);
 
-        this.notificationView.updateDistance(distance);
+        this.notificationView.updateDistance(distance, distanceUnit);
     }
 
     // SensorValueListener

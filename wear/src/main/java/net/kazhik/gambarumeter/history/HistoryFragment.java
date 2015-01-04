@@ -1,7 +1,6 @@
 package net.kazhik.gambarumeter.history;
 
 import android.app.AlertDialog;
-import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.DialogInterface;
@@ -13,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import net.kazhik.gambarumeter.pager.PagerFragment;
 import net.kazhik.gambarumeter.R;
 import net.kazhik.gambarumeter.detail.HeartRateDetailFragment;
 import net.kazhik.gambarumeter.detail.LocationDetailFragment;
@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * Created by kazhik on 14/11/11.
  */
-public class HistoryFragment extends Fragment
+public class HistoryFragment extends PagerFragment
         implements WearableListView.ClickListener,
         View.OnLongClickListener,
         DialogInterface.OnClickListener {
@@ -49,7 +49,8 @@ public class HistoryFragment extends Fragment
         return this.startTime;
     }
 
-    public void refreshListItem() {
+    @Override
+    public void refreshView() {
         WorkoutTable workoutTable = new WorkoutTable(this.getActivity());
         workoutTable.open(true);
         List<WorkoutInfo> workoutInfos = workoutTable.selectAll();
@@ -84,7 +85,7 @@ public class HistoryFragment extends Fragment
     public void onStart() {
         super.onStart();
 
-        this.refreshListItem();
+        this.refreshView();
 
     }
 
@@ -139,7 +140,7 @@ public class HistoryFragment extends Fragment
             workoutTable.delete(this.startTime);
             workoutTable.close();
 
-            this.refreshListItem();
+            this.refreshView();
         } else if (which == DialogInterface.BUTTON_NEGATIVE) {
             Log.d(TAG, "Cancel");
         }
