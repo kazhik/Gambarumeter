@@ -27,6 +27,10 @@ public class Stopwatch implements Handler.Callback {
         this.frequency = frequency;
         this.listener = listener;
     }
+    public boolean isRunning() {
+        return this.running;
+        
+    }
     public void start() {
         this.startTime = System.currentTimeMillis();
         this.running = true;

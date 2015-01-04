@@ -387,6 +387,9 @@ public class MainFragment extends PagerFragment
     // SensorValueListener
     @Override
     public void onHeartRateChanged(long timestamp, int rate) {
+        if (!this.stopwatch.isRunning()) {
+            return;
+        }
         this.heartRateView.setCurrentRate(rate);
         this.getActivity().runOnUiThread(this.heartRateView);
 
@@ -398,6 +401,9 @@ public class MainFragment extends PagerFragment
     // SensorValueListener
     @Override
     public void onStepCountChanged(long timestamp, int stepCount) {
+        if (!this.stopwatch.isRunning()) {
+            return;
+        }
         this.stepCountView.setStepCount(stepCount);
         this.getActivity().runOnUiThread(this.stepCountView);
 
@@ -407,6 +413,9 @@ public class MainFragment extends PagerFragment
     // SensorValueListener
     @Override
     public void onLocationChanged(long timestamp, float distance, float speed) {
+        if (!this.stopwatch.isRunning()) {
+            return;
+        }
         String distanceUnit = this.prefs.getString("distanceUnit", "metre");
         String distanceUnitStr =
                 Util.distanceUnitDisplayStr(distanceUnit,
