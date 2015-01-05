@@ -21,6 +21,8 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.wearable.Wearable;
 
 import net.kazhik.gambarumeter.entity.Lap;
+import net.kazhik.gambarumeter.storage.LapTable;
+import net.kazhik.gambarumeter.storage.LocationTable;
 
 import java.util.List;
 
@@ -31,6 +33,8 @@ public class GeolocationMonitor extends Service
         implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener, GpsStatus.Listener, ResultCallback<Status> {
+    
+    private Context context;
     private GoogleApiClient googleApiClient;
 
     private GeolocationBinder binder = new GeolocationBinder();
@@ -87,13 +91,30 @@ public class GeolocationMonitor extends Service
     public float getDistance() {
         return this.record.getDistance();
     }
-    public List<Location> getLocationList() {
+    private List<Location> getLocationList() {
         return this.record.getLocationList();
     }
-    public List<Lap> getLaps() {
+    private List<Lap> getLaps() {
         return this.record.getLaps();
     }
 
+    public void saveResult(long startTime) {
+        LocationTable locTable = new LocationTable(this.context);
+        locTable.open(false);
+        for (Location loc: this.getLocationList()) {
+            Log.d(TAG, "saveResult:" + loc.getTime());
+            locTable.insert(startTime, loc);
+        }
+        locTable.close();
+
+        LapTable lapTable = new LapTable(this.context);
+        lapTable.open(false);
+        for (Lap lap: this.getLaps()) {
+            lapTable.insert(lap.getTimestamp(), startTime, lap.getDistance());
+        }
+        lapTable.close();
+
+    }
     public void terminate() {
         Log.d(TAG, "terminate");
         if (this.googleApiClient.isConnected()) {

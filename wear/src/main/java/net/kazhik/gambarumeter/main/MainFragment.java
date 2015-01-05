@@ -10,7 +10,6 @@ import android.content.pm.PackageManager;
 import android.database.SQLException;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
-import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -25,19 +24,14 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import net.kazhik.gambarumeter.pager.PagerFragment;
 import net.kazhik.gambarumeter.R;
-import net.kazhik.gambarumeter.entity.Lap;
-import net.kazhik.gambarumeter.entity.SensorValue;
+import net.kazhik.gambarumeter.Util;
 import net.kazhik.gambarumeter.monitor.GeolocationMonitor;
 import net.kazhik.gambarumeter.monitor.HeartRateMonitor;
 import net.kazhik.gambarumeter.monitor.SensorValueListener;
 import net.kazhik.gambarumeter.monitor.StepCountMonitor;
 import net.kazhik.gambarumeter.monitor.Stopwatch;
-import net.kazhik.gambarumeter.Util;
-import net.kazhik.gambarumeter.storage.HeartRateTable;
-import net.kazhik.gambarumeter.storage.LapTable;
-import net.kazhik.gambarumeter.storage.LocationTable;
+import net.kazhik.gambarumeter.pager.PagerFragment;
 import net.kazhik.gambarumeter.storage.WorkoutTable;
 import net.kazhik.gambarumeter.view.DistanceView;
 import net.kazhik.gambarumeter.view.HeartRateView;
@@ -107,19 +101,24 @@ public class MainFragment extends PagerFragment
 
     @Override
     public void refreshView() {
+        this.setDistanceUnit();
+        this.getActivity().runOnUiThread(this.distanceView);
+
+    }
+
+    private void setDistanceUnit() {
         String distanceUnit = this.prefs.getString("distanceUnit", "metre");
         String distanceUnitStr =
                 Util.distanceUnitDisplayStr(distanceUnit,
                         this.getActivity().getResources());
 
-        Log.d(TAG, "refreshView: " + distanceUnit);
         this.distanceView
                 .setDistanceUnit(distanceUnit)
                 .setDistanceUnitStr(distanceUnitStr);
-        this.getActivity().runOnUiThread(this.distanceView);
 
+        this.notificationView.setDistanceUnit(distanceUnit);
+        Log.d(TAG, "setDistanceUnit: " + distanceUnit);
     }
-
     @Override
     public void onSaveInstanceState(Bundle outState) {
 
@@ -137,7 +136,8 @@ public class MainFragment extends PagerFragment
     }
 
     private void voiceAction(Bundle savedInstanceState) {
-        String actionStatus = this.getActivity().getIntent().getStringExtra("actionStatus");
+        String actionStatus =
+                this.getActivity().getIntent().getStringExtra("actionStatus");
         if (actionStatus == null) {
             return;
         }
@@ -215,7 +215,6 @@ public class MainFragment extends PagerFragment
 
         }
 
-
         this.stopwatch = new Stopwatch(1000L, this);
 
     }
@@ -236,14 +235,11 @@ public class MainFragment extends PagerFragment
             activity.findViewById(R.id.heart_rate).setVisibility(View.GONE);
         }
         if (this.locationMonitor != null) {
-            String prefDistanceUnit = this.prefs.getString("distanceUnit", "metre");
-            String distanceUnit =
-                    Util.distanceUnitDisplayStr(prefDistanceUnit, getResources());
+            TextView distanceValue =
+                    (TextView)activity.findViewById(R.id.distance_value);
             TextView distanceUnitLabel
                     = (TextView)activity.findViewById(R.id.distance_label);
-            distanceUnitLabel.setText(distanceUnit);
 
-            TextView distanceValue = (TextView)activity.findViewById(R.id.distance_value);
             this.distanceView.initialize(distanceValue, distanceUnitLabel);
             activity.findViewById(R.id.distance).setVisibility(View.VISIBLE);
         } else {
@@ -254,7 +250,8 @@ public class MainFragment extends PagerFragment
         this.notificationView.initialize(activity);
 
         this.userInputManager = new UserInputManager(this)
-                .initTouch(activity, (LinearLayout)activity.findViewById(R.id.main_layout))
+                .initTouch(activity,
+                        (LinearLayout)activity.findViewById(R.id.main_layout))
                 .initButtons(
                         (ImageButton)activity.findViewById(R.id.start),
                         (ImageButton)activity.findViewById(R.id.stop)
@@ -312,22 +309,7 @@ public class MainFragment extends PagerFragment
             float distance = 0;
             if (this.locationMonitor != null) {
                 distance = this.locationMonitor.getDistance();
-
-                LocationTable locTable = new LocationTable(this.getActivity());
-                locTable.open(false);
-                for (Location loc: this.locationMonitor.getLocationList()) {
-                    Log.d(TAG, "saveResult:" + loc.getTime());
-                    locTable.insert(startTime, loc);
-                }
-                locTable.close();
-
-                LapTable lapTable = new LapTable(this.getActivity());
-                lapTable.open(false);
-                for (Lap lap: this.locationMonitor.getLaps()) {
-                    lapTable.insert(lap.getTimestamp(), startTime, lap.getDistance());
-                }
-                lapTable.close();
-
+                this.locationMonitor.saveResult(startTime);
             }
 
             // HeartRateTable
@@ -335,15 +317,7 @@ public class MainFragment extends PagerFragment
             if (this.heartRateMonitor != null) {
                 heartRate = this.heartRateMonitor.getAverageHeartRate();
 
-                HeartRateTable heartRateTable = new HeartRateTable(this.getActivity());
-                heartRateTable.open(false);
-                for (SensorValue sensorValue: this.heartRateMonitor.getDataList()) {
-                    heartRateTable.insert(
-                            sensorValue.getTimestamp(),
-                            startTime,
-                            (int)sensorValue.getValue());
-                }
-                heartRateTable.close();
+                this.heartRateMonitor.saveResult(startTime);
             }
 
             // WorkoutTable
@@ -416,17 +390,10 @@ public class MainFragment extends PagerFragment
         if (!this.stopwatch.isRunning()) {
             return;
         }
-        String distanceUnit = this.prefs.getString("distanceUnit", "metre");
-        String distanceUnitStr =
-                Util.distanceUnitDisplayStr(distanceUnit,
-                        this.getActivity().getResources());
-
-        this.distanceView.setDistance(distance)
-            .setDistanceUnit(distanceUnit)
-            .setDistanceUnitStr(distanceUnitStr);
+        this.distanceView.setDistance(distance);
         this.getActivity().runOnUiThread(this.distanceView);
 
-        this.notificationView.updateDistance(distance, distanceUnit);
+        this.notificationView.updateDistance(distance);
     }
 
     // SensorValueListener
@@ -438,7 +405,7 @@ public class MainFragment extends PagerFragment
     // SensorValueListener
     @Override
     public void onLap(long timestamp, float distance, long lap) {
-
+        this.notificationView.updateLap(lap);
     }
 
     // Stopwatch.OnTickListener
@@ -456,10 +423,12 @@ public class MainFragment extends PagerFragment
         Log.d(TAG, "onServiceConnected: " + componentName.toString());
 
         if (iBinder instanceof HeartRateMonitor.HeartRateBinder) {
-            this.heartRateMonitor = ((HeartRateMonitor.HeartRateBinder)iBinder).getService();
-            this.heartRateMonitor.init(sensorManager, this);
+            this.heartRateMonitor =
+                    ((HeartRateMonitor.HeartRateBinder)iBinder).getService();
+            this.heartRateMonitor.init(this.getActivity(), sensorManager, this);
         } else if (iBinder instanceof GeolocationMonitor.GeolocationBinder) {
-            this.locationMonitor = ((GeolocationMonitor.GeolocationBinder)iBinder).getService();
+            this.locationMonitor =
+                    ((GeolocationMonitor.GeolocationBinder)iBinder).getService();
             this.locationMonitor.init(this.getActivity(), this);
         }
 

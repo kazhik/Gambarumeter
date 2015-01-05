@@ -24,6 +24,7 @@ public class NotificationView {
     private int heartRate = -1;
     private int stepCount = -1;
     private float distance = -1.0f;
+    private long lapTime = 0;
     private String distanceUnit;
 
     private static final int NOTIFICATION_ID = 3000;
@@ -62,9 +63,17 @@ public class NotificationView {
         this.stepCount = 0;
         this.distance = -1.0f;
     }
-    public void updateDistance(float distance, String distanceUnit) {
-        this.distance = distance;
+    public NotificationView setDistanceUnit(String distanceUnit) {
         this.distanceUnit = distanceUnit;
+
+        return this;
+    }
+    public void updateDistance(float distance) {
+        this.distance = distance;
+    }
+    public void updateLap(long laptime) {
+        this.lapTime = laptime;
+        
     }
     public void updateHeartRate(int heartRate) {
 
@@ -103,6 +112,8 @@ public class NotificationView {
 
             str += "/";
             str += String.format("%.2f%s", distance, distanceUnitStr);
+            str += "/";
+            str += DateUtils.formatElapsedTime(this.lapTime / 1000);
         }
         return str;
     }

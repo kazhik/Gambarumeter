@@ -1,6 +1,7 @@
 package net.kazhik.gambarumeter.monitor;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -11,6 +12,7 @@ import android.os.IBinder;
 import android.util.Log;
 
 import net.kazhik.gambarumeter.entity.SensorValue;
+import net.kazhik.gambarumeter.storage.HeartRateTable;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -21,6 +23,7 @@ import java.util.List;
  * Created by kazhik on 14/10/11.
  */
 public class HeartRateMonitor extends Service implements SensorEventListener {
+    private Context context;
     private SensorManager sensorManager;
     private Sensor heartRateSensor;
     private SensorValueListener listener;
@@ -37,17 +40,35 @@ public class HeartRateMonitor extends Service implements SensorEventListener {
         }
     }
 
-    public void init(SensorManager sensorManager, SensorValueListener listener) {
+    public void init(Context context,
+                     SensorManager sensorManager,
+                     SensorValueListener listener) {
 
+        this.context = context;
         this.sensorManager = sensorManager;
         this.listener = listener;
 
-        this.heartRateSensor = this.sensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
+        this.heartRateSensor =
+                this.sensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
         if (this.heartRateSensor == null) {
             Log.w(TAG, "no heart rate sensor");
             return;
         }
-        this.sensorManager.registerListener(this, this.heartRateSensor, SensorManager.SENSOR_DELAY_NORMAL);
+        this.sensorManager.registerListener(this,
+                this.heartRateSensor,
+                SensorManager.SENSOR_DELAY_NORMAL);
+    }
+    public void saveResult(long startTime) {
+        HeartRateTable heartRateTable = new HeartRateTable(this.context);
+        heartRateTable.open(false);
+        for (SensorValue sensorValue: this.getDataList()) {
+            heartRateTable.insert(
+                    sensorValue.getTimestamp(),
+                    startTime,
+                    (int)sensorValue.getValue());
+        }
+        heartRateTable.close();
+        
     }
     public void terminate() {
         this.sensorManager.unregisterListener(this, this.heartRateSensor);
@@ -73,7 +94,7 @@ public class HeartRateMonitor extends Service implements SensorEventListener {
         }
         return (int)(sum / this.dataList.size());
     }
-    public List<SensorValue> getDataList() {
+    private List<SensorValue> getDataList() {
         return this.dataList;
     }
     public void printDataList() {
