@@ -268,9 +268,10 @@ public class MainFragment extends PagerFragment
             this.heartRateMonitor.start();
         }
         if (this.locationMonitor != null) {
-            this.distanceView.setDistance(0)
-                    .refresh();
             String distanceUnit = this.prefs.getString("distanceUnit", "metre");
+            this.distanceView.setDistance(0)
+                    .setDistanceUnit(distanceUnit)
+                    .refresh();
             this.locationMonitor.start(Util.lapDistance(distanceUnit));
         }
         if (this.stepCountMonitor != null) {

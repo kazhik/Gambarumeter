@@ -58,6 +58,7 @@ public class GeolocationMonitor extends Service
     }
 
     public void init(Context context, SensorValueListener listener) {
+        this.context = context;
         this.listener = listener;
 
         this.googleApiClient = new GoogleApiClient.Builder(context)
