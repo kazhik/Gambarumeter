@@ -1,4 +1,4 @@
-package net.kazhik.gambarumeter.monitor;
+package net.kazhik.gambarumeter.main.monitor;
 
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;

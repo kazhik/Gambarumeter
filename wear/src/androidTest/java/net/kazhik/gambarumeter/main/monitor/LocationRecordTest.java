@@ -1,10 +1,7 @@
-package net.kazhik.gambarumeter.monitor;
+package net.kazhik.gambarumeter.main.monitor;
 
 import android.location.Location;
 import android.test.InstrumentationTestCase;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by kazhik on 14/12/02.

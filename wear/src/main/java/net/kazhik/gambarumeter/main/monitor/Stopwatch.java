@@ -1,8 +1,7 @@
-package net.kazhik.gambarumeter.monitor;
+package net.kazhik.gambarumeter.main.monitor;
 
 import android.os.Handler;
 import android.os.Message;
-import android.os.SystemClock;
 
 import java.util.ArrayList;
 import java.util.List;

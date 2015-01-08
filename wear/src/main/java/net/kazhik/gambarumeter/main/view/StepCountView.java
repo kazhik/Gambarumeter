@@ -1,4 +1,4 @@
-package net.kazhik.gambarumeter.view;
+package net.kazhik.gambarumeter.main.view;
 
 import android.widget.TextView;
 

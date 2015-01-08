@@ -1,4 +1,4 @@
-package net.kazhik.gambarumeter.monitor;
+package net.kazhik.gambarumeter.main.monitor;
 
 import android.app.Service;
 import android.content.Context;
@@ -56,12 +56,12 @@ public class HeartRateMonitor extends Service implements SensorEventListener {
         }
         this.sensorManager.registerListener(this,
                 this.heartRateSensor,
-                SensorManager.SENSOR_DELAY_NORMAL);
+                30 * 1000 * 1000); // delay: 30 seconds
     }
     public void saveResult(long startTime) {
         HeartRateTable heartRateTable = new HeartRateTable(this.context);
         heartRateTable.open(false);
-        for (SensorValue sensorValue: this.getDataList()) {
+        for (SensorValue sensorValue: this.dataList) {
             heartRateTable.insert(
                     sensorValue.getTimestamp(),
                     startTime,
@@ -94,10 +94,7 @@ public class HeartRateMonitor extends Service implements SensorEventListener {
         }
         return (int)(sum / this.dataList.size());
     }
-    private List<SensorValue> getDataList() {
-        return this.dataList;
-    }
-    public void printDataList() {
+    private void printDataList() {
         for (SensorValue val: this.dataList) {
             Calendar cal = Calendar.getInstance();
             cal.setTimeInMillis(val.getTimestamp());

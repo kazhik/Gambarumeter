@@ -1,10 +1,9 @@
-package net.kazhik.gambarumeter.view;
+package net.kazhik.gambarumeter.main.view;
 
+import android.os.Handler;
 import android.widget.TextView;
 
 import net.kazhik.gambarumeter.Util;
-
-import java.text.DecimalFormat;
 
 /**
  * Created by kazhik on 14/10/18.
@@ -47,6 +46,7 @@ public class DistanceView implements Runnable {
     }
 
     public void refresh() {
+        
         float distance = Util.convertMeter(this.distance, this.distanceUnit);
 
         String str = String.format("%.2f", distance);

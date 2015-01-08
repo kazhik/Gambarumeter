@@ -26,18 +26,18 @@ import android.widget.Toast;
 
 import net.kazhik.gambarumeter.R;
 import net.kazhik.gambarumeter.Util;
-import net.kazhik.gambarumeter.monitor.GeolocationMonitor;
-import net.kazhik.gambarumeter.monitor.HeartRateMonitor;
-import net.kazhik.gambarumeter.monitor.SensorValueListener;
-import net.kazhik.gambarumeter.monitor.StepCountMonitor;
-import net.kazhik.gambarumeter.monitor.Stopwatch;
+import net.kazhik.gambarumeter.main.monitor.GeolocationMonitor;
+import net.kazhik.gambarumeter.main.monitor.HeartRateMonitor;
+import net.kazhik.gambarumeter.main.monitor.SensorValueListener;
+import net.kazhik.gambarumeter.main.monitor.StepCountMonitor;
+import net.kazhik.gambarumeter.main.monitor.Stopwatch;
 import net.kazhik.gambarumeter.pager.PagerFragment;
 import net.kazhik.gambarumeter.storage.WorkoutTable;
-import net.kazhik.gambarumeter.view.DistanceView;
-import net.kazhik.gambarumeter.view.HeartRateView;
-import net.kazhik.gambarumeter.view.NotificationView;
-import net.kazhik.gambarumeter.view.SplitTimeView;
-import net.kazhik.gambarumeter.view.StepCountView;
+import net.kazhik.gambarumeter.main.view.DistanceView;
+import net.kazhik.gambarumeter.main.view.HeartRateView;
+import net.kazhik.gambarumeter.main.view.NotificationView;
+import net.kazhik.gambarumeter.main.view.SplitTimeView;
+import net.kazhik.gambarumeter.main.view.StepCountView;
 
 import java.util.List;
 
@@ -101,9 +101,10 @@ public class MainFragment extends PagerFragment
 
     @Override
     public void refreshView() {
-        this.setDistanceUnit();
-        this.getActivity().runOnUiThread(this.distanceView);
-
+        if (this.locationMonitor != null) {
+            this.setDistanceUnit();
+            this.getActivity().runOnUiThread(this.distanceView);
+        }
     }
 
     private void setDistanceUnit() {
@@ -241,6 +242,7 @@ public class MainFragment extends PagerFragment
                     = (TextView)activity.findViewById(R.id.distance_label);
 
             this.distanceView.initialize(distanceValue, distanceUnitLabel);
+            this.setDistanceUnit();
             activity.findViewById(R.id.distance).setVisibility(View.VISIBLE);
         } else {
             activity.findViewById(R.id.distance).setVisibility(View.GONE);

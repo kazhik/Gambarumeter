@@ -1,4 +1,4 @@
-package net.kazhik.gambarumeter.monitor;
+package net.kazhik.gambarumeter.main.monitor;
 
 import android.location.Location;
 import android.util.Log;
