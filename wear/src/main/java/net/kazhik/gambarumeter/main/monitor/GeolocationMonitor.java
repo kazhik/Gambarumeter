@@ -117,7 +117,10 @@ public class GeolocationMonitor extends Service
 
     }
     public void terminate() {
-        Log.d(TAG, "terminate");
+        Log.d(TAG, "terminate: " + this.googleApiClient);
+        if (this.googleApiClient == null) {
+            return;
+        }
         if (this.googleApiClient.isConnected()) {
             LocationServices.FusedLocationApi
                     .removeLocationUpdates(this.googleApiClient, this);
