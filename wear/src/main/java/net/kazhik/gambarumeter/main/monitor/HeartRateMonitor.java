@@ -71,6 +71,9 @@ public class HeartRateMonitor extends Service implements SensorEventListener {
         
     }
     public void terminate() {
+        if (this.sensorManager == null) {
+            return;
+        }
         this.sensorManager.unregisterListener(this, this.heartRateSensor);
 
     }
