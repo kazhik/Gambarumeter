@@ -68,6 +68,8 @@ public class LocationDetailFragment extends Fragment
     }
     public void refreshListItem() {
         Activity activity = this.getActivity();
+        
+        // read data from database
         List<Lap> laps = new ArrayList<Lap>();
         try {
             LapTable lapTable = new LapTable(activity);
@@ -83,6 +85,7 @@ public class LocationDetailFragment extends Fragment
             return;
         }
 
+        // calculate laptimes
         List<Lap> laptimes = new ArrayList<Lap>();
         long prevTimestamp = 0;
         for (Lap lap: laps) {
@@ -95,6 +98,7 @@ public class LocationDetailFragment extends Fragment
             prevTimestamp = lap.getTimestamp();
         }
 
+        // update listview
         LocationDetailAdapter adapter =
                 new LocationDetailAdapter(this.getActivity(), laptimes);
 

@@ -1,6 +1,5 @@
 package net.kazhik.gambarumeter.main.view;
 
-import android.os.Handler;
 import android.widget.TextView;
 
 import net.kazhik.gambarumeter.Util;
@@ -14,12 +13,13 @@ public class DistanceView implements Runnable {
     private float distance = 0;
     private String distanceUnit;
     private String distanceUnitStr;
+    private boolean available;
     
     public void initialize(TextView distanceText, TextView distanceUnitText) {
         this.distanceText = distanceText;
         this.distanceUnitText = distanceUnitText;
 
-        this.setEnable(false);
+        this.setAvailable(false);
     }
 
     public DistanceView setDistance(float distance) {
@@ -37,15 +37,19 @@ public class DistanceView implements Runnable {
 
         return this;
     }
-    public void setEnable(boolean enabled) {
-        if (enabled) {
+    public void setAvailable(boolean available) {
+        if (available) {
             this.distanceText.setText("0.00");
         } else {
             this.distanceText.setText("-.--");
         }
+        this.available = available;
     }
 
     public void refresh() {
+        if (!available) {
+            return;
+        }
         
         float distance = Util.convertMeter(this.distance, this.distanceUnit);
 

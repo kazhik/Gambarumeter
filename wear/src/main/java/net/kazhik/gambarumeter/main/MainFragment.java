@@ -194,7 +194,7 @@ public class MainFragment extends PagerFragment
                     break;
                 case Sensor.TYPE_STEP_COUNTER:
                     this.stepCountMonitor = new StepCountMonitor();
-                    this.stepCountMonitor.init(this.sensorManager, this);
+                    this.stepCountMonitor.init(activity, this.sensorManager, this);
                     break;
                 default:
                     break;
@@ -327,6 +327,8 @@ public class MainFragment extends PagerFragment
             int stepCount = 0;
             if (this.stepCountMonitor != null) {
                 stepCount = this.stepCountMonitor.getStepCount();
+                
+                this.stepCountMonitor.saveResult(startTime);
             }
 
             WorkoutTable workoutTable = new WorkoutTable(this.getActivity());
@@ -373,6 +375,10 @@ public class MainFragment extends PagerFragment
         Log.d(TAG, "new heart rate: " + rate);
         this.notificationView.updateHeartRate(rate);
 
+        if (this.stepCountMonitor != null) {
+            this.stepCountMonitor.storeCurrentValue(timestamp);
+        }
+
     }
 
     // SensorValueListener
@@ -402,7 +408,7 @@ public class MainFragment extends PagerFragment
     // SensorValueListener
     @Override
     public void onLocationAvailable() {
-        this.distanceView.setEnable(true);
+        this.distanceView.setAvailable(true);
     }
 
     // SensorValueListener

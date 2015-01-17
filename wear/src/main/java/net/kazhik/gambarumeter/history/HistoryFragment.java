@@ -1,6 +1,7 @@
 package net.kazhik.gambarumeter.history;
 
 import android.app.AlertDialog;
+import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.DialogInterface;
@@ -26,7 +27,6 @@ import java.util.List;
  */
 public class HistoryFragment extends PagerFragment
         implements WearableListView.ClickListener,
-        View.OnLongClickListener,
         DialogInterface.OnClickListener {
 
     private enum DetailMode {
@@ -65,8 +65,6 @@ public class HistoryFragment extends PagerFragment
         listView.setAdapter(adapter);
         listView.setClickListener(this);
         listView.setGreedyTouchMode(true);
-        listView.setLongClickable(true);
-        listView.setOnLongClickListener(this);
         adapter.notifyDataSetChanged();
 
         if (!workoutInfos.isEmpty()) {
@@ -106,6 +104,7 @@ public class HistoryFragment extends PagerFragment
         } else {
             FragmentManager fragmentManager = getFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
             if (this.detailMode == DetailMode.HEART_RATE) {
                 Log.d(TAG, "onClick, heart rate");
                 HeartRateDetailFragment fragment = new HeartRateDetailFragment();
@@ -147,10 +146,4 @@ public class HistoryFragment extends PagerFragment
 
     }
 
-
-    @Override
-    public boolean onLongClick(View v) {
-        Log.d(TAG, "onLongClick");
-        return false;
-    }
 }

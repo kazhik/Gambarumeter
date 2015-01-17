@@ -20,6 +20,8 @@
     <string name="mile">mi</string>
     <string name="km">km</string>
 
+    <string name="steps_per_min">歩/分</string>
+
     <string name="gps_off">位置情報がOFFになっています</string>
 
     <string name="settings_title">設定</string>

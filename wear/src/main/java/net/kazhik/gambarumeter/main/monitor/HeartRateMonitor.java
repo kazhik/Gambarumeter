@@ -18,6 +18,7 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Created by kazhik on 14/10/11.
@@ -29,6 +30,7 @@ public class HeartRateMonitor extends Service implements SensorEventListener {
     private SensorValueListener listener;
     private SensorValue currentValue = new SensorValue();
     private List<SensorValue> dataList = new ArrayList<SensorValue>();
+    private LinkedBlockingQueue<SensorValue> queue = new LinkedBlockingQueue<SensorValue>();
     private HeartRateBinder binder = new HeartRateBinder();
     private static final String TAG = "HeartRateMonitor";
     private boolean started = false;
@@ -56,7 +58,7 @@ public class HeartRateMonitor extends Service implements SensorEventListener {
         }
         this.sensorManager.registerListener(this,
                 this.heartRateSensor,
-                30 * 1000 * 1000); // delay: 30 seconds
+                SensorManager.SENSOR_DELAY_NORMAL);
     }
     public void saveResult(long startTime) {
         HeartRateTable heartRateTable = new HeartRateTable(this.context);
@@ -84,6 +86,7 @@ public class HeartRateMonitor extends Service implements SensorEventListener {
     }
     public void stop() {
         this.started = false;
+        this.calculateAverageHeartRateInQueue();
 
         this.printDataList();
     }
@@ -105,18 +108,42 @@ public class HeartRateMonitor extends Service implements SensorEventListener {
         }
     }
 
-    private void storeHeartRate(long timestamp, float heartRate) {
+    private SensorValue calculateAverageHeartRateInQueue() {
+        SensorValue average = new SensorValue(0, 0);
+        if (this.queue.isEmpty()) {
+            return average;
+        }
+        SensorValue sensor;
+        int sumHeartRate = 0;
+        int size = this.queue.size();
         long lastTimestamp = 0;
-        if (!this.dataList.isEmpty()) {
-            lastTimestamp = this.dataList.get(this.dataList.size() - 1).getTimestamp();
+        while ((sensor = this.queue.poll()) != null) {
+            lastTimestamp = sensor.getTimestamp();
+            sumHeartRate += sensor.getValue();
         }
-        if (timestamp >= lastTimestamp + (1000 * 60)) {
-            this.dataList.add(new SensorValue(timestamp, heartRate));
-        }
+        average.setTimestamp(lastTimestamp);
+        average.setValue(sumHeartRate / size);
+
+        return average;
     }
-    @Override
-    public void onSensorChanged(SensorEvent sensorEvent) {
-        switch (sensorEvent.accuracy) {
+    private int storeHeartRate(long timestamp, float heartRate) {
+        // raw data in queue, rate per minute in dataList
+        
+        if (this.queue.isEmpty()) {
+            this.queue.add(new SensorValue(timestamp, heartRate));
+            return 0;
+        }
+        SensorValue average = new SensorValue(0, 0);
+        long firstTimestamp = this.queue.peek().getTimestamp();
+        if (timestamp > firstTimestamp + (1000 * 60)) {
+            average = this.calculateAverageHeartRateInQueue();
+            this.dataList.add(average);
+        }
+        this.queue.add(new SensorValue(timestamp, heartRate));
+        return (int)average.getValue();
+    }
+    private void onSensorEvent(long timestamp, float sensorValue, int accuracy) {
+        switch (accuracy) {
             case SensorManager.SENSOR_STATUS_ACCURACY_HIGH:
             case SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM:
                 break;
@@ -124,16 +151,23 @@ public class HeartRateMonitor extends Service implements SensorEventListener {
             default:
                 return;
         }
-        long newTimestamp = sensorEvent.timestamp / (1000 * 1000);
-        if (sensorEvent.values[0] != this.currentValue.getValue()) {
-            this.listener.onHeartRateChanged(newTimestamp, (int)sensorEvent.values[0]);
+        long newTimestamp = timestamp / (1000 * 1000);
+        if (sensorValue != this.currentValue.getValue()) {
+            this.listener.onHeartRateChanged(newTimestamp, (int)sensorValue);
             if (this.started) {
-                this.storeHeartRate(newTimestamp, sensorEvent.values[0]);
+                this.storeHeartRate(newTimestamp, sensorValue);
             }
         }
 
         this.currentValue.setTimestamp(newTimestamp);
-        this.currentValue.setValue(sensorEvent.values[0]);
+        this.currentValue.setValue(sensorValue);
+    }
+    
+    @Override
+    public void onSensorChanged(SensorEvent sensorEvent) {
+        long newTimestamp = sensorEvent.timestamp / (1000 * 1000);
+        
+        this.onSensorEvent(newTimestamp, sensorEvent.values[0], sensorEvent.accuracy);
 
     }
 

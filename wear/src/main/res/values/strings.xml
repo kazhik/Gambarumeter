@@ -22,6 +22,8 @@
     <string name="mile">mi</string>
     <string name="km">km</string>
 
+    <string name="steps_per_min">steps/min</string>
+
     <string name="gps_off">Geolocation setting is off</string>
 
     <string name="settings_title">Settings</string>

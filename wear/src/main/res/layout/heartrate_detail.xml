@@ -1,132 +1,38 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <android.support.wearable.view.BoxInsetLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/detail_layout"
-    android:background="@color/background"
-    android:layout_height="match_parent"
+    android:id="@+id/heartrate"
     android:layout_width="match_parent"
-    android:padding="15dp">
+    android:layout_height="match_parent"
+    android:background="@color/background">
 
-    <LinearLayout
-        app:layout_box="all"
-        android:id="@+id/detail"
-        android:layout_width="match_parent"
+    <FrameLayout
+        android:id="@+id/heartrate_layout"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:measureWithLargestChild="true"
-        android:padding="5dp">
+        android:layout_width="match_parent"
+        app:layout_box="left|bottom|right">
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/close"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:gravity="center_horizontal">
+            android:text="@string/close"
+            android:textColor="@color/text"
+            android:textSize="16sp"
+            android:layout_marginTop="16sp"
+            android:clickable="false"
+            android:enabled="false"
+            android:background="@color/button"
+            android:autoText="false" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:textColor="@color/text"
-                android:text="@string/avg"
-                android:textSize="16sp"
-                android:layout_gravity="bottom" />
-            <TextView
-                android:id="@+id/avg_bpm"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
-                android:text="0"
-                android:textColor="@color/text"
-                android:textSize="30sp" />
+        <android.support.wearable.view.WearableListView
+            android:id="@+id/heartrate_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="bottom"
-                android:textColor="@color/text"
-                android:text="@string/bpm"
-                android:textSize="16sp" />
+        </android.support.wearable.view.WearableListView>
+    </FrameLayout>
 
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:gravity="center_horizontal">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:textColor="@color/text"
-                android:text="@string/max"
-                android:textSize="16sp" />
-            <TextView
-                android:id="@+id/max_bpm"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
-                android:text="0"
-                android:textColor="@color/text"
-                android:textSize="30sp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="bottom"
-                android:textColor="@color/text"
-                android:text="@string/bpm"
-                android:textSize="16sp" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:gravity="center_horizontal">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:textColor="@color/text"
-                android:text="@string/min"
-                android:textSize="16sp" />
-            <TextView
-                android:id="@+id/min_bpm"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
-                android:text="0"
-                android:textColor="@color/text"
-                android:textSize="30sp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="bottom"
-                android:textColor="@color/text"
-                android:text="@string/bpm"
-                android:textSize="16sp" />
-
-        </LinearLayout>
-
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:gravity="center_horizontal">
-
-            <ImageButton
-                android:id="@+id/delete"
-                android:contentDescription="@string/delete"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@android:drawable/ic_menu_close_clear_cancel" />
-        </LinearLayout>
-    </LinearLayout>
 </android.support.wearable.view.BoxInsetLayout>

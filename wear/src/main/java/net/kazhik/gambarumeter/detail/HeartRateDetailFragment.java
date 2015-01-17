@@ -6,16 +6,17 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.database.SQLException;
 import android.os.Bundle;
+import android.support.wearable.view.WearableListView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
-import android.widget.TextView;
 
 import net.kazhik.gambarumeter.R;
+import net.kazhik.gambarumeter.entity.HeartRateDetail;
 import net.kazhik.gambarumeter.entity.SensorValue;
 import net.kazhik.gambarumeter.storage.HeartRateTable;
+import net.kazhik.gambarumeter.storage.StepCountTable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,62 +25,37 @@ import java.util.List;
  * Created by kazhik on 14/11/18.
  */
 public class HeartRateDetailFragment extends Fragment
-        implements View.OnClickListener {
-
-    private class Result {
-        private int average;
-        private int max;
-        private int min;
-
-        public int getAverage() {
-            return average;
-        }
-
-        public void setAverage(int average) {
-            this.average = average;
-        }
-
-        public int getMax() {
-            return max;
-        }
-
-        public void setMax(int max) {
-            this.max = max;
-        }
-
-        public int getMin() {
-            return min;
-        }
-
-        public void setMin(int min) {
-            this.min = min;
-        }
-    }
+        implements WearableListView.ClickListener {
 
     private long startTime;
     private static final String TAG = "HeartRateDetailFragment";
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater,
+                             ViewGroup container,
+                             Bundle savedInstanceState) {
         return inflater.inflate(R.layout.heartrate_detail, container, false);
     }
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        Activity activity = this.getActivity();
-
-        ImageButton deleteButton = (ImageButton)activity.findViewById(R.id.delete);
-        deleteButton.setOnClickListener(this);
-
         Log.d(TAG, "onActivityCreated");
 
+        this.refreshListItem();
+    }
+    public void setStartTime(long startTime) {
+        this.startTime = startTime;
+
+    }
+    public void refreshListItem() {
+        Activity activity = this.getActivity();
         List<SensorValue> heartRates = new ArrayList<SensorValue>();
         try {
-
-            HeartRateTable heartRateTable = new HeartRateTable(this.getActivity());
+            HeartRateTable heartRateTable = new HeartRateTable(activity);
             heartRateTable.open(true);
             heartRates = heartRateTable.selectAll(this.startTime);
+
             heartRateTable.close();
 
         } catch (SQLException e) {
@@ -89,60 +65,59 @@ public class HeartRateDetailFragment extends Fragment
         if (heartRates.isEmpty()) {
             return;
         }
-        Result result = this.calculate(heartRates);
-
-        this.refreshView(result);
-    }
-    public void setStartTime(long startTime) {
-        this.startTime = startTime;
-
-    }
-    private void refreshView(Result result) {
-        Activity activity = this.getActivity();
-
-        TextView avgBpm = (TextView)activity.findViewById(R.id.avg_bpm);
-        avgBpm.setText(String.valueOf(result.getAverage()));
-
-        TextView minBpm = (TextView)activity.findViewById(R.id.min_bpm);
-        minBpm.setText(String.valueOf(result.getMin()));
-
-        TextView maxBpm = (TextView)activity.findViewById(R.id.max_bpm);
-        maxBpm.setText(String.valueOf(result.getMax()));
-
-    }
-    private Result calculate(List<SensorValue> heartRates) {
-        Result result = new Result();
-
-        if (heartRates.isEmpty()) {
-            return result;
-        }
-        result.setMax(0);
-        result.setMin(999);
-        long sum = 0;
-        for (SensorValue val: heartRates) {
-            int heartRate = (int)val.getValue();
-            if (heartRate > result.getMax()) {
-                result.setMax(heartRate);
+        StepCountTable stepCountTable = new StepCountTable(activity);
+        stepCountTable.open(true);
+        List<HeartRateDetail> heartRateDetails = new ArrayList<HeartRateDetail>();
+        int prevSteps = 0;
+        long prevTimestamp = this.startTime;
+        for (SensorValue heartRate: heartRates) {
+            long timestamp = heartRate.getTimestamp();
+            int steps = stepCountTable.select(timestamp);
+            int stepsPerMinute = 0;
+            if (timestamp - prevTimestamp > 0) {
+                stepsPerMinute = (steps - prevSteps) /
+                        (int)((timestamp - prevTimestamp) / 1000 / 60);
             }
-            if (heartRate < result.getMin()) {
-                result.setMin(heartRate);
-            }
-            sum += heartRate;
-        }
-        result.setAverage((int) (sum / heartRates.size()));
+            prevSteps = steps;
+            prevTimestamp = timestamp;
 
-        return result;
+            HeartRateDetail heartRateDetail = new HeartRateDetail()
+                    .setTimestamp(timestamp)
+                    .setHeartRate((int) heartRate.getValue())
+                    .setStepCount(stepsPerMinute);
+            heartRateDetails.add(heartRateDetail);
+            
+        }
+        stepCountTable.close();
+
+        HeartRateDetailAdapter adapter =
+                new HeartRateDetailAdapter(activity, heartRateDetails);
+
+        WearableListView listView =
+                (WearableListView)activity.findViewById(R.id.heartrate_list);
+        if (listView == null) {
+            Log.d(TAG, "heartrate_list not found");
+            return;
+        }
+        listView.setAdapter(adapter);
+        listView.setGreedyTouchMode(true);
+        listView.setClickListener(this);
+        adapter.notifyDataSetChanged();
+
+    }
+    @Override
+    public void onClick(WearableListView.ViewHolder viewHolder) {
+        Log.d(TAG, "onClick");
+
     }
 
     @Override
-    public void onClick(View v) {
-
-        Log.d(TAG, "onClick");
+    public void onTopEmptyRegionClick() {
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.remove(this);
         fragmentTransaction.commit();
 
-
     }
+
 }
