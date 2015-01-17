@@ -4,15 +4,13 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.wearable.view.WearableListView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import net.kazhik.gambarumeter.R;
-import net.kazhik.gambarumeter.entity.Lap;
-import net.kazhik.gambarumeter.Util;
+import net.kazhik.gambarumeter.entity.LapTime;
 
 import java.util.List;
 
@@ -20,14 +18,14 @@ import java.util.List;
  * Created by kazhik on 14/11/10.
  */
 public class LocationDetailAdapter extends WearableListView.Adapter {
-    private List<Lap> dataSet;
+    private List<LapTime> dataSet;
     private final Context context;
     private final LayoutInflater inflater;
     private String prefDistanceUnit;
     private static final String TAG = "LocationDetailAdapter";
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public LocationDetailAdapter(Context context, List<Lap> dataset) {
+    public LocationDetailAdapter(Context context, List<LapTime> dataset) {
         this.context = context;
         this.inflater = LayoutInflater.from(context);
         this.dataSet = dataset;
@@ -72,16 +70,13 @@ public class LocationDetailAdapter extends WearableListView.Adapter {
         TextView lapTimeText = itemHolder.lapTimeText;
 
         // replace text contents
-        Lap lapInfo = this.dataSet.get(position);
-        long laptime = lapInfo.getLaptime();
-        float distance = Util.convertMeter(lapInfo.getDistance(), this.prefDistanceUnit);
-        Log.d(TAG, "distance: " + lapInfo.getDistance() + "; laptime: " + laptime);
-        String distanceUnitStr =
-                Util.distanceUnitDisplayStr(this.prefDistanceUnit, context.getResources());
-        String distanceStr = String.format("%.2f%s", distance, distanceUnitStr);
+        LapTime lapInfo = this.dataSet.get(position);
+        String distanceUnitStr = lapInfo.getDistanceUnitStr();
+        String distanceStr = String.format("%.2f%s",
+                lapInfo.getDistance(), distanceUnitStr);
         distanceText.setText(distanceStr);
 
-
+        long laptime = lapInfo.getLaptime();
         lapTimeText.setText(this.formatLapTime(laptime));
 
         // replace list item's metadata

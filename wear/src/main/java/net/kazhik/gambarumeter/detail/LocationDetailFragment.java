@@ -4,9 +4,11 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.SharedPreferences;
 import android.database.SQLException;
 import android.location.Location;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.wearable.view.WearableListView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,8 +16,10 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import net.kazhik.gambarumeter.R;
-import net.kazhik.gambarumeter.entity.Lap;
-import net.kazhik.gambarumeter.storage.LapTable;
+import net.kazhik.gambarumeter.Util;
+import net.kazhik.gambarumeter.entity.LapTime;
+import net.kazhik.gambarumeter.entity.SplitTime;
+import net.kazhik.gambarumeter.storage.SplitTable;
 import net.kazhik.gambarumeter.storage.LocationTable;
 
 import java.util.ArrayList;
@@ -68,34 +72,43 @@ public class LocationDetailFragment extends Fragment
     }
     public void refreshListItem() {
         Activity activity = this.getActivity();
+        SharedPreferences prefs =
+                PreferenceManager.getDefaultSharedPreferences(activity);
+        String prefDistanceUnit = prefs.getString("distanceUnit", "metre");
+
+        String distanceUnitStr =
+                Util.distanceUnitDisplayStr(prefDistanceUnit, activity.getResources());
         
         // read data from database
-        List<Lap> laps = new ArrayList<Lap>();
+        List<SplitTime> splits = new ArrayList<SplitTime>();
         try {
-            LapTable lapTable = new LapTable(activity);
-            lapTable.open(true);
-            laps = lapTable.selectAll(this.startTime);
-            lapTable.close();
+            SplitTable splitTable = new SplitTable(activity);
+            splitTable.open(true);
+            splits = splitTable.selectAll(this.startTime);
+            splitTable.close();
 
         } catch (SQLException e) {
             Log.e(TAG, e.getMessage(), e);
         }
 
-        if (laps.isEmpty()) {
+        if (splits.isEmpty()) {
             return;
         }
 
         // calculate laptimes
-        List<Lap> laptimes = new ArrayList<Lap>();
+        List<LapTime> laptimes = new ArrayList<LapTime>();
         long prevTimestamp = 0;
-        for (Lap lap: laps) {
-            long currentLap = (lap.getTimestamp() - prevTimestamp) / 1000;
+        for (SplitTime split: splits) {
+            long currentLap = (split.getTimestamp() - prevTimestamp) / 1000;
             if (prevTimestamp != 0) {
-                Log.d(TAG, lap.getDistance() + ": " + currentLap);
+                Log.d(TAG, split.getDistance() + ": " + currentLap);
 
-                laptimes.add(new Lap(lap.getTimestamp(), lap.getDistance(), currentLap));
+                float distance = Util.convertMeter(split.getDistance(), prefDistanceUnit);
+                
+                laptimes.add(new LapTime(split.getTimestamp(),
+                        distance, currentLap, distanceUnitStr));
             }
-            prevTimestamp = lap.getTimestamp();
+            prevTimestamp = split.getTimestamp();
         }
 
         // update listview

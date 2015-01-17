@@ -33,7 +33,7 @@ public class DataStorage {
             WorkoutTable.init(db);
             HeartRateTable.init(db);
             LocationTable.init(db);
-            LapTable.init(db);
+            SplitTable.init(db);
             StepCountTable.init(db);
         }
 
@@ -51,7 +51,7 @@ public class DataStorage {
                 WorkoutTable.upgrade(db);
                 HeartRateTable.upgrade(db);
                 LocationTable.upgrade(db);
-                LapTable.upgrade(db);
+                SplitTable.upgrade(db);
                 StepCountTable.upgrade(db);
                 db.setTransactionSuccessful();
             } catch (Exception e) {

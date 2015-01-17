@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.util.Log;
 
-import net.kazhik.gambarumeter.entity.Lap;
+import net.kazhik.gambarumeter.entity.SplitTime;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -16,7 +16,7 @@ import java.util.List;
 /**
  * Created by kazhik on 14/11/08.
  */
-public class LapTable extends AbstractTable {
+public class SplitTable extends AbstractTable {
     public static final String TABLE_NAME = "gm_lap";
     private static final String CREATE_TABLE =
             "CREATE TABLE " + TABLE_NAME + " (" +
@@ -25,7 +25,7 @@ public class LapTable extends AbstractTable {
                     "distance REAL)";
     private static final String TAG = "LapTable";
 
-    public LapTable(Context context) {
+    public SplitTable(Context context) {
         super(context);
     }
     public static void init(SQLiteDatabase db){
@@ -47,10 +47,10 @@ public class LapTable extends AbstractTable {
         return (int)this.db.insert(TABLE_NAME, null, values);
 
     }
-    public List<Lap> selectAll(long startTime) {
+    public List<SplitTime> selectAll(long startTime) {
         return this.selectAll(startTime, 0);
     }
-    public List<Lap> selectAll(long startTime, int max) {
+    public List<SplitTime> selectAll(long startTime, int max) {
 
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
         qb.setTables(TABLE_NAME);
@@ -64,7 +64,7 @@ public class LapTable extends AbstractTable {
         Cursor cursor = qb.query(this.db, columns, selection, selectionArgs, null,
                 null, sortOrder, limit);
 
-        List<Lap> dataList = new ArrayList<Lap>();
+        List<SplitTime> dataList = new ArrayList<SplitTime>();
 
         if (cursor.getCount() == 0) {
             return dataList;
@@ -73,7 +73,9 @@ public class LapTable extends AbstractTable {
         cursor.moveToFirst();
         try {
             while (cursor.isAfterLast() == false) {
-                Lap lap = new Lap(this.parseDate(cursor.getString(0)), cursor.getFloat(1));
+                SplitTime lap =
+                        new SplitTime(this.parseDate(cursor.getString(0)),
+                                cursor.getFloat(1));
                 dataList.add(lap);
                 cursor.moveToNext();
             }

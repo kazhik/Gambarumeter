@@ -26,6 +26,7 @@ import android.widget.Toast;
 
 import net.kazhik.gambarumeter.R;
 import net.kazhik.gambarumeter.Util;
+import net.kazhik.gambarumeter.main.monitor.BatteryLevelReceiver;
 import net.kazhik.gambarumeter.main.monitor.GeolocationMonitor;
 import net.kazhik.gambarumeter.main.monitor.HeartRateMonitor;
 import net.kazhik.gambarumeter.main.monitor.SensorValueListener;
@@ -55,6 +56,7 @@ public class MainFragment extends PagerFragment
     private HeartRateMonitor heartRateMonitor;
     private StepCountMonitor stepCountMonitor;
     private GeolocationMonitor locationMonitor;
+    private BatteryLevelReceiver batteryLevelReceiver;
 
     private SplitTimeView splitTimeView = new SplitTimeView();
     private HeartRateView heartRateView = new HeartRateView();
@@ -180,6 +182,8 @@ public class MainFragment extends PagerFragment
         Activity activity = this.getActivity();
         Context appContext = activity.getApplicationContext();
 
+        this.batteryLevelReceiver = new BatteryLevelReceiver(this);
+        
         this.sensorManager =
                 (SensorManager)activity.getSystemService(Activity.SENSOR_SERVICE);
 
@@ -415,6 +419,18 @@ public class MainFragment extends PagerFragment
     @Override
     public void onLap(long timestamp, float distance, long lap) {
         this.notificationView.updateLap(lap);
+    }
+
+    // SensorValueListener
+    @Override
+    public void onBatteryLow() {
+        this.locationMonitor.terminate();
+    }
+
+    // SensorValueListener
+    @Override
+    public void onBatteryOkay() {
+        this.locationMonitor.init(this.getActivity(), this);
     }
 
     // Stopwatch.OnTickListener

@@ -4,7 +4,7 @@ import android.location.Location;
 import android.util.Log;
 
 import net.kazhik.gambarumeter.entity.Distance;
-import net.kazhik.gambarumeter.entity.Lap;
+import net.kazhik.gambarumeter.entity.SplitTime;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,11 +17,10 @@ public class LocationRecord {
     private float realDistance = 0;
     private double elevationGain = 0;
     private List<Location> locations = new ArrayList<Location>();
-    private List<Lap> laptimes = new ArrayList<Lap>();
+    private List<SplitTime> splitTimes = new ArrayList<SplitTime>();
 
     private float lapDistance = 1000;
 
-    private final int MIN_ACCURACY = 10; // 10 metre
     private static final String TAG = "LocationRecord";
 
     public void init(float lapDistance) {
@@ -34,7 +33,7 @@ public class LocationRecord {
         this.realDistance = 0;
         this.elevationGain = 0;
         this.locations.clear();
-        this.laptimes.clear();
+        this.splitTimes.clear();
 
     }
     private Distance calculateDistance(Location newLoc) {
@@ -65,7 +64,7 @@ public class LocationRecord {
 
     }
     public void addLap(long timestamp) {
-        this.laptimes.add(new Lap(timestamp, this.realDistance));
+        this.splitTimes.add(new SplitTime(timestamp, this.realDistance));
     }
     private long autoLap(long timestamp, float distance) {
         float oldDistance = this.realDistance;
@@ -73,9 +72,9 @@ public class LocationRecord {
 
         if (Math.floor(oldDistance / this.lapDistance) !=
                 Math.floor(newDistance / this.lapDistance)) {
-            this.laptimes.add(new Lap(timestamp, newDistance));
-            if (this.laptimes.size() > 1) {
-                return timestamp - this.laptimes.get(this.laptimes.size() - 2).getTimestamp();
+            this.splitTimes.add(new SplitTime(timestamp, newDistance));
+            if (this.splitTimes.size() > 1) {
+                return timestamp - this.splitTimes.get(this.splitTimes.size() - 2).getTimestamp();
             } else {
                 return 0;
             }
@@ -122,8 +121,8 @@ public class LocationRecord {
         return this.elevationGain;
     }
 
-    public List<Lap> getLaps() {
-        return this.laptimes;
+    public List<SplitTime> getSplits() {
+        return this.splitTimes;
     }
     public List<Location> getLocationList() {
         return this.locations;

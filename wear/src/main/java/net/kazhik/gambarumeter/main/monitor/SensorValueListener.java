@@ -9,4 +9,7 @@ public interface SensorValueListener {
     public void onLocationChanged(long timestamp, float distance, float speed);
     public void onLocationAvailable();
     public void onLap(long timestamp, float distance, long lap);
+    
+    public void onBatteryLow();
+    public void onBatteryOkay();
 }

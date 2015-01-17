@@ -20,13 +20,24 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.wearable.Wearable;
 
-import net.kazhik.gambarumeter.entity.Lap;
-import net.kazhik.gambarumeter.storage.LapTable;
+import net.kazhik.gambarumeter.entity.SplitTime;
+import net.kazhik.gambarumeter.storage.SplitTable;
 import net.kazhik.gambarumeter.storage.LocationTable;
 
 import java.util.List;
 
 /**
+ * Sequence of GPS monitoring:
+ * 
+ * MainFragment#initializeSensor
+ *   bindService ( creates GeolocationMonitor) 
+ * MainFragment#onServiceConnected
+ *   GeolocationMonitor#init
+ *     GoogleApiClient#connect
+ * GeolocationMonitor#onConnected
+ *   LocationServices.FusedLocationApi.requestLocationUpdates
+ * GeolocationMonitor#onLocationChanged
+ *
  * Created by kazhik on 14/11/29.
  */
 public class GeolocationMonitor extends Service
@@ -95,8 +106,8 @@ public class GeolocationMonitor extends Service
     private List<Location> getLocationList() {
         return this.record.getLocationList();
     }
-    private List<Lap> getLaps() {
-        return this.record.getLaps();
+    private List<SplitTime> getSplits() {
+        return this.record.getSplits();
     }
 
     public void saveResult(long startTime) {
@@ -108,12 +119,12 @@ public class GeolocationMonitor extends Service
         }
         locTable.close();
 
-        LapTable lapTable = new LapTable(this.context);
-        lapTable.open(false);
-        for (Lap lap: this.getLaps()) {
-            lapTable.insert(lap.getTimestamp(), startTime, lap.getDistance());
+        SplitTable splitTable = new SplitTable(this.context);
+        splitTable.open(false);
+        for (SplitTime split: this.getSplits()) {
+            splitTable.insert(split.getTimestamp(), startTime, split.getDistance());
         }
-        lapTable.close();
+        splitTable.close();
 
     }
     public void terminate() {
