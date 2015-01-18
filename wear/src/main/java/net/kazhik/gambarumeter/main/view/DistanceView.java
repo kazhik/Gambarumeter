@@ -1,5 +1,6 @@
 package net.kazhik.gambarumeter.main.view;
 
+import android.util.Log;
 import android.widget.TextView;
 
 import net.kazhik.gambarumeter.Util;
@@ -14,7 +15,8 @@ public class DistanceView implements Runnable {
     private String distanceUnit;
     private String distanceUnitStr;
     private boolean available;
-    
+    private static final String TAG = "DistanceView";
+
     public void initialize(TextView distanceText, TextView distanceUnitText) {
         this.distanceText = distanceText;
         this.distanceUnitText = distanceUnitText;
@@ -47,16 +49,15 @@ public class DistanceView implements Runnable {
     }
 
     public void refresh() {
-        if (!available) {
+        Log.d(TAG, "distanceUnitStr: " + this.distanceUnitStr);
+        this.distanceUnitText.setText(this.distanceUnitStr);
+        
+        if (!this.available) {
             return;
         }
-        
         float distance = Util.convertMeter(this.distance, this.distanceUnit);
-
         String str = String.format("%.2f", distance);
         this.distanceText.setText(str);
-        
-        this.distanceUnitText.setText(this.distanceUnitStr);
     }
 
     @Override

@@ -22,9 +22,11 @@
 
     <string name="steps_per_min">歩/分</string>
 
-    <string name="gps_off">位置情報がOFFになっています</string>
 
     <string name="settings_title">設定</string>
     <string name="distance_unit">距離の単位</string>
+
+    <string name="gps_off">位置情報がOFFになっています</string>
+    <string name="no_detail">詳細データがありません</string>
 
 </resources>

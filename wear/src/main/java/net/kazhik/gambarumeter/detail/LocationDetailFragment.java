@@ -1,12 +1,8 @@
 package net.kazhik.gambarumeter.detail;
 
 import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.SharedPreferences;
 import android.database.SQLException;
-import android.location.Location;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.wearable.view.WearableListView;
@@ -14,13 +10,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import net.kazhik.gambarumeter.R;
 import net.kazhik.gambarumeter.Util;
 import net.kazhik.gambarumeter.entity.LapTime;
 import net.kazhik.gambarumeter.entity.SplitTime;
 import net.kazhik.gambarumeter.storage.SplitTable;
-import net.kazhik.gambarumeter.storage.LocationTable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,47 +24,13 @@ import java.util.List;
 /**
  * Created by kazhik on 14/11/18.
  */
-public class LocationDetailFragment extends Fragment
-        implements WearableListView.ClickListener {
+public class LocationDetailFragment extends DetailFragment {
 
-    private long startTime;
     private static final String TAG = "LocationDetailFragment";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.location_detail, container, false);
-    }
-    private void getLocations() {
-        List<Location> locations = new ArrayList<Location>();
-        try {
-            LocationTable locTable = new LocationTable(this.getActivity());
-            locTable.open(true);
-            locations = locTable.selectAll(this.startTime);
-            locTable.close();
-
-        } catch (SQLException e) {
-            Log.e(TAG, e.getMessage(), e);
-        }
-
-        if (locations.isEmpty()) {
-            return;
-        }
-
-        for (Location loc: locations) {
-            Log.d(TAG, loc.getTime() + "; Lat: " + loc.getLatitude()
-                            + "; Lon: " + loc.getLongitude()
-                            + "; Alt: " + loc.getAltitude()
-                            + "; Accuracy: " + loc.getAccuracy()
-            );
-        }
-
-
-    }
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        this.refreshListItem();
     }
     public void refreshListItem() {
         Activity activity = this.getActivity();
@@ -84,7 +46,7 @@ public class LocationDetailFragment extends Fragment
         try {
             SplitTable splitTable = new SplitTable(activity);
             splitTable.open(true);
-            splits = splitTable.selectAll(this.startTime);
+            splits = splitTable.selectAll(this.getStartTime());
             splitTable.close();
 
         } catch (SQLException e) {
@@ -92,6 +54,11 @@ public class LocationDetailFragment extends Fragment
         }
 
         if (splits.isEmpty()) {
+            Toast.makeText(this.getActivity(),
+                    R.string.no_detail,
+                    Toast.LENGTH_SHORT)
+                    .show();
+            this.close();
             return;
         }
 
@@ -128,23 +95,5 @@ public class LocationDetailFragment extends Fragment
 
     }
 
-    public void setStartTime(long startTime) {
-        this.startTime = startTime;
 
-    }
-
-    @Override
-    public void onClick(WearableListView.ViewHolder viewHolder) {
-        Log.d(TAG, "onClick");
-
-    }
-
-    @Override
-    public void onTopEmptyRegionClick() {
-        FragmentManager fragmentManager = getFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.remove(this);
-        fragmentTransaction.commit();
-
-    }
 }

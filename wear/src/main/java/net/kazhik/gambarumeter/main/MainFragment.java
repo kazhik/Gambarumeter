@@ -103,6 +103,7 @@ public class MainFragment extends PagerFragment
 
     @Override
     public void refreshView() {
+        Log.d(TAG, "refreshView");
         if (this.locationMonitor != null) {
             this.setDistanceUnit();
             this.getActivity().runOnUiThread(this.distanceView);
@@ -213,7 +214,7 @@ public class MainFragment extends PagerFragment
                 this.locationMonitor = new GeolocationMonitor(); // temporary
             } else {
                 Toast.makeText(appContext,
-                        appContext.getString(R.string.gps_off),
+                        R.string.gps_off,
                         Toast.LENGTH_LONG)
                         .show();
             }
@@ -247,6 +248,7 @@ public class MainFragment extends PagerFragment
 
             this.distanceView.initialize(distanceValue, distanceUnitLabel);
             this.setDistanceUnit();
+            this.distanceView.refresh();
             activity.findViewById(R.id.distance).setVisibility(View.VISIBLE);
         } else {
             activity.findViewById(R.id.distance).setVisibility(View.GONE);

@@ -10,6 +10,10 @@ import android.content.Intent;
 public class BatteryLevelReceiver extends BroadcastReceiver {
     private SensorValueListener listener;
 
+    public BatteryLevelReceiver(){
+        super();
+        
+    }
     public BatteryLevelReceiver(SensorValueListener listener) {
         this.listener = listener;
     }

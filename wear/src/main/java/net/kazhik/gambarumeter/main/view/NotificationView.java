@@ -38,7 +38,8 @@ public class NotificationView {
         NotificationCompat.Action openMain
                 = new NotificationCompat.Action(R.drawable.empty, null, pendingIntent);
 
-        Bitmap bmp = BitmapFactory.decodeResource(this.context.getResources(), R.drawable.background);
+        Bitmap bmp = BitmapFactory.decodeResource(this.context.getResources(),
+                R.drawable.notification);
 
         NotificationCompat.WearableExtender extender = new NotificationCompat.WearableExtender()
                 .setHintHideIcon(true)

@@ -1,9 +1,6 @@
 package net.kazhik.gambarumeter.history;
 
 import android.app.AlertDialog;
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.wearable.view.WearableListView;
@@ -13,11 +10,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import net.kazhik.gambarumeter.pager.PagerFragment;
 import net.kazhik.gambarumeter.R;
-import net.kazhik.gambarumeter.detail.HeartRateDetailFragment;
-import net.kazhik.gambarumeter.detail.LocationDetailFragment;
 import net.kazhik.gambarumeter.entity.WorkoutInfo;
+import net.kazhik.gambarumeter.pager.PagerFragment;
 import net.kazhik.gambarumeter.storage.WorkoutTable;
 
 import java.util.List;
@@ -25,17 +20,10 @@ import java.util.List;
 /**
  * Created by kazhik on 14/11/11.
  */
-public class HistoryFragment extends PagerFragment
+public abstract class HistoryFragment extends PagerFragment
         implements WearableListView.ClickListener,
         DialogInterface.OnClickListener {
 
-    private enum DetailMode {
-        NONE,
-        HEART_RATE,
-        LOCATION
-    };
-
-    private DetailMode detailMode = DetailMode.NONE;
     private long startTime;
     private boolean editMode = false;
     private static final String TAG = "HistoryFragment";
@@ -67,16 +55,6 @@ public class HistoryFragment extends PagerFragment
         listView.setGreedyTouchMode(true);
         adapter.notifyDataSetChanged();
 
-        if (!workoutInfos.isEmpty()) {
-            WorkoutInfo workoutInfo = workoutInfos.get(0);
-            this.startTime = workoutInfo.getStartTime();
-            if (workoutInfo.getHeartRate() > 0) {
-                this.detailMode = DetailMode.HEART_RATE;
-            } else if (workoutInfo.getDistance() > 0) {
-                this.detailMode = DetailMode.LOCATION;
-            }
-
-        }
     }
 
     @Override
@@ -87,6 +65,7 @@ public class HistoryFragment extends PagerFragment
 
     }
 
+    public abstract void openDetailFragment();
 
     @Override
     public void onClick(WearableListView.ViewHolder viewHolder) {
@@ -102,21 +81,7 @@ public class HistoryFragment extends PagerFragment
 
             confirmDelete.show();
         } else {
-            FragmentManager fragmentManager = getFragmentManager();
-            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-
-            if (this.detailMode == DetailMode.HEART_RATE) {
-                Log.d(TAG, "onClick, heart rate");
-                HeartRateDetailFragment fragment = new HeartRateDetailFragment();
-                fragment.setStartTime(startTime);
-                fragmentTransaction.add(R.id.history_layout, fragment);
-            } else if (this.detailMode == DetailMode.LOCATION) {
-                Log.d(TAG, "onClick, location");
-                LocationDetailFragment fragment = new LocationDetailFragment();
-                fragment.setStartTime(startTime);
-                fragmentTransaction.add(R.id.history_layout, fragment);
-            }
-            fragmentTransaction.commit();
+            this.openDetailFragment();
         }
 
     }

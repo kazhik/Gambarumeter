@@ -24,9 +24,11 @@
 
     <string name="steps_per_min">steps/min</string>
 
-    <string name="gps_off">Geolocation setting is off</string>
-
     <string name="settings_title">Settings</string>
     <string name="distance_unit">Distance Unit</string>
+
+    <string name="gps_off">Geolocation setting is off</string>
+    <string name="no_detail">No detailed data available</string>
+
 
 </resources>

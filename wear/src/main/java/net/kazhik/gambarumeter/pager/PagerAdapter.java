@@ -7,7 +7,8 @@ import android.content.pm.PackageManager;
 import android.support.wearable.view.FragmentGridPagerAdapter;
 import android.support.wearable.view.GridViewPager;
 
-import net.kazhik.gambarumeter.history.HistoryFragment;
+import net.kazhik.gambarumeter.history.HeartRateHistoryFragment;
+import net.kazhik.gambarumeter.history.LocationHistoryFragment;
 import net.kazhik.gambarumeter.main.MainFragment;
 import net.kazhik.gambarumeter.settings.SettingsFragment;
 
@@ -26,11 +27,18 @@ public class PagerAdapter extends FragmentGridPagerAdapter
         PackageManager pm = context.getPackageManager();
         if (pm.hasSystemFeature(PackageManager.FEATURE_LOCATION_GPS)) {
             this.fragments = new PagerFragment[][]{
-                    {new MainFragment(), new HistoryFragment(), new SettingsFragment()}
+                    {
+                            new MainFragment(),
+                            new LocationHistoryFragment(),
+                            new SettingsFragment()
+                    }
             };
         } else {
             this.fragments = new PagerFragment[][]{
-                    {new MainFragment(), new HistoryFragment()}
+                    {
+                            new MainFragment(),
+                            new HeartRateHistoryFragment()
+                    }
             };
         }
         
