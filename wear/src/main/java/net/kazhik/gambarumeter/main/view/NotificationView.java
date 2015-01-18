@@ -16,14 +16,10 @@ import net.kazhik.gambarumeter.Util;
 /**
  * Created by kazhik on 14/10/25.
  */
-public class NotificationView {
+public abstract class NotificationView {
     private Context context;
     private NotificationCompat.Builder notificationBuilder;
-    private int heartRate = -1;
     private int stepCount = -1;
-    private float distance = -1.0f;
-    private long lapTime = 0;
-    private String distanceUnit;
 
     private static final int NOTIFICATION_ID = 3000;
 
@@ -57,26 +53,12 @@ public class NotificationView {
                 .setOngoing(true);
 
     }
-    public void clear() {
-        this.heartRate = -1;
-        this.stepCount = 0;
-        this.distance = -1.0f;
-    }
-    public NotificationView setDistanceUnit(String distanceUnit) {
-        this.distanceUnit = distanceUnit;
-
-        return this;
-    }
-    public void updateDistance(float distance) {
-        this.distance = distance;
-    }
-    public void updateLap(long laptime) {
-        this.lapTime = laptime;
+    public Context getContext() {
+        return this.context;
         
     }
-    public void updateHeartRate(int heartRate) {
-
-        this.heartRate = heartRate;
+    public void clear() {
+        this.stepCount = 0;
     }
     public void updateStepCount(int stepCount) {
         this.stepCount = stepCount;
@@ -97,25 +79,7 @@ public class NotificationView {
 
         return str;
     }
-    private String makeSensorDataText() {
-        String str = "";
-        if (this.heartRate > 0) {
-            str += "/";
-            str += this.heartRate + this.context.getString(R.string.bpm);
-        }
-        if (this.distance > 0) {
-            String distanceUnitStr =
-                    Util.distanceUnitDisplayStr(this.distanceUnit,
-                            this.context.getResources());
-            float distance = Util.convertMeter(this.distance, this.distanceUnit);
-
-            str += "/";
-            str += String.format("%.2f%s", distance, distanceUnitStr);
-            str += "/";
-            str += DateUtils.formatElapsedTime(this.lapTime / 1000);
-        }
-        return str;
-    }
+    public abstract String makeSensorDataText();
     public void show(long elapsed) {
 
         this.notificationBuilder

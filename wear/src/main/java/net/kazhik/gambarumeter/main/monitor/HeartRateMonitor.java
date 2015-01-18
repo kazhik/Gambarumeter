@@ -27,7 +27,7 @@ public class HeartRateMonitor extends Service implements SensorEventListener {
     private Context context;
     private SensorManager sensorManager;
     private Sensor heartRateSensor;
-    private SensorValueListener listener;
+    private HeartRateSensorValueListener listener;
     private SensorValue currentValue = new SensorValue();
     private List<SensorValue> dataList = new ArrayList<SensorValue>();
     private LinkedBlockingQueue<SensorValue> queue = new LinkedBlockingQueue<SensorValue>();
@@ -44,7 +44,7 @@ public class HeartRateMonitor extends Service implements SensorEventListener {
 
     public void init(Context context,
                      SensorManager sensorManager,
-                     SensorValueListener listener) {
+                     HeartRateSensorValueListener listener) {
 
         this.context = context;
         this.sensorManager = sensorManager;
@@ -64,6 +64,7 @@ public class HeartRateMonitor extends Service implements SensorEventListener {
         HeartRateTable heartRateTable = new HeartRateTable(this.context);
         heartRateTable.open(false);
         for (SensorValue sensorValue: this.dataList) {
+            Log.d(TAG, "insert: " + sensorValue.getTimestamp() + ": " + sensorValue.getValue());
             heartRateTable.insert(
                     sensorValue.getTimestamp(),
                     startTime,
@@ -165,9 +166,9 @@ public class HeartRateMonitor extends Service implements SensorEventListener {
     
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
-        long newTimestamp = sensorEvent.timestamp / (1000 * 1000);
-        
-        this.onSensorEvent(newTimestamp, sensorEvent.values[0], sensorEvent.accuracy);
+        this.onSensorEvent(sensorEvent.timestamp,
+                sensorEvent.values[0],
+                sensorEvent.accuracy);
 
     }
 

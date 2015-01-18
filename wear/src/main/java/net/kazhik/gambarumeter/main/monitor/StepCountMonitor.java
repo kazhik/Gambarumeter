@@ -5,6 +5,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.util.Log;
 
 import net.kazhik.gambarumeter.entity.SensorValue;
 import net.kazhik.gambarumeter.storage.HeartRateTable;
@@ -27,6 +28,7 @@ public class StepCountMonitor implements SensorEventListener {
     private boolean started = false;
     private SensorValue currentValue = new SensorValue();
     private List<SensorValue> dataList = new ArrayList<SensorValue>();
+    private static final String TAG = "StepCountMonitor";
 
     public void init(Context context,
                      SensorManager sensorManager,
@@ -69,16 +71,25 @@ public class StepCountMonitor implements SensorEventListener {
         stepCountTable.close();
 
     }
-    public void storeCurrentValue(long timestamp) {
-        this.dataList.add(new SensorValue(timestamp, this.currentValue.getValue()));
-        
-    }
-    private void storeStepCount(long timestamp, float stepCount) {
+    private long getLastTimestamp() {
         long lastTimestamp = 0;
         if (!this.dataList.isEmpty()) {
             lastTimestamp = this.dataList.get(this.dataList.size() - 1).getTimestamp();
         }
+        return lastTimestamp;
+    }
+    public void storeCurrentValue(long timestamp) {
+        long lastTimestamp = this.getLastTimestamp();
+        if (lastTimestamp != timestamp) {
+            Log.d(TAG, "storeCurrentValue: " + timestamp);
+            this.dataList.add(new SensorValue(timestamp, this.currentValue.getValue()));
+        }
+
+    }
+    private void storeStepCount(long timestamp, float stepCount) {
+        long lastTimestamp = this.getLastTimestamp();
         if (timestamp >= lastTimestamp + (1000 * 60)) {
+            Log.d(TAG, "storeStepCount: " + timestamp);
             this.dataList.add(new SensorValue(timestamp, stepCount));
         }
     }

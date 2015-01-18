@@ -9,7 +9,8 @@ import android.support.wearable.view.GridViewPager;
 
 import net.kazhik.gambarumeter.history.HeartRateHistoryFragment;
 import net.kazhik.gambarumeter.history.LocationHistoryFragment;
-import net.kazhik.gambarumeter.main.MainFragment;
+import net.kazhik.gambarumeter.main.HeartRateMainFragment;
+import net.kazhik.gambarumeter.main.LocationMainFragment;
 import net.kazhik.gambarumeter.settings.SettingsFragment;
 
 /**
@@ -28,7 +29,7 @@ public class PagerAdapter extends FragmentGridPagerAdapter
         if (pm.hasSystemFeature(PackageManager.FEATURE_LOCATION_GPS)) {
             this.fragments = new PagerFragment[][]{
                     {
-                            new MainFragment(),
+                            new LocationMainFragment(),
                             new LocationHistoryFragment(),
                             new SettingsFragment()
                     }
@@ -36,7 +37,7 @@ public class PagerAdapter extends FragmentGridPagerAdapter
         } else {
             this.fragments = new PagerFragment[][]{
                     {
-                            new MainFragment(),
+                            new HeartRateMainFragment(),
                             new HeartRateHistoryFragment()
                     }
             };

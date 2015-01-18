@@ -49,7 +49,7 @@ public class GeolocationMonitor extends Service
     private GoogleApiClient googleApiClient;
 
     private GeolocationBinder binder = new GeolocationBinder();
-    private SensorValueListener listener;
+    private LocationSensorValueListener listener;
     private LocationRecord record = new LocationRecord();
 
     private static final int UPDATE_INTERVAL_MS = 5000;
@@ -68,7 +68,7 @@ public class GeolocationMonitor extends Service
         }
     }
 
-    public void init(Context context, SensorValueListener listener) {
+    public void init(Context context, LocationSensorValueListener listener) {
         this.context = context;
         this.listener = listener;
 
