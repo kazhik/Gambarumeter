@@ -19,7 +19,9 @@ public abstract class AbstractTable {
     private DbTblHelper dbHelper;
     protected SQLiteDatabase db;
     protected final Context context;
-    private SimpleDateFormat sdf =
+    private SimpleDateFormat sdfMsec =
+            new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault());
+    private SimpleDateFormat sdfSec =
             new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
 
     public AbstractTable(Context context) {
@@ -86,13 +88,24 @@ public abstract class AbstractTable {
         return ar;
     }
 
-    public String formatDate(long timestamp) {
+    public String formatDateMsec(long timestamp) {
 
-        return this.sdf.format(new Date(timestamp));
+        return this.sdfMsec.format(new Date(timestamp));
+    }
+    public String formatDateSec(long timestamp) {
+
+        return this.sdfSec.format(new Date(timestamp));
     }
     public long parseDate(String datetime) throws ParseException {
 
-        return this.sdf.parse(datetime).getTime();
+        long parsed;
+        try {
+            parsed = this.sdfMsec.parse(datetime).getTime();
+        } catch (ParseException e) {
+            parsed = this.sdfSec.parse(datetime).getTime();
+        }
+
+        return parsed;
     }
 
     public abstract String getTableName();

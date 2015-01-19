@@ -62,18 +62,11 @@ public class HeartRateMainFragment extends MainFragment
         this.sensorManager =
                 (SensorManager)activity.getSystemService(Activity.SENSOR_SERVICE);
 
-        List<Sensor> sensorList = this.sensorManager.getSensorList(Sensor.TYPE_ALL);
-        for (Sensor sensor: sensorList) {
-            Log.i(TAG, "Sensor:" + sensor.getName() + "; " + sensor.getType());
-            switch (sensor.getType()) {
-                case Sensor.TYPE_HEART_RATE:
-                    Intent intent = new Intent(activity, HeartRateMonitor.class);
-                    appContext.bindService(intent, this, Context.BIND_AUTO_CREATE);
-                    this.heartRateMonitor = new HeartRateMonitor(); // temporary
-                    break;
-                default:
-                    break;
-            }
+        Sensor sensor = this.sensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
+        if (sensor != null) {
+            Intent intent = new Intent(activity, HeartRateMonitor.class);
+            appContext.bindService(intent, this, Context.BIND_AUTO_CREATE);
+            this.heartRateMonitor = new HeartRateMonitor(); // temporary
         }
 
     }

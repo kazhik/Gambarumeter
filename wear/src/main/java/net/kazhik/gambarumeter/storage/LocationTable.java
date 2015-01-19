@@ -41,8 +41,8 @@ public class LocationTable extends AbstractTable {
     public int insert(long startTime, Location loc) {
         ContentValues values = new ContentValues();
 
-        values.put("timestamp", this.formatDate(loc.getTime()));
-        values.put("start_time", this.formatDate(startTime));
+        values.put("timestamp", this.formatDateMsec(loc.getTime()));
+        values.put("start_time", this.formatDateMsec(startTime));
         values.put("latitude", loc.getLatitude());
         values.put("longitude", loc.getLongitude());
         values.put("altitude", loc.getAltitude());
@@ -62,7 +62,7 @@ public class LocationTable extends AbstractTable {
 
         String[] columns = { "timestamp, latitude, longitude, altitude, accuracy" };
         String selection = "start_time = ?";
-        String[] selectionArgs = {this.formatDate(startTime)};
+        String[] selectionArgs = {this.formatDateMsec(startTime)};
         String sortOrder = "timestamp";
         String limit = (max == 0)? null: Integer.toString(max);
 
@@ -96,8 +96,12 @@ public class LocationTable extends AbstractTable {
     }
     public boolean delete(long startTime) {
         String where = "start_time = ?";
-        String[] whereArgs = {this.formatDate(startTime)};
+        String[] whereArgs = {this.formatDateMsec(startTime)};
         int deleted = this.db.delete(TABLE_NAME, where, whereArgs);
+        if (deleted == 0) {
+            whereArgs[0] = this.formatDateSec(startTime);
+            deleted = this.db.delete(TABLE_NAME, where, whereArgs);
+        }
         return (deleted > 0);
     }
     public String getTableName(){

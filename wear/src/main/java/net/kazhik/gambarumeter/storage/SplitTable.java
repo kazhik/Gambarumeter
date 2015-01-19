@@ -23,7 +23,7 @@ public class SplitTable extends AbstractTable {
                     "timestamp DATETIME PRIMARY KEY," +
                     "start_time DATETIME," +
                     "distance REAL)";
-    private static final String TAG = "LapTable";
+    private static final String TAG = "SplitTable";
 
     public SplitTable(Context context) {
         super(context);
@@ -40,8 +40,8 @@ public class SplitTable extends AbstractTable {
                       float distance) {
         ContentValues values = new ContentValues();
 
-        values.put("timestamp", this.formatDate(timestamp));
-        values.put("start_time", this.formatDate(startTime));
+        values.put("timestamp", this.formatDateMsec(timestamp));
+        values.put("start_time", this.formatDateMsec(startTime));
         values.put("distance", distance);
 
         return (int)this.db.insert(TABLE_NAME, null, values);
@@ -57,7 +57,7 @@ public class SplitTable extends AbstractTable {
 
         String[] columns = { "timestamp, distance" };
         String selection = "start_time = ?";
-        String[] selectionArgs = {this.formatDate(startTime)};
+        String[] selectionArgs = {this.formatDateMsec(startTime)};
         String sortOrder = "timestamp";
         String limit = (max == 0)? null: Integer.toString(max);
 
@@ -88,8 +88,12 @@ public class SplitTable extends AbstractTable {
     }
     public boolean delete(long startTime) {
         String where = "start_time = ?";
-        String[] whereArgs = {this.formatDate(startTime)};
+        String[] whereArgs = {this.formatDateMsec(startTime)};
         int deleted = this.db.delete(TABLE_NAME, where, whereArgs);
+        if (deleted == 0) {
+            whereArgs[0] = this.formatDateSec(startTime);
+            deleted = this.db.delete(TABLE_NAME, where, whereArgs);
+        }
         return (deleted > 0);
     }
     public String getTableName(){

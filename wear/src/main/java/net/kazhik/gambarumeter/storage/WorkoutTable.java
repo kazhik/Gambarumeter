@@ -42,8 +42,8 @@ public class WorkoutTable extends AbstractTable {
     public int insert(long startTime, long stopTime, int stepCount, float distance, int heartRate) {
         ContentValues values = new ContentValues();
 
-        values.put("start_time", this.formatDate(startTime));
-        values.put("stop_time", this.formatDate(stopTime));
+        values.put("start_time", this.formatDateMsec(startTime));
+        values.put("stop_time", this.formatDateMsec(stopTime));
         values.put("step_count", stepCount);
         values.put("distance", distance);
         values.put("heart_rate", heartRate);
@@ -97,8 +97,12 @@ public class WorkoutTable extends AbstractTable {
 
     public boolean delete(long startTime) {
         String where = "start_time = ?";
-        String[] whereArgs = {this.formatDate(startTime)};
+        String[] whereArgs = {this.formatDateMsec(startTime)};
         int deleted = this.db.delete(TABLE_NAME, where, whereArgs);
+        if (deleted == 0) {
+            whereArgs[0] = this.formatDateSec(startTime);
+            deleted = this.db.delete(TABLE_NAME, where, whereArgs);
+        }
         return (deleted > 0);
     }
     public String getTableName(){

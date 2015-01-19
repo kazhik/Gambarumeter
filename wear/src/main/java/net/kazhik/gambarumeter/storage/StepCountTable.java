@@ -23,7 +23,7 @@ public class StepCountTable extends AbstractTable {
                     "timestamp DATETIME PRIMARY KEY," +
                     "start_time DATETIME," +
                     "step_count INTEGER)";
-    private static final String TAG = "HeartRateTable";
+    private static final String TAG = "StepCountTable";
 
     public StepCountTable(Context context) {
         super(context);
@@ -39,8 +39,8 @@ public class StepCountTable extends AbstractTable {
     public int insert(long timestamp, long startTime, int stepCount) {
         ContentValues values = new ContentValues();
 
-        values.put("timestamp", this.formatDate(timestamp));
-        values.put("start_time", this.formatDate(startTime));
+        values.put("timestamp", this.formatDateMsec(timestamp));
+        values.put("start_time", this.formatDateMsec(startTime));
         values.put("step_count", stepCount);
 
         return (int)this.db.insert(TABLE_NAME, null, values);
@@ -54,7 +54,7 @@ public class StepCountTable extends AbstractTable {
 
         String[] columns = { "step_count" };
         String selection = "timestamp = ?";
-        String[] selectionArgs = {this.formatDate(timestamp)};
+        String[] selectionArgs = {this.formatDateMsec(timestamp)};
         String sortOrder = null;
 
         Cursor cursor = qb.query(this.db, columns, selection, selectionArgs, null,
@@ -81,7 +81,7 @@ public class StepCountTable extends AbstractTable {
 
         String[] columns = { "timestamp, start_time, step_count" };
         String selection = "start_time = ?";
-        String[] selectionArgs = {this.formatDate(startTime)};
+        String[] selectionArgs = {this.formatDateMsec(startTime)};
         String sortOrder = "timestamp";
         String limit = (max == 0)? null: Integer.toString(max);
 
@@ -111,8 +111,12 @@ public class StepCountTable extends AbstractTable {
     }
     public boolean delete(long startTime) {
         String where = "start_time = ?";
-        String[] whereArgs = {this.formatDate(startTime)};
+        String[] whereArgs = {this.formatDateMsec(startTime)};
         int deleted = this.db.delete(TABLE_NAME, where, whereArgs);
+        if (deleted == 0) {
+            whereArgs[0] = this.formatDateSec(startTime);
+            deleted = this.db.delete(TABLE_NAME, where, whereArgs);
+        }
         return (deleted > 0);
     }
     public String getTableName(){

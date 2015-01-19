@@ -1,6 +1,7 @@
 package net.kazhik.gambarumeter.history;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.wearable.view.WearableListView;
@@ -13,6 +14,10 @@ import android.widget.TextView;
 import net.kazhik.gambarumeter.R;
 import net.kazhik.gambarumeter.entity.WorkoutInfo;
 import net.kazhik.gambarumeter.pager.PagerFragment;
+import net.kazhik.gambarumeter.storage.HeartRateTable;
+import net.kazhik.gambarumeter.storage.LocationTable;
+import net.kazhik.gambarumeter.storage.SplitTable;
+import net.kazhik.gambarumeter.storage.StepCountTable;
 import net.kazhik.gambarumeter.storage.WorkoutTable;
 
 import java.util.List;
@@ -94,15 +99,35 @@ public abstract class HistoryFragment extends PagerFragment
         int msgId = this.editMode? R.string.edit_mode: R.string.view_mode;
         modeText.setText(msgId);
     }
+    
+    protected void deleteRecord(Context context, long startTime) {
+        Log.d(TAG, "deleteRecord: " + startTime);
+
+        WorkoutTable workoutTable = new WorkoutTable(context);
+        workoutTable.open(false);
+        workoutTable.delete(startTime);
+        workoutTable.close();
+
+        StepCountTable stepCountTable = new StepCountTable(context);
+        stepCountTable.open(false);
+        stepCountTable.delete(startTime);
+        stepCountTable.close();
+
+        SplitTable splitTable = new SplitTable(context);
+        splitTable.open(false);
+        splitTable.delete(startTime);
+        splitTable.close();
+        
+    }
+    
     @Override
     public void onClick(DialogInterface dialog, int which) {
         if (which == DialogInterface.BUTTON_POSITIVE) {
             Log.d(TAG, "Delete: " + this.startTime);
 
-            WorkoutTable workoutTable = new WorkoutTable(this.getActivity());
-            workoutTable.open(false);
-            workoutTable.delete(this.startTime);
-            workoutTable.close();
+            Context context = this.getActivity();
+            
+            this.deleteRecord(context, this.startTime);
 
             this.refreshView();
         } else if (which == DialogInterface.BUTTON_NEGATIVE) {

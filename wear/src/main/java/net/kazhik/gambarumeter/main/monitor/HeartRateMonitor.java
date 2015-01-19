@@ -17,6 +17,7 @@ import net.kazhik.gambarumeter.storage.HeartRateTable;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -129,7 +130,8 @@ public class HeartRateMonitor extends Service implements SensorEventListener {
     }
     private int storeHeartRate(long timestamp, float heartRate) {
         // raw data in queue, rate per minute in dataList
-        
+
+        Log.d(TAG, "storeHeartRate: " + (new Date(timestamp)).toString() + "; " + heartRate);
         if (this.queue.isEmpty()) {
             this.queue.add(new SensorValue(timestamp, heartRate));
             return 0;
@@ -138,6 +140,7 @@ public class HeartRateMonitor extends Service implements SensorEventListener {
         long firstTimestamp = this.queue.peek().getTimestamp();
         if (timestamp > firstTimestamp + (1000 * 60)) {
             average = this.calculateAverageHeartRateInQueue();
+            Log.d(TAG, "add dataList: " + (new Date(timestamp)).toString() + "; " + average);
             this.dataList.add(average);
         }
         this.queue.add(new SensorValue(timestamp, heartRate));
