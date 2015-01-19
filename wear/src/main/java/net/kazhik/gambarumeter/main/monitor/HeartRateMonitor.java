@@ -88,7 +88,8 @@ public class HeartRateMonitor extends Service implements SensorEventListener {
     }
     public void stop() {
         this.started = false;
-        this.calculateAverageHeartRateInQueue();
+        SensorValue average = this.calculateAverageHeartRateInQueue();
+        this.dataList.add(average);
 
         this.printDataList();
     }
