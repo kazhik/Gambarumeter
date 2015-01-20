@@ -5,10 +5,8 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.util.Log;
 
 import net.kazhik.gambarumeter.entity.SensorValue;
-import net.kazhik.gambarumeter.storage.HeartRateTable;
 import net.kazhik.gambarumeter.storage.StepCountTable;
 
 import java.util.ArrayList;
@@ -24,9 +22,9 @@ public class StepCountMonitor implements SensorEventListener {
     private SensorValueListener listener;
 
     private Sensor stepCountSensor;
-    private int initialValue = 0;
+    private float initialValue = 0;
     private boolean started = false;
-    private SensorValue currentValue = new SensorValue();
+    private SensorValue currentValue = new SensorValue(0, 0f);
     private List<SensorValue> dataList = new ArrayList<SensorValue>();
     private static final String TAG = "StepCountMonitor";
 
@@ -42,7 +40,7 @@ public class StepCountMonitor implements SensorEventListener {
 
     }
     public int getStepCount() {
-        return ((int)this.currentValue.getValue()) - this.initialValue;
+        return (int)(this.currentValue.getValue() - this.initialValue);
     }
     public void start() {
         this.initialValue = 0;
@@ -80,16 +78,15 @@ public class StepCountMonitor implements SensorEventListener {
     }
     public void storeCurrentValue(long timestamp) {
         long lastTimestamp = this.getLastTimestamp();
-        if (lastTimestamp != timestamp) {
-            Log.d(TAG, "storeCurrentValue: " + timestamp);
-            this.dataList.add(new SensorValue(timestamp, this.currentValue.getValue()));
+        if (lastTimestamp != timestamp && this.currentValue.getValue() != 0f) {
+            float steps = this.currentValue.getValue() - this.initialValue;
+            this.dataList.add(new SensorValue(timestamp, steps));
         }
 
     }
     private void storeStepCount(long timestamp, float stepCount) {
         long lastTimestamp = this.getLastTimestamp();
         if (timestamp >= lastTimestamp + (1000 * 60)) {
-            Log.d(TAG, "storeStepCount: " + timestamp);
             this.dataList.add(new SensorValue(timestamp, stepCount));
         }
     }
@@ -104,19 +101,20 @@ public class StepCountMonitor implements SensorEventListener {
             default:
                 return;
         }
+        
         long newTimestamp = sensorEvent.timestamp / (1000 * 1000);
-        int newValue = (int)sensorEvent.values[0];
+        float newValue = sensorEvent.values[0];
         if (this.initialValue == 0) {
             this.initialValue = newValue;
         } else if (newValue != this.currentValue.getValue()) {
-            this.listener.onStepCountChanged(newTimestamp,
-                    newValue - this.initialValue);
+            float steps = newValue - this.initialValue;
+            this.listener.onStepCountChanged(newTimestamp, (int)steps);
             if (this.started) {
-                this.storeStepCount(newTimestamp, sensorEvent.values[0]);
+                this.storeStepCount(newTimestamp, steps);
             }
         }
-        this.currentValue.setTimestamp(newTimestamp);
-        this.currentValue.setValue(newValue);
+        this.currentValue.setTimestamp(newTimestamp)
+            .setValue(newValue);
     }
 
     @Override

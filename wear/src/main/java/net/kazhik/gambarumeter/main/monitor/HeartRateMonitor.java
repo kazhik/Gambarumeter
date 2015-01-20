@@ -65,7 +65,6 @@ public class HeartRateMonitor extends Service implements SensorEventListener {
         HeartRateTable heartRateTable = new HeartRateTable(this.context);
         heartRateTable.open(false);
         for (SensorValue sensorValue: this.dataList) {
-            Log.d(TAG, "insert: " + sensorValue.getTimestamp() + ": " + sensorValue.getValue());
             heartRateTable.insert(
                     sensorValue.getTimestamp(),
                     startTime,
@@ -91,7 +90,6 @@ public class HeartRateMonitor extends Service implements SensorEventListener {
         SensorValue average = this.calculateAverageHeartRateInQueue();
         this.dataList.add(average);
 
-        this.printDataList();
     }
     public int getAverageHeartRate() {
         if (this.dataList.isEmpty()) {
@@ -102,13 +100,6 @@ public class HeartRateMonitor extends Service implements SensorEventListener {
             sum += val.getValue();
         }
         return (int)(sum / this.dataList.size());
-    }
-    private void printDataList() {
-        for (SensorValue val: this.dataList) {
-            Calendar cal = Calendar.getInstance();
-            cal.setTimeInMillis(val.getTimestamp());
-            Log.i(TAG, DateFormat.getDateTimeInstance().format(cal.getTime()) + " " + val.getValue());
-        }
     }
 
     private SensorValue calculateAverageHeartRateInQueue() {
@@ -132,7 +123,6 @@ public class HeartRateMonitor extends Service implements SensorEventListener {
     private int storeHeartRate(long timestamp, float heartRate) {
         // raw data in queue, rate per minute in dataList
 
-        Log.d(TAG, "storeHeartRate: " + (new Date(timestamp)).toString() + "; " + heartRate);
         if (this.queue.isEmpty()) {
             this.queue.add(new SensorValue(timestamp, heartRate));
             return 0;
@@ -141,7 +131,6 @@ public class HeartRateMonitor extends Service implements SensorEventListener {
         long firstTimestamp = this.queue.peek().getTimestamp();
         if (timestamp > firstTimestamp + (1000 * 60)) {
             average = this.calculateAverageHeartRateInQueue();
-            Log.d(TAG, "add dataList: " + (new Date(timestamp)).toString() + "; " + average);
             this.dataList.add(average);
         }
         this.queue.add(new SensorValue(timestamp, heartRate));

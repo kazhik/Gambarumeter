@@ -19,16 +19,18 @@ public class SensorValue {
         return value;
     }
 
-    public void setValue(float value) {
+    public SensorValue setValue(float value) {
         this.value = value;
+        return this;
     }
 
     public long getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(long timestamp) {
+    public SensorValue setTimestamp(long timestamp) {
         this.timestamp = timestamp;
+        return this;
     }
 
 
