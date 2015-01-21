@@ -80,8 +80,14 @@ public class HistoryAdapter extends WearableListView.Adapter {
         float distance = workout.getDistance();
         int heartRate = workout.getHeartRate();
 
-        String startTimeStr =
-                DateFormat.getDateTimeInstance().format(new Date(startTime));
+        String startTimeStr = DateFormat.getDateTimeInstance(
+                DateFormat.SHORT, DateFormat.SHORT)
+                .format(new Date(startTime));
+        /* For screenshot (Locale.US)
+        String startTimeStr = DateFormat.getDateTimeInstance(
+                DateFormat.SHORT, DateFormat.SHORT, Locale.US)
+                .format(new Date(startTime));
+         */
         startTimeText.setText(startTimeStr);
 
         String resultStr = this.formatSplitTime(stopTime - startTime);

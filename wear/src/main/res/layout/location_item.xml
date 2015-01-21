@@ -10,20 +10,18 @@
         android:gravity="center_vertical|center_horizontal"
         android:orientation="horizontal">
 
-        <TextView
+        <net.kazhik.gambarumeter.ui.AutoResizeTextView
             android:id="@+id/distance"
             android:layout_margin="5dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="distance"
-            android:textSize="16dp"
             android:textColor="@color/text" />
-        <TextView
+        <net.kazhik.gambarumeter.ui.AutoResizeTextView
             android:id="@+id/laptime"
             android:layout_margin="5dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="16dp"
             android:textColor="@color/text" />
     </LinearLayout>
 </LinearLayout>

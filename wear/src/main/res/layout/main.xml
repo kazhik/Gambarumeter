@@ -17,7 +17,7 @@
         android:measureWithLargestChild="true"
         android:padding="5dp">
 
-        <TextView
+        <net.kazhik.gambarumeter.ui.AutoResizeTextView
             android:id="@+id/split_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -34,7 +34,7 @@
             android:layout_gravity="center_horizontal"
             android:gravity="center_horizontal">
 
-            <TextView
+            <net.kazhik.gambarumeter.ui.AutoResizeTextView
                 android:id="@+id/bpm"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -43,7 +43,7 @@
                 android:textColor="@color/text"
                 android:textSize="30sp" />
 
-            <TextView
+            <net.kazhik.gambarumeter.ui.AutoResizeTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="bottom"
@@ -61,7 +61,7 @@
             android:layout_gravity="center_horizontal"
             android:gravity="center_horizontal">
 
-            <TextView
+            <net.kazhik.gambarumeter.ui.AutoResizeTextView
                 android:id="@+id/distance_value"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -70,7 +70,7 @@
                 android:textColor="@color/text"
                 android:textSize="30sp" />
 
-            <TextView
+            <net.kazhik.gambarumeter.ui.AutoResizeTextView
                 android:id="@+id/distance_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -88,7 +88,7 @@
             android:visibility="visible"
             android:gravity="center_horizontal">
 
-            <TextView
+            <net.kazhik.gambarumeter.ui.AutoResizeTextView
                 android:id="@+id/stepcount_value"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -97,7 +97,7 @@
                 android:textColor="@color/text"
                 android:textSize="30sp" />
 
-            <TextView
+            <net.kazhik.gambarumeter.ui.AutoResizeTextView
                 android:id="@+id/stepcount_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
