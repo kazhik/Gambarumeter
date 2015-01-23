@@ -1,4 +1,4 @@
-package net.kazhik.gambarumeter.main;
+package net.kazhik.gambarumeter.main.view;
 
 import android.app.PendingIntent;
 import android.content.Context;
@@ -28,13 +28,18 @@ public class HeartRateNotificationView extends NotificationView {
 
         this.heartRate = heartRate;
     }
-    public String makeSensorDataText() {
+    public String makeShortText() {
         String str = "";
         if (this.heartRate > 0) {
             str += "/";
             str += this.heartRate + this.getContext().getString(R.string.bpm);
         }
         return str;
+    }
+    public String makeLongText(String str) {
+        
+        return str;
+        
     }
 
 }

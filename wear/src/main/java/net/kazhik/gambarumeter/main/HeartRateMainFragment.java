@@ -15,11 +15,11 @@ import android.widget.TextView;
 import net.kazhik.gambarumeter.R;
 import net.kazhik.gambarumeter.main.monitor.HeartRateMonitor;
 import net.kazhik.gambarumeter.main.monitor.HeartRateSensorValueListener;
+import net.kazhik.gambarumeter.main.view.HeartRateNotificationView;
 import net.kazhik.gambarumeter.main.view.HeartRateView;
 import net.kazhik.gambarumeter.storage.WorkoutTable;
 
 import java.util.Date;
-import java.util.List;
 
 /**
  * Created by kazhik on 14/11/11.

@@ -37,7 +37,7 @@ public class LocationNotificationView extends NotificationView {
         this.lapTime = laptime;
         
     }
-    public String makeSensorDataText() {
+    public String makeShortText() {
         String str = "";
         if (this.distance > 0) {
             String distanceUnitStr =
@@ -47,10 +47,15 @@ public class LocationNotificationView extends NotificationView {
 
             str += "/";
             str += String.format("%.2f%s", distance, distanceUnitStr);
-            str += "/";
+        }
+        return str;
+    }
+    public String makeLongText(String str) {
+        if (this.lapTime > 0) {
             str += DateUtils.formatElapsedTime(this.lapTime / 1000);
         }
         return str;
+
     }
 
 }

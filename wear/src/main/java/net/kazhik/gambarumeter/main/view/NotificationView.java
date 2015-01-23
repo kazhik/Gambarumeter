@@ -11,7 +11,6 @@ import android.text.format.DateUtils;
 
 import net.kazhik.gambarumeter.Gambarumeter;
 import net.kazhik.gambarumeter.R;
-import net.kazhik.gambarumeter.Util;
 
 /**
  * Created by kazhik on 14/10/25.
@@ -69,17 +68,19 @@ public abstract class NotificationView {
         if (this.stepCount > 0) {
             str += this.stepCount + this.context.getString(R.string.steps);
         }
+        str = this.makeLongText(str);
 
         return str;
     }
     private String makeSummaryText(long elapsed) {
         String str = DateUtils.formatElapsedTime(elapsed / 1000);
 
-        str += this.makeSensorDataText();
+        str += this.makeShortText();
 
         return str;
     }
-    public abstract String makeSensorDataText();
+    public abstract String makeShortText();
+    public abstract String makeLongText(String str);
     public void show(long elapsed) {
 
         this.notificationBuilder
