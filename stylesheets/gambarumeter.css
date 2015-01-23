@@ -1,0 +1,20 @@
+header .language-block {
+  width: 940px;
+  margin: 0px auto;
+  text-align: right;
+}
+header .language {
+  display: inline-block;
+  width: auto;
+  height: auto;
+  line-height: 1;
+  color: #2879d0;
+  text-align: center;
+  background-color: #9ddcff;
+  background-image: none;
+  border-radius: 5px;
+  padding: 5px 10px;
+  margin-right: 10px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+}
