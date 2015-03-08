@@ -101,6 +101,8 @@ public class LocationMainFragment extends MainFragment
         super.initializeUI();
         Activity activity = this.getActivity();
 
+        this.notificationView.initialize(activity);
+
         if (this.locationMonitor != null) {
             TextView distanceValue =
                     (TextView)activity.findViewById(R.id.distance_value);
@@ -115,7 +117,6 @@ public class LocationMainFragment extends MainFragment
             activity.findViewById(R.id.distance).setVisibility(View.GONE);
         }
 
-        this.notificationView.initialize(activity);
 
     }
 
