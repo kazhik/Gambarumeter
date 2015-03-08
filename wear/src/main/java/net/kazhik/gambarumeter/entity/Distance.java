@@ -4,8 +4,8 @@ package net.kazhik.gambarumeter.entity;
  * Created by kazhik on 14/12/01.
  */
 public class Distance {
-    private float distance;
-    private double elevation;
+    private float distance = 0;
+    private double elevation = 0;
 
     public double getElevation() {
         return elevation;

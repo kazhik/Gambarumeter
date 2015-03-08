@@ -17,7 +17,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  * Created by kazhik on 15/01/16.
  */
 public class HeartRateMonitorTest extends InstrumentationTestCase {
-    class TestListener implements SensorValueListener {
+    class TestListener implements HeartRateSensorValueListener {
 
 
         @Override
@@ -31,19 +31,15 @@ public class HeartRateMonitorTest extends InstrumentationTestCase {
         }
 
         @Override
-        public void onLocationChanged(long timestamp, float distance, float speed) {
+        public void onBatteryLow() {
 
         }
 
         @Override
-        public void onLocationAvailable() {
+        public void onBatteryOkay() {
 
         }
 
-        @Override
-        public void onLap(long timestamp, float distance, long lap) {
-
-        }
     }
 
     public void testStoreHeartRate() throws Exception {
