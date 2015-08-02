@@ -3,8 +3,8 @@ package net.kazhik.gambarumeter.main.monitor;
 import android.location.Location;
 import android.util.Log;
 
-import net.kazhik.gambarumeter.entity.Distance;
-import net.kazhik.gambarumeter.entity.SplitTime;
+import net.kazhik.gambarumeterlib.entity.Distance;
+import net.kazhik.gambarumeterlib.entity.SplitTime;
 
 import java.util.ArrayList;
 import java.util.List;

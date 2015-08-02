@@ -1,12 +1,13 @@
-package net.kazhik.gambarumeter.storage;
+package net.kazhik.gambarumeterlib.storage;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
-import android.location.Location;
 import android.util.Log;
+
+import net.kazhik.gambarumeterlib.entity.SensorValue;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -15,19 +16,16 @@ import java.util.List;
 /**
  * Created by kazhik on 14/11/08.
  */
-public class LocationTable extends AbstractTable {
-    public static final String TABLE_NAME = "gm_location";
+public class StepCountTable extends AbstractTable {
+    public static final String TABLE_NAME = "gm_stepcount";
     private static final String CREATE_TABLE =
             "CREATE TABLE " + TABLE_NAME + " (" +
                     "timestamp DATETIME PRIMARY KEY," +
                     "start_time DATETIME," +
-                    "latitude REAL," +
-                    "longitude REAL," +
-                    "altitude REAL," +
-                    "accuracy REAL)";
-    private static final String TAG = "LocationTable";
+                    "step_count INTEGER)";
+    private static final String TAG = "StepCountTable";
 
-    public LocationTable(Context context) {
+    public StepCountTable(Context context) {
         super(context);
     }
     public static void init(SQLiteDatabase db){
@@ -38,29 +36,50 @@ public class LocationTable extends AbstractTable {
         AbstractTable.upgrade(db, TABLE_NAME, CREATE_TABLE);
     }
 
-    public int insert(long startTime, Location loc) {
+    public int insert(long timestamp, long startTime, int stepCount) {
         ContentValues values = new ContentValues();
 
-        values.put("timestamp", this.formatDateMsec(loc.getTime()));
+        values.put("timestamp", this.formatDateMsec(timestamp));
         values.put("start_time", this.formatDateMsec(startTime));
-        values.put("latitude", loc.getLatitude());
-        values.put("longitude", loc.getLongitude());
-        values.put("altitude", loc.getAltitude());
-        values.put("accuracy", loc.getAccuracy());
+        values.put("step_count", stepCount);
 
         return (int)this.db.insert(TABLE_NAME, null, values);
 
     }
-
-    public List<Location> selectAll(long startTime) {
-        return this.selectAll(startTime, 0);
-    }
-    public List<Location> selectAll(long startTime, int max) {
+    public int select(long timestamp) {
+        int stepCount = 0;
 
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
         qb.setTables(TABLE_NAME);
 
-        String[] columns = { "timestamp, latitude, longitude, altitude, accuracy" };
+        String[] columns = { "step_count" };
+        String selection = "timestamp = ?";
+        String[] selectionArgs = {this.formatDateMsec(timestamp)};
+        String sortOrder = null;
+
+        Cursor cursor = qb.query(this.db, columns, selection, selectionArgs, null,
+                null, sortOrder);
+
+        if (cursor.getCount() == 0) {
+            return stepCount;
+        }
+
+        cursor.moveToFirst();
+        stepCount = cursor.getInt(0);
+        cursor.close();
+
+        return stepCount;
+    }
+    public List<SensorValue> selectAll(long startTime) {
+        return this.selectAll(startTime, 0);
+    }
+
+    public List<SensorValue> selectAll(long startTime, int max) {
+
+        SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
+        qb.setTables(TABLE_NAME);
+
+        String[] columns = { "timestamp, start_time, step_count" };
         String selection = "start_time = ?";
         String[] selectionArgs = {this.formatDateMsec(startTime)};
         String sortOrder = "timestamp";
@@ -69,7 +88,7 @@ public class LocationTable extends AbstractTable {
         Cursor cursor = qb.query(this.db, columns, selection, selectionArgs, null,
                 null, sortOrder, limit);
 
-        List<Location> dataList = new ArrayList<Location>();
+        List<SensorValue> dataList = new ArrayList<SensorValue>();
 
         if (cursor.getCount() == 0) {
             return dataList;
@@ -78,13 +97,9 @@ public class LocationTable extends AbstractTable {
         cursor.moveToFirst();
         try {
             while (cursor.isAfterLast() == false) {
-                Location loc = new Location("");
-                loc.setTime(this.parseDate(cursor.getString(0)));
-                loc.setLatitude(cursor.getDouble(1));
-                loc.setLongitude(cursor.getDouble(2));
-                loc.setAltitude(cursor.getDouble(3));
-                loc.setAccuracy(cursor.getFloat(4));
-                dataList.add(loc);
+                SensorValue v =
+                        new SensorValue(this.parseDate(cursor.getString(0)), cursor.getInt(2));
+                dataList.add(v);
                 cursor.moveToNext();
             }
         } catch (ParseException e) {

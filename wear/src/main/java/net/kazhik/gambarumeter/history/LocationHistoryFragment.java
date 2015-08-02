@@ -3,17 +3,15 @@ package net.kazhik.gambarumeter.history;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.support.wearable.view.WearableListView;
 import android.util.Log;
 
 import net.kazhik.gambarumeter.R;
 import net.kazhik.gambarumeter.detail.LocationDetailFragment;
-import net.kazhik.gambarumeter.storage.HeartRateTable;
-import net.kazhik.gambarumeter.storage.LocationTable;
-import net.kazhik.gambarumeter.storage.SplitTable;
-import net.kazhik.gambarumeter.storage.StepCountTable;
-import net.kazhik.gambarumeter.storage.WorkoutTable;
+import net.kazhik.gambarumeterlib.storage.HeartRateTable;
+import net.kazhik.gambarumeterlib.storage.LocationTable;
+import net.kazhik.gambarumeterlib.storage.SplitTable;
+import net.kazhik.gambarumeterlib.storage.StepCountTable;
+import net.kazhik.gambarumeterlib.storage.WorkoutTable;
 
 /**
  * Created by kazhik on 14/11/11.

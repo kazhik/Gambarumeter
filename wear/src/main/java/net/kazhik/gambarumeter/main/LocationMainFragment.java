@@ -19,7 +19,7 @@ import net.kazhik.gambarumeter.main.monitor.GeolocationMonitor;
 import net.kazhik.gambarumeter.main.monitor.LocationSensorValueListener;
 import net.kazhik.gambarumeter.main.view.DistanceView;
 import net.kazhik.gambarumeter.main.view.LocationNotificationView;
-import net.kazhik.gambarumeter.storage.WorkoutTable;
+import net.kazhik.gambarumeterlib.storage.WorkoutTable;
 
 /**
  * Created by kazhik on 14/11/11.
@@ -33,10 +33,14 @@ public class LocationMainFragment extends MainFragment
 
     private LocationNotificationView notificationView = new LocationNotificationView();
 
-    private static final String TAG = "MainFragment";
+    private static final String TAG = "LocationMainFragment";
 
     @Override
     public void refreshView() {
+        if (this.getActivity() == null) {
+            Log.d(TAG, "Activity doesn't exist");
+            return;
+        }
         Log.d(TAG, "refreshView");
         if (this.locationMonitor != null) {
             this.setDistanceUnit();
@@ -62,7 +66,6 @@ public class LocationMainFragment extends MainFragment
     public void onDestroy() {
         if (this.locationMonitor != null) {
             this.locationMonitor.terminate();
-            this.getActivity().getApplicationContext().unbindService(this);
         }
 
         super.onDestroy();
@@ -79,7 +82,10 @@ public class LocationMainFragment extends MainFragment
 
             if (this.isGpsEnabled(appContext)) {
                 Intent intent = new Intent(activity, GeolocationMonitor.class);
-                appContext.bindService(intent, this, Context.BIND_AUTO_CREATE);
+                boolean bound = appContext.bindService(intent, this, Context.BIND_AUTO_CREATE);
+                if (bound) {
+                    this.setBound();
+                }
                 this.locationMonitor = new GeolocationMonitor(); // temporary
             } else {
                 Toast.makeText(appContext,
@@ -231,7 +237,7 @@ public class LocationMainFragment extends MainFragment
     // ServiceConnection
     @Override
     public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-        Log.d(TAG, "onServiceConnected: " + componentName.toString());
+        super.onServiceConnected(componentName, iBinder);
 
         if (iBinder instanceof GeolocationMonitor.GeolocationBinder) {
             this.locationMonitor =

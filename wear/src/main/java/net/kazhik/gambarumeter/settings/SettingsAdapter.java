@@ -9,10 +9,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import net.kazhik.gambarumeter.R;
-import net.kazhik.gambarumeter.entity.Preference;
+import net.kazhik.gambarumeterlib.entity.Preference;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by kazhik on 15/01/02.

@@ -1,4 +1,4 @@
-package net.kazhik.gambarumeter.storage;
+package net.kazhik.gambarumeterlib.storage;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.util.Log;
 
-import net.kazhik.gambarumeter.entity.WorkoutInfo;
+import net.kazhik.gambarumeterlib.entity.WorkoutInfo;
 
 import java.text.ParseException;
 import java.util.ArrayList;

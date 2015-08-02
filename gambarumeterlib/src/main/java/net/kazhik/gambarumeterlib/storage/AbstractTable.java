@@ -1,4 +1,4 @@
-package net.kazhik.gambarumeter.storage;
+package net.kazhik.gambarumeterlib.storage;
 
 import android.content.Context;
 import android.database.Cursor;

@@ -5,7 +5,7 @@ import android.content.Context;
 import android.hardware.SensorManager;
 import android.test.InstrumentationTestCase;
 
-import net.kazhik.gambarumeter.entity.SensorValue;
+import net.kazhik.gambarumeterlib.entity.SensorValue;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;

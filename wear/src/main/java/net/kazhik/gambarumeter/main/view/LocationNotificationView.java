@@ -27,6 +27,7 @@ public class LocationNotificationView extends NotificationView {
     public void clear() {
         super.clear();
         this.distance = -1.0f;
+        this.lapTime = 0;
     }
     public LocationNotificationView setDistanceUnit(String distanceUnit) {
         this.distanceUnit = distanceUnit;

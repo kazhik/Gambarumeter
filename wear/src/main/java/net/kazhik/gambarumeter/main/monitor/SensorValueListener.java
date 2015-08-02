@@ -6,6 +6,8 @@ package net.kazhik.gambarumeter.main.monitor;
 public interface SensorValueListener {
     public void onStepCountChanged(long timestamp, int stepCount);
 
+    public void onRotation(long timestamp);
+
     public void onBatteryLow();
     public void onBatteryOkay();
 }

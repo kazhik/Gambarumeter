@@ -17,7 +17,7 @@ import net.kazhik.gambarumeter.main.monitor.HeartRateMonitor;
 import net.kazhik.gambarumeter.main.monitor.HeartRateSensorValueListener;
 import net.kazhik.gambarumeter.main.view.HeartRateNotificationView;
 import net.kazhik.gambarumeter.main.view.HeartRateView;
-import net.kazhik.gambarumeter.storage.WorkoutTable;
+import net.kazhik.gambarumeterlib.storage.WorkoutTable;
 
 import java.util.Date;
 
@@ -45,11 +45,10 @@ public class HeartRateMainFragment extends MainFragment
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
         if (this.heartRateMonitor != null) {
             this.heartRateMonitor.terminate();
-            this.getActivity().getApplicationContext().unbindService(this);
         }
+        super.onDestroy();
 
     }
 
@@ -65,7 +64,10 @@ public class HeartRateMainFragment extends MainFragment
         Sensor sensor = this.sensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
         if (sensor != null) {
             Intent intent = new Intent(activity, HeartRateMonitor.class);
-            appContext.bindService(intent, this, Context.BIND_AUTO_CREATE);
+            boolean bound = appContext.bindService(intent, this, Context.BIND_AUTO_CREATE);
+            if (bound) {
+                this.setBound();
+            }
             this.heartRateMonitor = new HeartRateMonitor(); // temporary
         }
 
@@ -116,7 +118,7 @@ public class HeartRateMainFragment extends MainFragment
             int heartRate = 0;
             if (this.heartRateMonitor != null) {
                 heartRate = this.heartRateMonitor.getAverageHeartRate();
-
+Log.d(TAG, "saveResult: " + startTime);
                 this.heartRateMonitor.saveResult(startTime);
             }
 
@@ -182,6 +184,7 @@ public class HeartRateMainFragment extends MainFragment
                     ((HeartRateMonitor.HeartRateBinder)iBinder).getService();
             this.heartRateMonitor.init(this.getActivity(), sensorManager, this);
         }
+        super.onServiceConnected(componentName, iBinder);
 
     }
 

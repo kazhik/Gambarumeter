@@ -11,7 +11,7 @@ import android.widget.TextView;
 
 import net.kazhik.gambarumeter.R;
 import net.kazhik.gambarumeter.Util;
-import net.kazhik.gambarumeter.entity.WorkoutInfo;
+import net.kazhik.gambarumeterlib.entity.WorkoutInfo;
 
 import java.text.DateFormat;
 import java.util.Date;

@@ -12,13 +12,11 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import net.kazhik.gambarumeter.R;
-import net.kazhik.gambarumeter.entity.WorkoutInfo;
+import net.kazhik.gambarumeterlib.entity.WorkoutInfo;
 import net.kazhik.gambarumeter.pager.PagerFragment;
-import net.kazhik.gambarumeter.storage.HeartRateTable;
-import net.kazhik.gambarumeter.storage.LocationTable;
-import net.kazhik.gambarumeter.storage.SplitTable;
-import net.kazhik.gambarumeter.storage.StepCountTable;
-import net.kazhik.gambarumeter.storage.WorkoutTable;
+import net.kazhik.gambarumeterlib.storage.SplitTable;
+import net.kazhik.gambarumeterlib.storage.StepCountTable;
+import net.kazhik.gambarumeterlib.storage.WorkoutTable;
 
 import java.util.List;
 
@@ -44,6 +42,10 @@ public abstract class HistoryFragment extends PagerFragment
 
     @Override
     public void refreshView() {
+        if (this.getActivity() == null) {
+            Log.d(TAG, "Activity doesn't exist");
+            return;
+        }
         WorkoutTable workoutTable = new WorkoutTable(this.getActivity());
         workoutTable.open(true);
         List<WorkoutInfo> workoutInfos = workoutTable.selectAll();

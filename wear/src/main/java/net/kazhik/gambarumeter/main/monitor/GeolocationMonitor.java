@@ -20,9 +20,9 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.wearable.Wearable;
 
-import net.kazhik.gambarumeter.entity.SplitTime;
-import net.kazhik.gambarumeter.storage.SplitTable;
-import net.kazhik.gambarumeter.storage.LocationTable;
+import net.kazhik.gambarumeterlib.entity.SplitTime;
+import net.kazhik.gambarumeterlib.storage.SplitTable;
+import net.kazhik.gambarumeterlib.storage.LocationTable;
 
 import java.util.List;
 

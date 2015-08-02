@@ -19,8 +19,8 @@ public class UserInputManager
         implements View.OnClickListener, View.OnTouchListener {
 
     public interface UserInputListener {
-        public void onUserStart();
-        public void onUserStop();
+        void onUserStart();
+        void onUserStop();
     }
     private ImageButton startButton;
     private ImageButton stopButton;
@@ -71,18 +71,26 @@ public class UserInputManager
 
     }
     private void onUserStart() {
-        this.startButton.setVisibility(View.GONE);
-        this.stopButton.setVisibility(View.VISIBLE);
+        this.toggleVisibility(true);
 
         this.listener.onUserStart();
 
     }
     private void onUserStop() {
-        this.startButton.setVisibility(View.VISIBLE);
-        this.stopButton.setVisibility(View.GONE);
+        this.toggleVisibility(false);
 
         this.listener.onUserStop();
 
+    }
+    public void toggleVisibility(boolean started) {
+        if (started) {
+            this.startButton.setVisibility(View.GONE);
+            this.stopButton.setVisibility(View.VISIBLE);
+        } else {
+            this.startButton.setVisibility(View.VISIBLE);
+            this.stopButton.setVisibility(View.GONE);
+        }
+        this.started = started;
     }
 
     @Override
@@ -105,7 +113,6 @@ public class UserInputManager
             Log.d(TAG, "stop");
             this.onUserStop();
         }
-        this.started = !this.started;
 
         return false;
     }

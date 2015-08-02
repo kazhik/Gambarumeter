@@ -11,10 +11,10 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import net.kazhik.gambarumeter.R;
-import net.kazhik.gambarumeter.entity.HeartRateDetail;
-import net.kazhik.gambarumeter.entity.SensorValue;
-import net.kazhik.gambarumeter.storage.HeartRateTable;
-import net.kazhik.gambarumeter.storage.StepCountTable;
+import net.kazhik.gambarumeterlib.entity.HeartRateDetail;
+import net.kazhik.gambarumeterlib.entity.SensorValue;
+import net.kazhik.gambarumeterlib.storage.HeartRateTable;
+import net.kazhik.gambarumeterlib.storage.StepCountTable;
 
 import java.util.ArrayList;
 import java.util.List;

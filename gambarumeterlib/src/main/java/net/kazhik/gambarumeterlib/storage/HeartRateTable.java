@@ -1,4 +1,4 @@
-package net.kazhik.gambarumeter.storage;
+package net.kazhik.gambarumeterlib.storage;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.util.Log;
 
-import net.kazhik.gambarumeter.entity.SensorValue;
+import net.kazhik.gambarumeterlib.entity.SensorValue;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -16,16 +16,16 @@ import java.util.List;
 /**
  * Created by kazhik on 14/11/08.
  */
-public class StepCountTable extends AbstractTable {
-    public static final String TABLE_NAME = "gm_stepcount";
+public class HeartRateTable extends AbstractTable {
+    public static final String TABLE_NAME = "gm_heartrate";
     private static final String CREATE_TABLE =
             "CREATE TABLE " + TABLE_NAME + " (" +
                     "timestamp DATETIME PRIMARY KEY," +
                     "start_time DATETIME," +
-                    "step_count INTEGER)";
-    private static final String TAG = "StepCountTable";
+                    "heart_rate INTEGER)";
+    private static final String TAG = "HeartRateTable";
 
-    public StepCountTable(Context context) {
+    public HeartRateTable(Context context) {
         super(context);
     }
     public static void init(SQLiteDatabase db){
@@ -36,39 +36,15 @@ public class StepCountTable extends AbstractTable {
         AbstractTable.upgrade(db, TABLE_NAME, CREATE_TABLE);
     }
 
-    public int insert(long timestamp, long startTime, int stepCount) {
+    public int insert(long timestamp, long startTime, int heartRate) {
         ContentValues values = new ContentValues();
 
         values.put("timestamp", this.formatDateMsec(timestamp));
         values.put("start_time", this.formatDateMsec(startTime));
-        values.put("step_count", stepCount);
+        values.put("heart_rate", heartRate);
 
         return (int)this.db.insert(TABLE_NAME, null, values);
 
-    }
-    public int select(long timestamp) {
-        int stepCount = 0;
-
-        SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
-        qb.setTables(TABLE_NAME);
-
-        String[] columns = { "step_count" };
-        String selection = "timestamp = ?";
-        String[] selectionArgs = {this.formatDateMsec(timestamp)};
-        String sortOrder = null;
-
-        Cursor cursor = qb.query(this.db, columns, selection, selectionArgs, null,
-                null, sortOrder);
-
-        if (cursor.getCount() == 0) {
-            return stepCount;
-        }
-
-        cursor.moveToFirst();
-        stepCount = cursor.getInt(0);
-        cursor.close();
-
-        return stepCount;
     }
     public List<SensorValue> selectAll(long startTime) {
         return this.selectAll(startTime, 0);
@@ -79,7 +55,7 @@ public class StepCountTable extends AbstractTable {
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
         qb.setTables(TABLE_NAME);
 
-        String[] columns = { "timestamp, start_time, step_count" };
+        String[] columns = { "timestamp, start_time, heart_rate" };
         String selection = "start_time = ?";
         String[] selectionArgs = {this.formatDateMsec(startTime)};
         String sortOrder = "timestamp";

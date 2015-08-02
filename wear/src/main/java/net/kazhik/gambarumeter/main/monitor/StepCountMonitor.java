@@ -7,8 +7,8 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.util.Log;
 
-import net.kazhik.gambarumeter.entity.SensorValue;
-import net.kazhik.gambarumeter.storage.StepCountTable;
+import net.kazhik.gambarumeterlib.entity.SensorValue;
+import net.kazhik.gambarumeterlib.storage.StepCountTable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -102,7 +102,7 @@ public class StepCountMonitor implements SensorEventListener {
             default:
                 return;
         }
-        
+
         long newTimestamp = sensorEvent.timestamp / (1000 * 1000);
         float newValue = sensorEvent.values[0];
         Log.d(TAG, "Steps: " + newValue);

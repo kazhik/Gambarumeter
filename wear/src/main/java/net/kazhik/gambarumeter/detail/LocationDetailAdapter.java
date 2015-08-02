@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import net.kazhik.gambarumeter.R;
-import net.kazhik.gambarumeter.entity.LapTime;
+import net.kazhik.gambarumeterlib.entity.LapTime;
 
 import java.util.List;
 

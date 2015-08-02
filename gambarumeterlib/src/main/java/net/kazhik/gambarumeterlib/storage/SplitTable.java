@@ -1,4 +1,4 @@
-package net.kazhik.gambarumeter.storage;
+package net.kazhik.gambarumeterlib.storage;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.util.Log;
 
-import net.kazhik.gambarumeter.entity.SensorValue;
+import net.kazhik.gambarumeterlib.entity.SplitTime;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -16,16 +16,16 @@ import java.util.List;
 /**
  * Created by kazhik on 14/11/08.
  */
-public class HeartRateTable extends AbstractTable {
-    public static final String TABLE_NAME = "gm_heartrate";
+public class SplitTable extends AbstractTable {
+    public static final String TABLE_NAME = "gm_lap";
     private static final String CREATE_TABLE =
             "CREATE TABLE " + TABLE_NAME + " (" +
                     "timestamp DATETIME PRIMARY KEY," +
                     "start_time DATETIME," +
-                    "heart_rate INTEGER)";
-    private static final String TAG = "HeartRateTable";
+                    "distance REAL)";
+    private static final String TAG = "SplitTable";
 
-    public HeartRateTable(Context context) {
+    public SplitTable(Context context) {
         super(context);
     }
     public static void init(SQLiteDatabase db){
@@ -36,26 +36,26 @@ public class HeartRateTable extends AbstractTable {
         AbstractTable.upgrade(db, TABLE_NAME, CREATE_TABLE);
     }
 
-    public int insert(long timestamp, long startTime, int heartRate) {
+    public int insert(long timestamp, long startTime,
+                      float distance) {
         ContentValues values = new ContentValues();
 
         values.put("timestamp", this.formatDateMsec(timestamp));
         values.put("start_time", this.formatDateMsec(startTime));
-        values.put("heart_rate", heartRate);
+        values.put("distance", distance);
 
         return (int)this.db.insert(TABLE_NAME, null, values);
 
     }
-    public List<SensorValue> selectAll(long startTime) {
+    public List<SplitTime> selectAll(long startTime) {
         return this.selectAll(startTime, 0);
     }
-
-    public List<SensorValue> selectAll(long startTime, int max) {
+    public List<SplitTime> selectAll(long startTime, int max) {
 
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
         qb.setTables(TABLE_NAME);
 
-        String[] columns = { "timestamp, start_time, heart_rate" };
+        String[] columns = { "timestamp, distance" };
         String selection = "start_time = ?";
         String[] selectionArgs = {this.formatDateMsec(startTime)};
         String sortOrder = "timestamp";
@@ -64,7 +64,7 @@ public class HeartRateTable extends AbstractTable {
         Cursor cursor = qb.query(this.db, columns, selection, selectionArgs, null,
                 null, sortOrder, limit);
 
-        List<SensorValue> dataList = new ArrayList<SensorValue>();
+        List<SplitTime> dataList = new ArrayList<SplitTime>();
 
         if (cursor.getCount() == 0) {
             return dataList;
@@ -73,9 +73,10 @@ public class HeartRateTable extends AbstractTable {
         cursor.moveToFirst();
         try {
             while (cursor.isAfterLast() == false) {
-                SensorValue v =
-                        new SensorValue(this.parseDate(cursor.getString(0)), cursor.getInt(2));
-                dataList.add(v);
+                SplitTime lap =
+                        new SplitTime(this.parseDate(cursor.getString(0)),
+                                cursor.getFloat(1));
+                dataList.add(lap);
                 cursor.moveToNext();
             }
         } catch (ParseException e) {

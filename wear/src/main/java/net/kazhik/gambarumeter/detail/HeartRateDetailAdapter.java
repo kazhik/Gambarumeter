@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import net.kazhik.gambarumeter.R;
-import net.kazhik.gambarumeter.entity.HeartRateDetail;
+import net.kazhik.gambarumeterlib.entity.HeartRateDetail;
 
 import java.util.Calendar;
 import java.util.Date;

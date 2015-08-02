@@ -14,9 +14,9 @@ import android.widget.Toast;
 
 import net.kazhik.gambarumeter.R;
 import net.kazhik.gambarumeter.Util;
-import net.kazhik.gambarumeter.entity.LapTime;
-import net.kazhik.gambarumeter.entity.SplitTime;
-import net.kazhik.gambarumeter.storage.SplitTable;
+import net.kazhik.gambarumeterlib.entity.LapTime;
+import net.kazhik.gambarumeterlib.entity.SplitTime;
+import net.kazhik.gambarumeterlib.storage.SplitTable;
 
 import java.util.ArrayList;
 import java.util.List;

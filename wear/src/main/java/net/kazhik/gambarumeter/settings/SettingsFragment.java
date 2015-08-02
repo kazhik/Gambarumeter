@@ -13,7 +13,7 @@ import android.view.ViewGroup;
 
 import net.kazhik.gambarumeter.pager.PagerFragment;
 import net.kazhik.gambarumeter.R;
-import net.kazhik.gambarumeter.entity.Preference;
+import net.kazhik.gambarumeterlib.entity.Preference;
 
 import java.util.ArrayList;
 import java.util.List;

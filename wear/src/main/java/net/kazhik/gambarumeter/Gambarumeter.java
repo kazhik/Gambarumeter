@@ -3,14 +3,18 @@ package net.kazhik.gambarumeter;
 import android.app.Activity;
 import android.database.SQLException;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.wearable.view.GridViewPager;
 import android.util.Log;
 
 import net.kazhik.gambarumeter.pager.PagerAdapter;
-import net.kazhik.gambarumeter.storage.DataStorage;
-import net.kazhik.gambarumeter.storage.HeartRateTable;
-import net.kazhik.gambarumeter.storage.LocationTable;
-import net.kazhik.gambarumeter.storage.WorkoutTable;
+import net.kazhik.gambarumeterlib.storage.DataStorage;
+import net.kazhik.gambarumeterlib.storage.HeartRateTable;
+import net.kazhik.gambarumeterlib.storage.LocationTable;
+import net.kazhik.gambarumeterlib.storage.WorkoutTable;
+
+import java.io.File;
+import java.io.IOException;
 
 public class Gambarumeter extends Activity {
 
@@ -38,6 +42,22 @@ public class Gambarumeter extends Activity {
         pager.setOnPageChangeListener(pagerAdapter);
         pager.setAdapter(pagerAdapter);
 
+        this.startLogWrite();
+
+    }
+    private void startLogWrite() {
+        if (!BuildConfig.DEBUG) {
+            return;
+        }
+        try {
+            File f = new File(Environment.getExternalStorageDirectory()
+                    + "/" + this.getString(R.string.app_name) + ".log");
+            f.createNewFile();
+            String cmd = "logcat -d -v time -f " + f.getAbsolutePath();
+            Runtime.getRuntime().exec(cmd);
+        } catch (IOException e) {
+            Log.e(TAG, e.getMessage(), e);
+        }
 
     }
     private void initializeDatabase() {
