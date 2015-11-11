@@ -13,12 +13,15 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.wearable.DataMap;
+
 import net.kazhik.gambarumeter.R;
 import net.kazhik.gambarumeter.Util;
 import net.kazhik.gambarumeter.main.monitor.GeolocationMonitor;
 import net.kazhik.gambarumeter.main.monitor.LocationSensorValueListener;
 import net.kazhik.gambarumeter.main.view.DistanceView;
 import net.kazhik.gambarumeter.main.view.LocationNotificationView;
+import net.kazhik.gambarumeterlib.storage.DataStorage;
 import net.kazhik.gambarumeterlib.storage.WorkoutTable;
 
 /**
@@ -147,6 +150,28 @@ public class LocationMainFragment extends MainFragment
         this.notificationView.dismiss();
 
         super.stopWorkout();
+    }
+    @Override
+    protected DataMap putData(DataMap dataMap) {
+        dataMap = super.putData(dataMap);
+
+        dataMap = this.locationMonitor.putData(dataMap);
+
+        DataMap workoutDataMap = new DataMap();
+
+        workoutDataMap.putLong(DataStorage.COL_START_TIME,
+                this.stopwatch.getStartTime());
+        workoutDataMap.putLong(DataStorage.COL_STOP_TIME,
+                this.stopwatch.getStopTime());
+        workoutDataMap.putInt(DataStorage.COL_STEP_COUNT,
+                this.stepCountMonitor.getStepCount());
+        workoutDataMap.putInt(DataStorage.COL_HEART_RATE, 0);
+        workoutDataMap.putFloat(DataStorage.COL_DISTANCE,
+                this.locationMonitor.getDistance());
+        dataMap.putDataMap(DataStorage.TBL_WORKOUT, workoutDataMap);
+
+        return dataMap;
+
     }
 
     protected void saveResult() {

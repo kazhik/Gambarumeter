@@ -13,7 +13,7 @@
         android:label="@string/app_name"
         android:theme="@android:style/Theme.DeviceDefault" >
         <activity
-            android:name=".Gambarumeter"
+            android:name=".WearGambarumeter"
             android:label="@string/app_name"
             android:launchMode="singleTask">
             <intent-filter>

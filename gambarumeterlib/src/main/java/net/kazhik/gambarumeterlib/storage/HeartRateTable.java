@@ -22,7 +22,8 @@ public class HeartRateTable extends AbstractTable {
             "CREATE TABLE " + TABLE_NAME + " (" +
                     "timestamp DATETIME PRIMARY KEY," +
                     "start_time DATETIME," +
-                    "heart_rate INTEGER)";
+                    "heart_rate INTEGER," +
+                    "accuracy INTEGER)";
     private static final String TAG = "HeartRateTable";
 
     public HeartRateTable(Context context) {
@@ -36,12 +37,13 @@ public class HeartRateTable extends AbstractTable {
         AbstractTable.upgrade(db, TABLE_NAME, CREATE_TABLE);
     }
 
-    public int insert(long timestamp, long startTime, int heartRate) {
+    public int insert(long timestamp, long startTime, int heartRate, int accuracy) {
         ContentValues values = new ContentValues();
 
         values.put("timestamp", this.formatDateMsec(timestamp));
         values.put("start_time", this.formatDateMsec(startTime));
         values.put("heart_rate", heartRate);
+        values.put("accuracy", accuracy);
 
         return (int)this.db.insert(TABLE_NAME, null, values);
 
@@ -55,7 +57,7 @@ public class HeartRateTable extends AbstractTable {
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
         qb.setTables(TABLE_NAME);
 
-        String[] columns = { "timestamp, start_time, heart_rate" };
+        String[] columns = { "timestamp, heart_rate, accuracy" };
         String selection = "start_time = ?";
         String[] selectionArgs = {this.formatDateMsec(startTime)};
         String sortOrder = "timestamp";
@@ -74,7 +76,9 @@ public class HeartRateTable extends AbstractTable {
         try {
             while (cursor.isAfterLast() == false) {
                 SensorValue v =
-                        new SensorValue(this.parseDate(cursor.getString(0)), cursor.getInt(2));
+                        new SensorValue(this.parseDate(cursor.getString(0)),
+                                cursor.getInt(1),
+                                cursor.getInt(2));
                 dataList.add(v);
                 cursor.moveToNext();
             }

@@ -25,12 +25,16 @@ import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.wearable.DataApi;
 import com.google.android.gms.wearable.DataEvent;
 import com.google.android.gms.wearable.DataEventBuffer;
 import com.google.android.gms.wearable.DataItem;
 import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.DataMapItem;
+import com.google.android.gms.wearable.PutDataMapRequest;
+import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
 
 import net.kazhik.gambarumeter.R;
@@ -167,13 +171,18 @@ public abstract class MainFragment extends PagerFragment
     @Override
     public void onDestroy() {
         this.stopWorkout();
+        if (this.googleApiClient != null) {
+            this.googleApiClient.unregisterConnectionCallbacks(this);
+        }
         if (this.gyroscope != null) {
             this.gyroscope.terminate();
         }
+        Activity activity = this.getActivity();
         if (this.isBound) {
-            this.getActivity().getApplicationContext().unbindService(this);
+            activity.getApplicationContext().unbindService(this);
 
         }
+        activity.unregisterReceiver(this.batteryLevelReceiver);
 
         super.onDestroy();
     }
@@ -246,7 +255,6 @@ public abstract class MainFragment extends PagerFragment
         this.stopwatch.start();
     }
     protected void stopWorkout() {
-
         this.stopwatch.stop();
         if (this.stepCountMonitor != null) {
             this.stepCountMonitor.stop();
@@ -268,6 +276,32 @@ public abstract class MainFragment extends PagerFragment
         }
 
     }
+    private void sendDataToMobile() {
+        PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/database");
+
+        // put data on datamap
+        DataMap dataMap = putData(putDataMapReq.getDataMap());
+
+        Log.d(TAG, "newData: " + dataMap.toString());
+
+        PutDataRequest putDataReq = putDataMapReq.asPutDataRequest();
+        PendingResult<DataApi.DataItemResult> pendingResult =
+                Wearable.DataApi.putDataItem(this.googleApiClient, putDataReq);
+
+        pendingResult.setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
+            @Override
+            public void onResult(DataApi.DataItemResult dataItemResult) {
+                Log.d(TAG, "putDataItem done: ");
+            }
+        });
+
+    }
+    protected DataMap putData(DataMap dataMap) {
+        this.stepCountMonitor.putDataMap(dataMap);
+
+        return dataMap;
+
+    }
 
     // UserInputManager.UserInputListener
     @Override
@@ -279,8 +313,8 @@ public abstract class MainFragment extends PagerFragment
     @Override
     public void onUserStop() {
         this.stopWorkout();
-
         this.saveResult();
+        this.sendDataToMobile();
         this.stopwatch.reset();
     }
     // SensorValueListener
@@ -292,6 +326,7 @@ public abstract class MainFragment extends PagerFragment
         this.userInputManager.toggleVisibility(false);
         this.stopWorkout();
         this.saveResult();
+        this.sendDataToMobile();
         this.stopwatch.reset();
         this.vibrator.vibrate(1000);
     }

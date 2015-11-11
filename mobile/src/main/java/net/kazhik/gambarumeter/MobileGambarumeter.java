@@ -4,13 +4,15 @@ import android.app.Activity;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import java.util.List;
 
 
-public class Gambarumeter extends Activity {
+public class MobileGambarumeter extends Activity {
+    private static final String TAG = "MobileGambarumeter";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,8 +23,15 @@ public class Gambarumeter extends Activity {
         List<Sensor> sensorList = sensorManager.getSensorList(Sensor.TYPE_ALL);
 
         for (Sensor sensor: sensorList) {
-            System.out.println("Sensor:" + sensor.getName() + "; " + sensor.getType());
+            Log.d(TAG, "Sensor:" + sensor.getName() + "; " + sensor.getType());
         }
+        if (savedInstanceState == null) {
+            getFragmentManager().beginTransaction()
+                    .add(R.id.fragment_container, new MainFragment())
+                    .commit();
+
+        }
+
     }
 
 

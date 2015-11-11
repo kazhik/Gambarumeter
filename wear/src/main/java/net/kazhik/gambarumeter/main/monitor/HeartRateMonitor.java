@@ -6,9 +6,11 @@ import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Binder;
 import android.os.IBinder;
-import android.util.Log;
+
+import com.google.android.gms.wearable.DataMap;
 
 import net.kazhik.gambarumeterlib.entity.SensorValue;
+import net.kazhik.gambarumeterlib.storage.DataStorage;
 import net.kazhik.gambarumeterlib.storage.HeartRateTable;
 
 import java.util.ArrayList;
@@ -23,8 +25,8 @@ public class HeartRateMonitor extends SensorService {
     private SensorManager sensorManager;
     private HeartRateSensorValueListener listener;
     private SensorValue currentValue = new SensorValue();
-    private List<SensorValue> dataList = new ArrayList<SensorValue>();
-    private LinkedBlockingQueue<SensorValue> queue = new LinkedBlockingQueue<SensorValue>();
+    private List<SensorValue> dataList = new ArrayList<>();
+    private LinkedBlockingQueue<SensorValue> queue = new LinkedBlockingQueue<>();
     private HeartRateBinder binder = new HeartRateBinder();
     private static final String TAG = "HeartRateMonitor";
     private boolean started = false;
@@ -53,10 +55,26 @@ public class HeartRateMonitor extends SensorService {
             heartRateTable.insert(
                     sensorValue.getTimestamp(),
                     startTime,
-                    (int)sensorValue.getValue());
+                    (int)sensorValue.getValue(),
+                    sensorValue.getAccuracy());
         }
         heartRateTable.close();
         
+    }
+    public DataMap putData(DataMap dataMap) {
+        ArrayList<DataMap> heartRateDataMapList = new ArrayList<>();
+        for (SensorValue heartRate: this.dataList) {
+            DataMap heartRateMap = new DataMap();
+            heartRateMap.putLong(DataStorage.COL_TIMESTAMP, heartRate.getTimestamp());
+            heartRateMap.putInt(DataStorage.COL_HEART_RATE, (int) heartRate.getValue());
+            heartRateMap.putInt(DataStorage.COL_ACCURACY, heartRate.getAccuracy());
+
+            heartRateDataMapList.add(heartRateMap);
+
+        }
+        dataMap.putDataMapArrayList(DataStorage.TBL_HEARTRATE, heartRateDataMapList);
+
+        return dataMap;
     }
     public void start() {
         this.dataList.clear();
@@ -100,11 +118,11 @@ public class HeartRateMonitor extends SensorService {
 
         return average;
     }
-    private int storeHeartRate(long timestamp, float heartRate) {
+    private int storeHeartRate(long timestamp, float heartRate, int accuracy) {
         // raw data in queue, rate per minute in dataList
 
         if (this.queue.isEmpty()) {
-            this.queue.add(new SensorValue(timestamp, heartRate));
+            this.queue.add(new SensorValue(timestamp, heartRate, accuracy));
             return 0;
         }
         SensorValue average = new SensorValue(0, 0);
@@ -115,7 +133,7 @@ public class HeartRateMonitor extends SensorService {
                 this.dataList.add(average);
             }
         }
-        this.queue.add(new SensorValue(timestamp, heartRate));
+        this.queue.add(new SensorValue(timestamp, heartRate, accuracy));
         return (int)average.getValue();
     }
     @Override
@@ -132,7 +150,7 @@ public class HeartRateMonitor extends SensorService {
         if (sensorValue[0] != this.currentValue.getValue()) {
             this.listener.onHeartRateChanged(newTimestamp, (int)sensorValue[0]);
             if (this.started) {
-                this.storeHeartRate(newTimestamp, sensorValue[0]);
+                this.storeHeartRate(newTimestamp, sensorValue[0], accuracy);
             }
         }
 

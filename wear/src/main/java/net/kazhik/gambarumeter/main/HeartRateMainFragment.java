@@ -12,11 +12,19 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.wearable.DataApi;
+import com.google.android.gms.wearable.DataMap;
+import com.google.android.gms.wearable.PutDataMapRequest;
+import com.google.android.gms.wearable.PutDataRequest;
+import com.google.android.gms.wearable.Wearable;
+
 import net.kazhik.gambarumeter.R;
 import net.kazhik.gambarumeter.main.monitor.HeartRateMonitor;
 import net.kazhik.gambarumeter.main.monitor.HeartRateSensorValueListener;
 import net.kazhik.gambarumeter.main.view.HeartRateNotificationView;
 import net.kazhik.gambarumeter.main.view.HeartRateView;
+import net.kazhik.gambarumeterlib.storage.DataStorage;
 import net.kazhik.gambarumeterlib.storage.WorkoutTable;
 
 import java.util.Date;
@@ -108,6 +116,28 @@ public class HeartRateMainFragment extends MainFragment
         super.stopWorkout();
     }
 
+    @Override
+    protected DataMap putData(DataMap dataMap) {
+        dataMap = super.putData(dataMap);
+
+        dataMap = this.heartRateMonitor.putData(dataMap);
+
+        DataMap workoutDataMap = new DataMap();
+        workoutDataMap.putLong(DataStorage.COL_START_TIME,
+                this.stopwatch.getStartTime());
+        workoutDataMap.putLong(DataStorage.COL_STOP_TIME,
+                this.stopwatch.getStopTime());
+        workoutDataMap.putInt(DataStorage.COL_STEP_COUNT,
+                this.stepCountMonitor.getStepCount());
+        workoutDataMap.putInt(DataStorage.COL_HEART_RATE,
+                this.heartRateMonitor.getAverageHeartRate());
+        workoutDataMap.putFloat(DataStorage.COL_DISTANCE, 0);
+        dataMap.putDataMap(DataStorage.TBL_WORKOUT, workoutDataMap);
+
+        return dataMap;
+
+    }
+
     protected void saveResult() {
         super.saveResult();
         int ret;
@@ -118,7 +148,6 @@ public class HeartRateMainFragment extends MainFragment
             int heartRate = 0;
             if (this.heartRateMonitor != null) {
                 heartRate = this.heartRateMonitor.getAverageHeartRate();
-Log.d(TAG, "saveResult: " + startTime);
                 this.heartRateMonitor.saveResult(startTime);
             }
 

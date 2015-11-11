@@ -8,6 +8,27 @@ import android.util.Log;
 
 public class DataStorage {
 
+    public static final String TBL_WORKOUT = "Workout";
+    public static final String TBL_STEPCOUNT = "StepCount";
+    public static final String TBL_HEARTRATE = "HeartRate";
+    public static final String TBL_LOCATION = "Location";
+    public static final String TBL_SPLITTIME = "SplitTime";
+
+    public static final String COL_START_TIME = "start_time";
+    public static final String COL_STOP_TIME = "stop_time";
+    public static final String COL_TIMESTAMP = "timestamp";
+    public static final String COL_ACCURACY = "accuracy";
+
+    public static final String COL_STEP_COUNT = "step_count";
+
+    public static final String COL_HEART_RATE = "heart_rate";
+
+    public static final String COL_LATITUDE = "latitude";
+    public static final String COL_LONGITUDE = "longitude";
+    public static final String COL_ALTITUDE = "altitude";
+    public static final String COL_DISTANCE = "distance";
+
+
     public static final String DATABASE_NAME = "gambarumeter.sqlite";
     public static final int DATABASE_VERSION = 7;
 

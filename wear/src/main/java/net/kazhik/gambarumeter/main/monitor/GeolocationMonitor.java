@@ -3,6 +3,7 @@ package net.kazhik.gambarumeter.main.monitor;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.location.GpsSatellite;
 import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationManager;
@@ -18,12 +19,16 @@ import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.Wearable;
 
+import net.kazhik.gambarumeterlib.entity.SensorValue;
 import net.kazhik.gambarumeterlib.entity.SplitTime;
+import net.kazhik.gambarumeterlib.storage.DataStorage;
 import net.kazhik.gambarumeterlib.storage.SplitTable;
 import net.kazhik.gambarumeterlib.storage.LocationTable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -51,6 +56,7 @@ public class GeolocationMonitor extends Service
     private GeolocationBinder binder = new GeolocationBinder();
     private LocationSensorValueListener listener;
     private LocationRecord record = new LocationRecord();
+    private LocationManager locationManager;
 
     private static final int UPDATE_INTERVAL_MS = 5000;
     private static final int FASTEST_INTERVAL_MS = 3000;
@@ -81,9 +87,9 @@ public class GeolocationMonitor extends Service
 
         this.googleApiClient.connect();
 
-        LocationManager locationManager =
+        this.locationManager =
                 (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        locationManager.addGpsStatusListener(this);
+        this.locationManager.addGpsStatusListener(this);
 
     }
     public void start(float lapDistance) {
@@ -110,6 +116,33 @@ public class GeolocationMonitor extends Service
         return this.record.getSplits();
     }
 
+    public DataMap putData(DataMap dataMap) {
+        ArrayList<DataMap> locationMapList = new ArrayList<>();
+        for (Location loc: this.getLocationList()) {
+            DataMap locMap = new DataMap();
+            locMap.putLong(DataStorage.COL_TIMESTAMP, loc.getTime());
+            locMap.putDouble(DataStorage.COL_LATITUDE, loc.getLatitude());
+            locMap.putDouble(DataStorage.COL_LONGITUDE, loc.getLongitude());
+            locMap.putDouble(DataStorage.COL_ALTITUDE, loc.getAltitude());
+            locMap.putFloat(DataStorage.COL_ACCURACY, loc.getAccuracy());
+
+            locationMapList.add(locMap);
+
+        }
+        dataMap.putDataMapArrayList(DataStorage.TBL_LOCATION, locationMapList);
+
+        ArrayList<DataMap> splitMapList = new ArrayList<>();
+        for (SplitTime split: this.getSplits()) {
+            DataMap splitMap = new DataMap();
+            splitMap.putLong(DataStorage.COL_TIMESTAMP, split.getTimestamp());
+            splitMap.putFloat(DataStorage.COL_DISTANCE, split.getDistance());
+
+            splitMapList.add(splitMap);
+        }
+        dataMap.putDataMapArrayList(DataStorage.TBL_SPLITTIME, splitMapList);
+
+        return dataMap;
+    }
     public void saveResult(long startTime) {
         LocationTable locTable = new LocationTable(this.context);
         locTable.open(false);
@@ -206,7 +239,6 @@ public class GeolocationMonitor extends Service
     public void onGpsStatusChanged(int event) {
         if (event == GpsStatus.GPS_EVENT_FIRST_FIX) {
             this.listener.onLocationAvailable();
-
         }
 
     }

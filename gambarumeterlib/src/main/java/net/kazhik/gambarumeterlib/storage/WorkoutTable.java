@@ -39,7 +39,8 @@ public class WorkoutTable extends AbstractTable {
         AbstractTable.upgrade(db, TABLE_NAME, CREATE_TABLE);
     }
 
-    public int insert(long startTime, long stopTime, int stepCount, float distance, int heartRate) {
+    public int insert(long startTime, long stopTime, int stepCount,
+                      float distance, int heartRate) {
         ContentValues values = new ContentValues();
 
         values.put("start_time", this.formatDateMsec(startTime));

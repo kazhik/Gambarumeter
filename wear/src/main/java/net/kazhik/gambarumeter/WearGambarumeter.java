@@ -16,7 +16,7 @@ import net.kazhik.gambarumeterlib.storage.WorkoutTable;
 import java.io.File;
 import java.io.IOException;
 
-public class Gambarumeter extends Activity {
+public class WearGambarumeter extends Activity {
 
     private static final String TAG = "Gambarumeter";
 

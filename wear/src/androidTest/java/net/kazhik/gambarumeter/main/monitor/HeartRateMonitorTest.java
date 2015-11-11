@@ -31,6 +31,11 @@ public class HeartRateMonitorTest extends InstrumentationTestCase {
         }
 
         @Override
+        public void onRotation(long timestamp) {
+
+        }
+
+        @Override
         public void onBatteryLow() {
 
         }

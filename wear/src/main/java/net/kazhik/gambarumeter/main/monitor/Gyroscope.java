@@ -11,7 +11,7 @@ import android.util.Log;
  * Created by kazhik on 15/04/21.
  */
 public class Gyroscope extends SensorService {
-    private float threshold = 30.0f;
+    private float threshold = 20.0f;
     private int waitTime = 100;
 
     private GyroBinder binder = new GyroBinder();

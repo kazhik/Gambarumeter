@@ -6,9 +6,15 @@ package net.kazhik.gambarumeterlib.entity;
 public class SensorValue {
     private long timestamp;
     private float value;
+    private int accuracy;
 
     public SensorValue() {
 
+    }
+    public SensorValue(long timestamp, float value, int accuracy) {
+        this.accuracy = accuracy;
+        this.timestamp = timestamp;
+        this.value = value;
     }
     public SensorValue(long timestamp, float value) {
         this.timestamp = timestamp;
@@ -33,5 +39,12 @@ public class SensorValue {
         return this;
     }
 
+    public int getAccuracy() {
+        return accuracy;
+    }
+
+    public void setAccuracy(int accuracy) {
+        this.accuracy = accuracy;
+    }
 
 }

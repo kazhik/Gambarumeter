@@ -7,7 +7,10 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.util.Log;
 
+import com.google.android.gms.wearable.DataMap;
+
 import net.kazhik.gambarumeterlib.entity.SensorValue;
+import net.kazhik.gambarumeterlib.storage.DataStorage;
 import net.kazhik.gambarumeterlib.storage.StepCountTable;
 
 import java.util.ArrayList;
@@ -69,6 +72,17 @@ public class StepCountMonitor implements SensorEventListener {
         }
         stepCountTable.close();
 
+    }
+    public DataMap putDataMap(DataMap dataMap) {
+        ArrayList<DataMap> stepCountDataMapList = new ArrayList<>();
+        for (SensorValue sensorValue: this.dataList) {
+            DataMap stepCountMap = new DataMap();
+            stepCountMap.putLong(DataStorage.COL_TIMESTAMP, sensorValue.getTimestamp());
+            stepCountMap.putLong(DataStorage.COL_STEP_COUNT, (int)sensorValue.getValue());
+            stepCountDataMapList.add(stepCountMap);
+        }
+        dataMap.putDataMapArrayList(DataStorage.TBL_STEPCOUNT, stepCountDataMapList);
+        return dataMap;
     }
     private long getLastTimestamp() {
         long lastTimestamp = 0;

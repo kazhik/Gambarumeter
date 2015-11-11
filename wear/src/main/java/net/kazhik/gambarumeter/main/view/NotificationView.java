@@ -7,9 +7,10 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
+import android.text.Html;
 import android.text.format.DateUtils;
 
-import net.kazhik.gambarumeter.Gambarumeter;
+import net.kazhik.gambarumeter.WearGambarumeter;
 import net.kazhik.gambarumeter.R;
 
 /**
@@ -26,7 +27,7 @@ public abstract class NotificationView {
 
         this.context = context;
 
-        Intent intent = new Intent(context, Gambarumeter.class);
+        Intent intent = new Intent(context, WearGambarumeter.class);
         PendingIntent pendingIntent
                 = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -65,7 +66,7 @@ public abstract class NotificationView {
     private String makeDetailedText() {
         String str = "";
 
-        if (this.stepCount > 0) {
+        if (this.stepCount >= 0) {
             str += this.stepCount + this.context.getString(R.string.steps);
         }
         str = this.makeLongText(str);
@@ -84,8 +85,10 @@ public abstract class NotificationView {
     public void show(long elapsed) {
 
         this.notificationBuilder
-                .setContentTitle(this.makeSummaryText(elapsed))
-                .setContentText(this.makeDetailedText());
+                .setContentTitle(Html.fromHtml(
+                        "<b>" + this.makeSummaryText(elapsed) + "</b>"))
+                .setContentText(Html.fromHtml(
+                        "<b>" + this.makeDetailedText() + "</b>"));
 
         NotificationManagerCompat.from(this.context)
                 .notify(NOTIFICATION_ID, this.notificationBuilder.build());
