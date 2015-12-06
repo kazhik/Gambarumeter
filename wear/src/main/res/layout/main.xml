@@ -5,127 +5,152 @@
     android:id="@+id/main"
     android:background="@color/background"
     android:layout_height="match_parent"
-    android:layout_width="match_parent"
-    android:padding="10dp">
+    android:layout_width="match_parent">
 
-    <LinearLayout
-        app:layout_box="all"
-        android:id="@+id/main_layout"
+    <FrameLayout
+        android:layout_gravity="top"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:measureWithLargestChild="true"
-        android:padding="5dp">
-
-        <net.kazhik.gambarumeter.ui.AutoResizeTextView
-            android:id="@+id/split_time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:text="00:00"
-            android:textColor="@color/text"
-            android:textSize="32sp" />
+        android:layout_height="match_parent">
 
         <LinearLayout
-            android:id="@+id/heart_rate"
-            android:visibility="gone"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:gravity="center_horizontal">
+            app:layout_box="all"
+            android:id="@+id/main_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="20dp"
+            android:measureWithLargestChild="true">
 
-            <net.kazhik.gambarumeter.ui.AutoResizeTextView
-                android:id="@+id/bpm"
+            <net.kazhik.gambarumeterlib.AutoResizeTextView
+                android:id="@+id/split_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
-                android:text="0"
+                android:layout_gravity="center_horizontal"
+                android:layout_weight="1"
+                android:text="00:00"
                 android:textColor="@color/text"
-                android:textSize="28sp" />
+                android:textSize="32sp" />
 
-            <net.kazhik.gambarumeter.ui.AutoResizeTextView
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="bottom"
-                android:textColor="@color/text"
-                android:text="@string/bpm"
-                android:textSize="16sp" />
+                android:layout_weight="1"
+                android:layout_gravity="center_horizontal"
+                android:gravity="center_horizontal">
+
+                <LinearLayout
+                    android:id="@+id/heart_rate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:gravity="center_horizontal">
+
+                    <net.kazhik.gambarumeterlib.AutoResizeTextView
+                        android:id="@+id/bpm"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_horizontal"
+                        android:text="0"
+                        android:textColor="@color/text"
+                        android:textSize="28sp" />
+
+                    <net.kazhik.gambarumeterlib.AutoResizeTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="bottom"
+                        android:textColor="@color/text"
+                        android:text="@string/bpm"
+                        android:textSize="16sp" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/text"
+                    android:text="/"
+                    android:textSize="28sp"
+                    android:id="@+id/separator" />
+
+                <LinearLayout
+                    android:id="@+id/distance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:gravity="center_horizontal">
+
+                    <net.kazhik.gambarumeterlib.AutoResizeTextView
+                        android:id="@+id/distance_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_horizontal"
+                        android:text="0.00"
+                        android:textColor="@color/text"
+                        android:textSize="28sp" />
+
+                    <net.kazhik.gambarumeterlib.AutoResizeTextView
+                        android:id="@+id/distance_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="bottom"
+                        android:text="km"
+                        android:textColor="@color/text"
+                        android:textSize="16sp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/stepcount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_gravity="center_horizontal"
+                android:visibility="visible"
+                android:gravity="center_horizontal">
+
+                <net.kazhik.gambarumeterlib.AutoResizeTextView
+                    android:id="@+id/stepcount_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:text="0"
+                    android:textColor="@color/text"
+                    android:textSize="28sp" />
+
+                <net.kazhik.gambarumeterlib.AutoResizeTextView
+                    android:id="@+id/stepcount_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="bottom"
+                    android:text="@string/steps"
+                    android:textColor="@color/text"
+                    android:textSize="16sp" /> 　
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_gravity="center_horizontal"
+                android:gravity="center_horizontal">
+
+                <ImageButton
+                    android:id="@+id/stop"
+                    android:contentDescription="@string/stop"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    android:src="@android:drawable/ic_media_pause" />
+                <ImageButton
+                    android:id="@+id/start"
+                    android:contentDescription="@string/start"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@android:drawable/ic_media_play" />
+            </LinearLayout>
 
         </LinearLayout>
+    </FrameLayout>
 
-        <LinearLayout
-            android:id="@+id/distance"
-            android:visibility="gone"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:gravity="center_horizontal">
-
-            <net.kazhik.gambarumeter.ui.AutoResizeTextView
-                android:id="@+id/distance_value"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
-                android:text="0.00"
-                android:textColor="@color/text"
-                android:textSize="28sp" />
-
-            <net.kazhik.gambarumeter.ui.AutoResizeTextView
-                android:id="@+id/distance_label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="bottom"
-                android:text="km"
-                android:textColor="@color/text"
-                android:textSize="16sp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/stepcount"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:visibility="visible"
-            android:gravity="center_horizontal">
-
-            <net.kazhik.gambarumeter.ui.AutoResizeTextView
-                android:id="@+id/stepcount_value"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
-                android:text="0"
-                android:textColor="@color/text"
-                android:textSize="28sp" />
-
-            <net.kazhik.gambarumeter.ui.AutoResizeTextView
-                android:id="@+id/stepcount_label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="bottom"
-                android:text="@string/steps"
-                android:textColor="@color/text"
-                android:textSize="16sp" /> 　
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:gravity="center_horizontal">
-
-            <ImageButton
-                android:id="@+id/stop"
-                android:contentDescription="@string/stop"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:visibility="gone"
-                android:src="@android:drawable/ic_media_pause" />
-            <ImageButton
-                android:id="@+id/start"
-                android:contentDescription="@string/start"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@android:drawable/ic_media_play" />
-        </LinearLayout>
-    </LinearLayout>
 </android.support.wearable.view.BoxInsetLayout>

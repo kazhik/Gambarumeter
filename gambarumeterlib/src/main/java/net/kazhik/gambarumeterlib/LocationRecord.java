@@ -1,4 +1,4 @@
-package net.kazhik.gambarumeter.main.monitor;
+package net.kazhik.gambarumeterlib;
 
 import android.location.Location;
 import android.util.Log;
@@ -16,8 +16,8 @@ public class LocationRecord {
     private Location prevLocation = null;
     private float realDistance = 0;
     private double elevationGain = 0;
-    private List<Location> locations = new ArrayList<Location>();
-    private List<SplitTime> splitTimes = new ArrayList<SplitTime>();
+    private List<Location> locations = new ArrayList<>();
+    private List<SplitTime> splitTimes = new ArrayList<>();
 
     private float lapDistance = 1000;
 
@@ -82,8 +82,8 @@ public class LocationRecord {
         return 0;
 
     }
-    public long setCurrentLocation(Location location) {
-        Log.d(TAG, "setCurrentLocation: " + location.getTime());
+    public long setNewLocation(Location location) {
+        Log.d(TAG, "setNewLocation: " + location.getTime());
 
         Distance latestMove = this.calculateDistance(location);
         if (this.prevLocation != null) {

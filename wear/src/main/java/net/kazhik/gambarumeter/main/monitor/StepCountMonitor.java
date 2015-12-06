@@ -1,10 +1,12 @@
 package net.kazhik.gambarumeter.main.monitor;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Handler;
 import android.util.Log;
 
 import com.google.android.gms.wearable.DataMap;
@@ -15,6 +17,7 @@ import net.kazhik.gambarumeterlib.storage.StepCountTable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by kazhik on 14/10/12.
@@ -29,11 +32,13 @@ public class StepCountMonitor implements SensorEventListener {
     private float initialValue = 0;
     private boolean started = false;
     private SensorValue currentValue = new SensorValue(0, 0f);
-    private List<SensorValue> dataList = new ArrayList<SensorValue>();
+    private List<SensorValue> dataList = new ArrayList<>();
+    private Handler handler = new Handler();
     private static final String TAG = "StepCountMonitor";
 
     public void init(Context context,
                      SensorManager sensorManager,
+
                      SensorValueListener listener) {
 
         this.context = context;
@@ -52,6 +57,15 @@ public class StepCountMonitor implements SensorEventListener {
         this.sensorManager.registerListener(this,
                 this.stepCountSensor,
                 SensorManager.SENSOR_DELAY_NORMAL);
+        this.handler.postAtTime(new Runnable() {
+
+            @Override
+            public void run() {
+                storeCurrentValue(System.currentTimeMillis());
+
+            }
+        }, TimeUnit.SECONDS.toMillis(60));
+
 
         this.started = true;
     }
@@ -60,17 +74,16 @@ public class StepCountMonitor implements SensorEventListener {
         this.sensorManager.unregisterListener(this, this.stepCountSensor);
 
     }
-    public void saveResult(long startTime) {
-        StepCountTable stepCountTable = new StepCountTable(this.context);
-        stepCountTable.open(false);
-        
+
+    public void saveResult(SQLiteDatabase db, long startTime) {
+        StepCountTable stepCountTable = new StepCountTable(this.context, db);
+
         for (SensorValue sensorValue: this.dataList) {
             stepCountTable.insert(
                     sensorValue.getTimestamp(),
                     startTime,
                     (int)sensorValue.getValue());
         }
-        stepCountTable.close();
 
     }
     public DataMap putDataMap(DataMap dataMap) {
@@ -101,7 +114,7 @@ public class StepCountMonitor implements SensorEventListener {
     }
     private void storeStepCount(long timestamp, float stepCount) {
         long lastTimestamp = this.getLastTimestamp();
-        if (timestamp >= lastTimestamp + (1000 * 60)) {
+        if (timestamp >= lastTimestamp + TimeUnit.SECONDS.toMillis(60)) {
             this.dataList.add(new SensorValue(timestamp, stepCount));
         }
     }
@@ -117,9 +130,8 @@ public class StepCountMonitor implements SensorEventListener {
                 return;
         }
 
-        long newTimestamp = sensorEvent.timestamp / (1000 * 1000);
+        long newTimestamp = System.currentTimeMillis();
         float newValue = sensorEvent.values[0];
-        Log.d(TAG, "Steps: " + newValue);
         if (!this.started) {
             return;
         }
@@ -127,8 +139,8 @@ public class StepCountMonitor implements SensorEventListener {
             this.initialValue = newValue;
         } else if (newValue != this.currentValue.getValue()) {
             float steps = newValue - this.initialValue;
+            Log.d(TAG, "onSensorChanged: " + newTimestamp);
             this.listener.onStepCountChanged(newTimestamp, (int)steps);
-            this.storeStepCount(newTimestamp, steps);
         }
         this.currentValue.setTimestamp(newTimestamp)
             .setValue(newValue);

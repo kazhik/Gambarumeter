@@ -4,7 +4,7 @@ import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.IBinder;
@@ -12,12 +12,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
-import com.google.android.gms.common.api.PendingResult;
-import com.google.android.gms.wearable.DataApi;
 import com.google.android.gms.wearable.DataMap;
-import com.google.android.gms.wearable.PutDataMapRequest;
-import com.google.android.gms.wearable.PutDataRequest;
-import com.google.android.gms.wearable.Wearable;
 
 import net.kazhik.gambarumeter.R;
 import net.kazhik.gambarumeter.main.monitor.HeartRateMonitor;
@@ -91,6 +86,8 @@ public class HeartRateMainFragment extends MainFragment
         } else {
             activity.findViewById(R.id.heart_rate).setVisibility(View.GONE);
         }
+        activity.findViewById(R.id.separator).setVisibility(View.GONE);
+        activity.findViewById(R.id.distance).setVisibility(View.GONE);
 
         this.notificationView.initialize(activity);
 
@@ -139,39 +136,44 @@ public class HeartRateMainFragment extends MainFragment
     }
 
     protected void saveResult() {
-        super.saveResult();
-        int ret;
+        Context context = this.getActivity();
+
+        DataStorage storage = new DataStorage(context);
+        SQLiteDatabase db = storage.open();
+        db.beginTransaction();
         try {
             long startTime = this.stopwatch.getStartTime();
 
-            // HeartRateTable
+            super.saveResult(db, startTime);
+
             int heartRate = 0;
             if (this.heartRateMonitor != null) {
                 heartRate = this.heartRateMonitor.getAverageHeartRate();
-                this.heartRateMonitor.saveResult(startTime);
+                this.heartRateMonitor.saveResult(db, startTime);
             }
 
+            WorkoutTable workoutTable = new WorkoutTable(context, db);
             // WorkoutTable
             int stepCount = 0;
             if (this.stepCountMonitor != null) {
                 stepCount = this.stepCountMonitor.getStepCount();
             }
 
-            WorkoutTable workoutTable = new WorkoutTable(this.getActivity());
-            workoutTable.open(false);
-            ret = workoutTable.insert(
+            workoutTable.insert(
                     startTime,
                     this.stopwatch.getStopTime(),
                     stepCount,
                     0,
                     heartRate);
-            workoutTable.close();
 
-            Log.d(TAG, "insert: " + ret + "; " + startTime);
-
-        } catch (SQLException e) {
+            db.setTransactionSuccessful();
+        } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
+        } finally {
+            db.endTransaction();
         }
+
+        storage.close();
 
     }
     @Override
@@ -196,10 +198,6 @@ public class HeartRateMainFragment extends MainFragment
 
         Log.d(TAG, "new heart rate: " + (new Date(timestamp)).toString() + " / " + rate);
         this.notificationView.updateHeartRate(rate);
-
-        if (this.stepCountMonitor != null) {
-            this.stepCountMonitor.storeCurrentValue(timestamp);
-        }
 
     }
 

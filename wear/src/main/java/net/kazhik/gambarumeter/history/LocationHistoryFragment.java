@@ -7,11 +7,7 @@ import android.util.Log;
 
 import net.kazhik.gambarumeter.R;
 import net.kazhik.gambarumeter.detail.LocationDetailFragment;
-import net.kazhik.gambarumeterlib.storage.HeartRateTable;
 import net.kazhik.gambarumeterlib.storage.LocationTable;
-import net.kazhik.gambarumeterlib.storage.SplitTable;
-import net.kazhik.gambarumeterlib.storage.StepCountTable;
-import net.kazhik.gambarumeterlib.storage.WorkoutTable;
 
 /**
  * Created by kazhik on 14/11/11.

@@ -29,6 +29,9 @@ public class HeartRateTable extends AbstractTable {
     public HeartRateTable(Context context) {
         super(context);
     }
+    public HeartRateTable(Context context, SQLiteDatabase db) {
+        super(context, db);
+    }
     public static void init(SQLiteDatabase db){
         db.execSQL(CREATE_TABLE);
 
@@ -45,7 +48,7 @@ public class HeartRateTable extends AbstractTable {
         values.put("heart_rate", heartRate);
         values.put("accuracy", accuracy);
 
-        return (int)this.db.insert(TABLE_NAME, null, values);
+        return (int)this.db.insertOrThrow(TABLE_NAME, null, values);
 
     }
     public List<SensorValue> selectAll(long startTime) {
@@ -66,7 +69,7 @@ public class HeartRateTable extends AbstractTable {
         Cursor cursor = qb.query(this.db, columns, selection, selectionArgs, null,
                 null, sortOrder, limit);
 
-        List<SensorValue> dataList = new ArrayList<SensorValue>();
+        List<SensorValue> dataList = new ArrayList<>();
 
         if (cursor.getCount() == 0) {
             return dataList;
@@ -74,7 +77,7 @@ public class HeartRateTable extends AbstractTable {
 
         cursor.moveToFirst();
         try {
-            while (cursor.isAfterLast() == false) {
+            while (!cursor.isAfterLast()) {
                 SensorValue v =
                         new SensorValue(this.parseDate(cursor.getString(0)),
                                 cursor.getInt(1),

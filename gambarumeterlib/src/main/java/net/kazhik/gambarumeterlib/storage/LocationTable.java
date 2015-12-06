@@ -30,6 +30,9 @@ public class LocationTable extends AbstractTable {
     public LocationTable(Context context) {
         super(context);
     }
+    public LocationTable(Context context, SQLiteDatabase db) {
+        super(context, db);
+    }
     public static void init(SQLiteDatabase db){
         db.execSQL(CREATE_TABLE);
 
@@ -48,7 +51,7 @@ public class LocationTable extends AbstractTable {
         values.put("altitude", loc.getAltitude());
         values.put("accuracy", loc.getAccuracy());
 
-        return (int)this.db.insert(TABLE_NAME, null, values);
+        return (int)this.db.insertOrThrow(TABLE_NAME, null, values);
 
     }
 
@@ -69,7 +72,7 @@ public class LocationTable extends AbstractTable {
         Cursor cursor = qb.query(this.db, columns, selection, selectionArgs, null,
                 null, sortOrder, limit);
 
-        List<Location> dataList = new ArrayList<Location>();
+        List<Location> dataList = new ArrayList<>();
 
         if (cursor.getCount() == 0) {
             return dataList;
@@ -77,7 +80,7 @@ public class LocationTable extends AbstractTable {
 
         cursor.moveToFirst();
         try {
-            while (cursor.isAfterLast() == false) {
+            while (!cursor.isAfterLast()) {
                 Location loc = new Location("");
                 loc.setTime(this.parseDate(cursor.getString(0)));
                 loc.setLatitude(cursor.getDouble(1));

@@ -42,7 +42,7 @@ public class LocationDetailFragment extends DetailFragment {
                 Util.distanceUnitDisplayStr(prefDistanceUnit, activity.getResources());
         
         // read data from database
-        List<SplitTime> splits = new ArrayList<SplitTime>();
+        List<SplitTime> splits = new ArrayList<>();
         try {
             SplitTable splitTable = new SplitTable(activity);
             splitTable.open(true);
@@ -63,7 +63,7 @@ public class LocationDetailFragment extends DetailFragment {
         }
 
         // calculate laptimes
-        List<LapTime> laptimes = new ArrayList<LapTime>();
+        List<LapTime> laptimes = new ArrayList<>();
         long prevTimestamp = 0;
         for (SplitTime split: splits) {
             long currentLap = (split.getTimestamp() - prevTimestamp) / 1000;

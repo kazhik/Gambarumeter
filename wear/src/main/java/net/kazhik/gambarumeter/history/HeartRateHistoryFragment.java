@@ -8,7 +8,6 @@ import android.util.Log;
 import net.kazhik.gambarumeter.R;
 import net.kazhik.gambarumeter.detail.HeartRateDetailFragment;
 import net.kazhik.gambarumeterlib.storage.HeartRateTable;
-import net.kazhik.gambarumeterlib.storage.LocationTable;
 
 /**
  * Created by kazhik on 14/11/11.

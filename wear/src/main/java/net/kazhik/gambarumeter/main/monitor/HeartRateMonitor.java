@@ -2,6 +2,7 @@ package net.kazhik.gambarumeter.main.monitor;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Binder;
@@ -22,7 +23,6 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 public class HeartRateMonitor extends SensorService {
     private Context context;
-    private SensorManager sensorManager;
     private HeartRateSensorValueListener listener;
     private SensorValue currentValue = new SensorValue();
     private List<SensorValue> dataList = new ArrayList<>();
@@ -43,14 +43,12 @@ public class HeartRateMonitor extends SensorService {
                      HeartRateSensorValueListener listener) {
 
         this.context = context;
-        this.sensorManager = sensorManager;
         this.listener = listener;
 
         super.initialize(sensorManager, Sensor.TYPE_HEART_RATE);
     }
-    public void saveResult(long startTime) {
-        HeartRateTable heartRateTable = new HeartRateTable(this.context);
-        heartRateTable.open(false);
+    public void saveResult(SQLiteDatabase db, long startTime) {
+        HeartRateTable heartRateTable = new HeartRateTable(this.context, db);
         for (SensorValue sensorValue: this.dataList) {
             heartRateTable.insert(
                     sensorValue.getTimestamp(),
@@ -58,8 +56,7 @@ public class HeartRateMonitor extends SensorService {
                     (int)sensorValue.getValue(),
                     sensorValue.getAccuracy());
         }
-        heartRateTable.close();
-        
+
     }
     public DataMap putData(DataMap dataMap) {
         ArrayList<DataMap> heartRateDataMapList = new ArrayList<>();
@@ -146,7 +143,7 @@ public class HeartRateMonitor extends SensorService {
             default:
                 return;
         }
-        long newTimestamp = timestamp / (1000 * 1000);
+        long newTimestamp = System.currentTimeMillis();
         if (sensorValue[0] != this.currentValue.getValue()) {
             this.listener.onHeartRateChanged(newTimestamp, (int)sensorValue[0]);
             if (this.started) {

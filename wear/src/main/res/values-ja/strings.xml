@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Gambarumeter</string>
-    <string name="bpm">bpm</string>
     <string name="steps">歩</string>
     <string name="start">開始</string>
     <string name="stop">終了</string>
@@ -18,9 +16,6 @@
 
     <string name="edit_mode">編集モード</string>
     <string name="view_mode">閲覧モード</string>
-
-    <string name="mile">mi</string>
-    <string name="km">km</string>
 
     <string name="steps_per_min">歩/分</string>
 

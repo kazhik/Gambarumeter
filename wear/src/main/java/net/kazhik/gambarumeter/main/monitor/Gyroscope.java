@@ -11,12 +11,10 @@ import android.util.Log;
  * Created by kazhik on 15/04/21.
  */
 public class Gyroscope extends SensorService {
-    private float threshold = 20.0f;
-    private int waitTime = 100;
 
     private GyroBinder binder = new GyroBinder();
     private SensorValueListener listener;
-    private long lastTimestamp = 0;
+    private WristRotationDetector wristRotationDetector = new WristRotationDetector();
 
     private static final String TAG = "Gyroscope";
 
@@ -28,12 +26,12 @@ public class Gyroscope extends SensorService {
     }
 
     public Gyroscope setThreshold(float threshold) {
-        this.threshold = threshold;
+        this.wristRotationDetector.setThreshold(threshold);
         return this;
     }
 
     public Gyroscope setWaitTime(int waitTime) {
-        this.waitTime = waitTime;
+        this.wristRotationDetector.setInterval(waitTime);
         return this;
     }
 
@@ -50,16 +48,11 @@ public class Gyroscope extends SensorService {
             return;
         }
 
-        long newTimestamp = timestamp / (1000 * 1000);
-        if((newTimestamp - lastTimestamp) > waitTime) {
-            lastTimestamp = newTimestamp;
-
-            if(Math.abs(sensorValues[0]) > threshold ||
-                    Math.abs(sensorValues[1]) > threshold ||
-                    Math.abs(sensorValues[2]) > threshold) {
-
-                this.listener.onRotation(newTimestamp);
-            }
+        long newTimestamp = System.currentTimeMillis();
+        boolean doubleRotated =
+                this.wristRotationDetector.onSensorEvent(newTimestamp, sensorValues);
+        if (doubleRotated) {
+            this.listener.onRotation(newTimestamp);
         }
 
     }

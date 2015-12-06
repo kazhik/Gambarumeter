@@ -3,7 +3,7 @@ package net.kazhik.gambarumeter.main.monitor;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.location.GpsSatellite;
+import android.database.sqlite.SQLiteDatabase;
 import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationManager;
@@ -22,11 +22,11 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.Wearable;
 
-import net.kazhik.gambarumeterlib.entity.SensorValue;
+import net.kazhik.gambarumeterlib.LocationRecord;
 import net.kazhik.gambarumeterlib.entity.SplitTime;
 import net.kazhik.gambarumeterlib.storage.DataStorage;
-import net.kazhik.gambarumeterlib.storage.SplitTable;
 import net.kazhik.gambarumeterlib.storage.LocationTable;
+import net.kazhik.gambarumeterlib.storage.SplitTable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -143,21 +143,17 @@ public class GeolocationMonitor extends Service
 
         return dataMap;
     }
-    public void saveResult(long startTime) {
-        LocationTable locTable = new LocationTable(this.context);
-        locTable.open(false);
+    public void saveResult(SQLiteDatabase db, long startTime) {
+        LocationTable locTable = new LocationTable(this.context, db);
         for (Location loc: this.getLocationList()) {
             Log.d(TAG, "saveResult:" + loc.getTime());
             locTable.insert(startTime, loc);
         }
-        locTable.close();
 
-        SplitTable splitTable = new SplitTable(this.context);
-        splitTable.open(false);
+        SplitTable splitTable = new SplitTable(this.context, db);
         for (SplitTime split: this.getSplits()) {
             splitTable.insert(split.getTimestamp(), startTime, split.getDistance());
         }
-        splitTable.close();
 
     }
     public void terminate() {
@@ -170,6 +166,7 @@ public class GeolocationMonitor extends Service
                     .removeLocationUpdates(this.googleApiClient, this);
         }
         this.googleApiClient.disconnect();
+        this.locationManager.removeGpsStatusListener(this);
     }
 
     // GoogleApiClient.ConnectionCallbacks
@@ -215,7 +212,7 @@ public class GeolocationMonitor extends Service
     public void onLocationChanged(Location location) {
         Log.d(TAG, "onLocationChanged: ");
 
-        long lap = this.record.setCurrentLocation(location);
+        long lap = this.record.setNewLocation(location);
         if (lap > 0) {
             this.listener.onLap(location.getTime(),
                     this.record.getDistance(),

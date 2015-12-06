@@ -28,6 +28,9 @@ public class SplitTable extends AbstractTable {
     public SplitTable(Context context) {
         super(context);
     }
+    public SplitTable(Context context, SQLiteDatabase db) {
+        super(context, db);
+    }
     public static void init(SQLiteDatabase db){
         db.execSQL(CREATE_TABLE);
 
@@ -44,7 +47,7 @@ public class SplitTable extends AbstractTable {
         values.put("start_time", this.formatDateMsec(startTime));
         values.put("distance", distance);
 
-        return (int)this.db.insert(TABLE_NAME, null, values);
+        return (int)this.db.insertOrThrow(TABLE_NAME, null, values);
 
     }
     public List<SplitTime> selectAll(long startTime) {
@@ -64,7 +67,7 @@ public class SplitTable extends AbstractTable {
         Cursor cursor = qb.query(this.db, columns, selection, selectionArgs, null,
                 null, sortOrder, limit);
 
-        List<SplitTime> dataList = new ArrayList<SplitTime>();
+        List<SplitTime> dataList = new ArrayList<>();
 
         if (cursor.getCount() == 0) {
             return dataList;
@@ -72,7 +75,7 @@ public class SplitTable extends AbstractTable {
 
         cursor.moveToFirst();
         try {
-            while (cursor.isAfterLast() == false) {
+            while (!cursor.isAfterLast()) {
                 SplitTime lap =
                         new SplitTime(this.parseDate(cursor.getString(0)),
                                 cursor.getFloat(1));

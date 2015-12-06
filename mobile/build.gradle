@@ -18,10 +18,16 @@ android {
         }
     }
 }
-
+repositories {
+    maven { url "https://jitpack.io" }
+}
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     wearApp project(':wear')
-    compile 'com.google.android.gms:play-services:+'
     compile project(':gambarumeterlib')
+    compile 'com.google.android.gms:play-services:8.1.+'
+    compile 'com.google.android.gms:play-services-ads:8.1.+'
+    compile 'com.google.android.gms:play-services-identity:8.1.+'
+    compile 'com.github.PhilJay:MPAndroidChart:v2.1.0'
+    compile 'com.google.android.gms:play-services-gcm:8.1.+'
 }

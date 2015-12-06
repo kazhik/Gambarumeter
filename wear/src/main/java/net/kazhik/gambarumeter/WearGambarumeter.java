@@ -42,7 +42,7 @@ public class WearGambarumeter extends Activity {
         pager.setOnPageChangeListener(pagerAdapter);
         pager.setAdapter(pagerAdapter);
 
-        this.startLogWrite();
+        //this.startLogWrite();
 
     }
     private void startLogWrite() {

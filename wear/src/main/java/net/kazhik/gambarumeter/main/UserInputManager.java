@@ -106,7 +106,7 @@ public class UserInputManager
 
     @Override
     public boolean onDoubleTap(MotionEvent motionEvent) {
-        if (this.started == false) {
+        if (!this.started) {
             Log.d(TAG, "start");
             this.onUserStart();
         } else {

@@ -28,9 +28,15 @@ public abstract class NotificationView {
         this.context = context;
 
         Intent intent = new Intent(context, WearGambarumeter.class);
-        PendingIntent pendingIntent
-                = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+//        int flag = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_NO_CREATE;
+        int flag = 0;
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, flag);
 
+        NotificationCompat.WearableExtender extender = new NotificationCompat.WearableExtender()
+                .setDisplayIntent(pendingIntent)
+                .setCustomSizePreset(NotificationCompat.WearableExtender.SIZE_FULL_SCREEN);
+
+/*
         NotificationCompat.Action openMain
                 = new NotificationCompat.Action(R.drawable.empty, null, pendingIntent);
 
@@ -44,6 +50,7 @@ public abstract class NotificationView {
 //                .setCustomSizePreset(NotificationCompat.WearableExtender.SIZE_LARGE)
                 .setContentAction(0)
                 .addAction(openMain);
+*/
 
         this.notificationBuilder = new NotificationCompat.Builder(context)
                 .setSmallIcon(R.drawable.ic_launcher)

@@ -7,7 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Bundle;
@@ -39,7 +39,6 @@ import com.google.android.gms.wearable.Wearable;
 
 import net.kazhik.gambarumeter.R;
 import net.kazhik.gambarumeter.main.monitor.BatteryLevelReceiver;
-import net.kazhik.gambarumeter.main.monitor.GeolocationMonitor;
 import net.kazhik.gambarumeter.main.monitor.Gyroscope;
 import net.kazhik.gambarumeter.main.monitor.SensorValueListener;
 import net.kazhik.gambarumeter.main.monitor.StepCountMonitor;
@@ -230,7 +229,7 @@ public abstract class MainFragment extends PagerFragment
         Activity activity = this.getActivity();
 
         this.splitTimeView.initialize((TextView)activity.findViewById(R.id.split_time));
-        this.stepCountView.initialize((TextView)activity.findViewById(R.id.stepcount_value));
+        this.stepCountView.initialize((TextView) activity.findViewById(R.id.stepcount_value));
 
         this.userInputManager = new UserInputManager(this)
                 .initTouch(activity,
@@ -261,20 +260,12 @@ public abstract class MainFragment extends PagerFragment
         }
 
     }
+    protected abstract void saveResult();
 
-    protected void saveResult() {
-        try {
-            long startTime = this.stopwatch.getStartTime();
-
-            // StepCountTable
-            if (this.stepCountMonitor != null) {
-                this.stepCountMonitor.saveResult(startTime);
-            }
-
-        } catch (SQLException e) {
-            Log.e(TAG, e.getMessage(), e);
+    public void saveResult(SQLiteDatabase db, long startTime) {
+        if (this.stepCountMonitor != null) {
+            this.stepCountMonitor.saveResult(db, startTime);
         }
-
     }
     private void sendDataToMobile() {
         PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/database");

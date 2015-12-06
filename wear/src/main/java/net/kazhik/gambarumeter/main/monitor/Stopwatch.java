@@ -15,7 +15,7 @@ public class Stopwatch implements Handler.Callback {
     }
     private long startTime = -1;
     private long stopTime;
-    private List<Long> laps = new ArrayList<Long>();
+    private List<Long> laps = new ArrayList<>();
     private Handler handler = new Handler(this);
     private OnTickListener listener;
     private static final int TICK = 2000;
@@ -66,7 +66,7 @@ public class Stopwatch implements Handler.Callback {
 
     @Override
     public boolean handleMessage(Message message) {
-        if (message.what == TICK && this.running == true) {
+        if (message.what == TICK && this.running) {
             this.listener.onTick(System.currentTimeMillis() - this.startTime);
             this.handler.sendEmptyMessageDelayed(TICK, this.frequency);
         }

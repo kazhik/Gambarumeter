@@ -36,7 +36,7 @@ public class HeartRateDetailFragment extends DetailFragment {
         Activity activity = this.getActivity();
         long startTime = this.getStartTime();
         
-        List<SensorValue> heartRates = new ArrayList<SensorValue>();
+        List<SensorValue> heartRates = new ArrayList<>();
         try {
             HeartRateTable heartRateTable = new HeartRateTable(activity);
             heartRateTable.open(true);
@@ -58,7 +58,7 @@ public class HeartRateDetailFragment extends DetailFragment {
         }
         StepCountTable stepCountTable = new StepCountTable(activity);
         stepCountTable.open(true);
-        List<HeartRateDetail> heartRateDetails = new ArrayList<HeartRateDetail>();
+        List<HeartRateDetail> heartRateDetails = new ArrayList<>();
         int prevSteps = 0;
         long prevTimestamp = startTime;
         for (SensorValue heartRate: heartRates) {

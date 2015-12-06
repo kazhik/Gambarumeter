@@ -19,14 +19,12 @@ import java.util.List;
  */
 public class LocationDetailAdapter extends WearableListView.Adapter {
     private List<LapTime> dataSet;
-    private final Context context;
     private final LayoutInflater inflater;
     private String prefDistanceUnit;
     private static final String TAG = "LocationDetailAdapter";
 
     // Provide a suitable constructor (depends on the kind of dataset)
     public LocationDetailAdapter(Context context, List<LapTime> dataset) {
-        this.context = context;
         this.inflater = LayoutInflater.from(context);
         this.dataSet = dataset;
 

@@ -3,6 +3,8 @@ package net.kazhik.gambarumeter.main.monitor;
 import android.location.Location;
 import android.test.InstrumentationTestCase;
 
+import net.kazhik.gambarumeterlib.LocationRecord;
+
 /**
  * Created by kazhik on 14/12/02.
  */
@@ -21,7 +23,7 @@ public class LocationRecordTest extends InstrumentationTestCase {
 
         locRecord.addLap(loc1.getTime());
 
-        lap = locRecord.setCurrentLocation(loc1);
+        lap = locRecord.setNewLocation(loc1);
 
         assertEquals(0, lap);
         assertEquals(0.0f, locRecord.getDistance());
@@ -32,7 +34,7 @@ public class LocationRecordTest extends InstrumentationTestCase {
         loc2.setAccuracy(8);
         loc2.setAltitude(62.0f);
         loc2.setTime(loc1.getTime() + (2 * 60 * 1000));
-        lap = locRecord.setCurrentLocation(loc2);
+        lap = locRecord.setNewLocation(loc2);
         assertEquals(0, lap);
         assertEquals(613.0d, Math.ceil(locRecord.getDistance()));
 
@@ -42,7 +44,7 @@ public class LocationRecordTest extends InstrumentationTestCase {
         loc3.setAccuracy(8);
         loc3.setAltitude(123.0f);
         loc3.setTime(loc1.getTime() + (3 * 60 * 1000));
-        lap = locRecord.setCurrentLocation(loc3);
+        lap = locRecord.setNewLocation(loc3);
         assertEquals(180 * 1000, lap);
         assertEquals(1225.0d, Math.ceil(locRecord.getDistance()));
         assertEquals(122d, locRecord.getElevationGain());

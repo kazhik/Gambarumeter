@@ -26,6 +26,7 @@ public class PagerAdapter extends FragmentGridPagerAdapter
         super(fm);
 
         PackageManager pm = context.getPackageManager();
+
         if (pm.hasSystemFeature(PackageManager.FEATURE_LOCATION_GPS)) {
             this.fragments = new PagerFragment[][]{
                     {
@@ -34,6 +35,9 @@ public class PagerAdapter extends FragmentGridPagerAdapter
                             new SettingsFragment()
                     }
             };
+            if (pm.hasSystemFeature(PackageManager.FEATURE_SENSOR_HEART_RATE)) {
+
+            }
         } else {
             this.fragments = new PagerFragment[][]{
                     {

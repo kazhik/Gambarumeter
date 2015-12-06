@@ -32,7 +32,9 @@ public abstract class HistoryFragment extends PagerFragment
     private static final String TAG = "HistoryFragment";
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater,
+                             ViewGroup container,
+                             Bundle savedInstanceState) {
         return inflater.inflate(R.layout.workout_history, container, false);
     }
 
@@ -52,7 +54,8 @@ public abstract class HistoryFragment extends PagerFragment
         workoutTable.close();
 
         HistoryAdapter adapter = new HistoryAdapter(this.getActivity(), workoutInfos);
-        WearableListView listView = (WearableListView)this.getActivity().findViewById(R.id.history_list);
+        WearableListView listView =
+                (WearableListView)this.getActivity().findViewById(R.id.history_list);
         if (listView == null) {
             Log.d(TAG, "historyList not found");
             return;

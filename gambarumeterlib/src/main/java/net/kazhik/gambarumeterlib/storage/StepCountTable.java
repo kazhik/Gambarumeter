@@ -28,6 +28,9 @@ public class StepCountTable extends AbstractTable {
     public StepCountTable(Context context) {
         super(context);
     }
+    public StepCountTable(Context context, SQLiteDatabase db) {
+        super(context, db);
+    }
     public static void init(SQLiteDatabase db){
         db.execSQL(CREATE_TABLE);
 
@@ -43,7 +46,7 @@ public class StepCountTable extends AbstractTable {
         values.put("start_time", this.formatDateMsec(startTime));
         values.put("step_count", stepCount);
 
-        return (int)this.db.insert(TABLE_NAME, null, values);
+        return (int)this.db.insertOrThrow(TABLE_NAME, null, values);
 
     }
     public int select(long timestamp) {
@@ -88,7 +91,7 @@ public class StepCountTable extends AbstractTable {
         Cursor cursor = qb.query(this.db, columns, selection, selectionArgs, null,
                 null, sortOrder, limit);
 
-        List<SensorValue> dataList = new ArrayList<SensorValue>();
+        List<SensorValue> dataList = new ArrayList<>();
 
         if (cursor.getCount() == 0) {
             return dataList;
@@ -96,7 +99,7 @@ public class StepCountTable extends AbstractTable {
 
         cursor.moveToFirst();
         try {
-            while (cursor.isAfterLast() == false) {
+            while (!cursor.isAfterLast()) {
                 SensorValue v =
                         new SensorValue(this.parseDate(cursor.getString(0)), cursor.getInt(2));
                 dataList.add(v);

@@ -18,13 +18,11 @@ import java.util.List;
  */
 public class SettingsAdapter extends WearableListView.Adapter {
     private List<Preference> dataSet;
-    private final Context context;
     private final LayoutInflater inflater;
     private static final String TAG = "SettingsAdapter";
 
     // Provide a suitable constructor (depends on the kind of dataset)
     public SettingsAdapter(Context context, List<Preference> dataset) {
-        this.context = context;
         this.inflater = LayoutInflater.from(context);
         this.dataSet = dataset;
 

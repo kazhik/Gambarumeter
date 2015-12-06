@@ -31,6 +31,9 @@ public class WorkoutTable extends AbstractTable {
     public WorkoutTable(Context context) {
         super(context);
     }
+    public WorkoutTable(Context context, SQLiteDatabase db) {
+        super(context, db);
+    }
     public static void init(SQLiteDatabase db){
         db.execSQL(CREATE_TABLE);
 
@@ -49,7 +52,7 @@ public class WorkoutTable extends AbstractTable {
         values.put("distance", distance);
         values.put("heart_rate", heartRate);
 
-        return (int)this.db.insert(TABLE_NAME, null, values);
+        return (int)this.db.insertOrThrow(TABLE_NAME, null, values);
 
     }
     public List<WorkoutInfo> selectAll() {
@@ -68,7 +71,7 @@ public class WorkoutTable extends AbstractTable {
         Cursor cursor = qb.query(this.db, columns, selection, selectionArgs, null,
                 null, sortOrder, limit);
 
-        List<WorkoutInfo> dataList = new ArrayList<WorkoutInfo>();
+        List<WorkoutInfo> dataList = new ArrayList<>();
 
         if (cursor.getCount() == 0) {
             return dataList;

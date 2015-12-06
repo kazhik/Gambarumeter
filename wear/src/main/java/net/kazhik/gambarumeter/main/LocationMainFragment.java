@@ -5,7 +5,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
 import android.location.LocationManager;
 import android.os.IBinder;
 import android.util.Log;
@@ -125,6 +125,8 @@ public class LocationMainFragment extends MainFragment
         } else {
             activity.findViewById(R.id.distance).setVisibility(View.GONE);
         }
+        activity.findViewById(R.id.separator).setVisibility(View.GONE);
+        activity.findViewById(R.id.heart_rate).setVisibility(View.GONE);
 
 
     }
@@ -175,39 +177,45 @@ public class LocationMainFragment extends MainFragment
     }
 
     protected void saveResult() {
-        super.saveResult();
-        int ret;
+        Context context = this.getActivity();
+
+        DataStorage storage = new DataStorage(context);
+        SQLiteDatabase db = storage.open();
+        db.beginTransaction();
         try {
             long startTime = this.stopwatch.getStartTime();
 
-            // LocationTable, LapTable
+            super.saveResult(db, startTime);
+
+            // LocationTable, SplitTable
             float distance = 0;
             if (this.locationMonitor != null) {
                 distance = this.locationMonitor.getDistance();
-                this.locationMonitor.saveResult(startTime);
+                this.locationMonitor.saveResult(db, startTime);
             }
 
+            WorkoutTable workoutTable = new WorkoutTable(context, db);
             // WorkoutTable
             int stepCount = 0;
             if (this.stepCountMonitor != null) {
                 stepCount = this.stepCountMonitor.getStepCount();
             }
 
-            WorkoutTable workoutTable = new WorkoutTable(this.getActivity());
-            workoutTable.open(false);
-            ret = workoutTable.insert(
+            workoutTable.insert(
                     startTime,
                     this.stopwatch.getStopTime(),
                     stepCount,
                     distance,
                     0);
-            workoutTable.close();
 
-            Log.d(TAG, "insert: " + ret + "; " + startTime);
-
-        } catch (SQLException e) {
+            db.setTransactionSuccessful();
+        } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
+        } finally {
+            db.endTransaction();
         }
+
+        storage.close();
 
     }
 

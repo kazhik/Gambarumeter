@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Gambarumeter</string>
-    <string name="bpm">bpm</string>
+    <string name="app_name" translatable="false">Gambarumeter</string>
+    <string name="bpm" translatable="false">bpm</string>
     <string name="steps">steps</string>
     <string name="start">start</string>
     <string name="stop">stop</string>
@@ -19,8 +19,8 @@
     <string name="edit_mode">Edit mode</string>
     <string name="view_mode">View mode</string>
 
-    <string name="mile">mi</string>
-    <string name="km">km</string>
+    <string name="mile" translatable="false">mi</string>
+    <string name="km" translatable="false">km</string>
 
     <string name="steps_per_min">steps/min</string>
 

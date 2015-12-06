@@ -13,21 +13,21 @@
         android:orientation="horizontal"
         android:layout_weight="1">
 
-        <net.kazhik.gambarumeter.ui.AutoResizeTextView
+        <net.kazhik.gambarumeterlib.AutoResizeTextView
             android:id="@+id/heartrate_timestamp"
-            android:layout_marginRight="2dp"
+            android:layout_marginEnd="2dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="0:56:22"
             android:textColor="@color/text" />
-        <net.kazhik.gambarumeter.ui.AutoResizeTextView
+        <net.kazhik.gambarumeterlib.AutoResizeTextView
             android:id="@+id/heartrate_value"
-            android:layout_marginLeft="2dp"
+            android:layout_marginEnd="2dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="0"
             android:textColor="@color/text" />
-        <net.kazhik.gambarumeter.ui.AutoResizeTextView
+        <net.kazhik.gambarumeterlib.AutoResizeTextView
             android:id="@+id/heartrate_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -45,14 +45,14 @@
         android:orientation="horizontal"
         android:layout_weight="1">
 
-        <net.kazhik.gambarumeter.ui.AutoResizeTextView
+        <net.kazhik.gambarumeterlib.AutoResizeTextView
             android:id="@+id/stepcount_value"
-            android:layout_marginLeft="2dp"
+            android:layout_marginEnd="2dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="0"
             android:textColor="@color/text" />
-        <net.kazhik.gambarumeter.ui.AutoResizeTextView
+        <net.kazhik.gambarumeterlib.AutoResizeTextView
             android:id="@+id/stepcount_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

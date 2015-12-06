@@ -23,7 +23,7 @@ import java.util.List;
  */
 public class SettingsFragment extends PagerFragment
         implements WearableListView.ClickListener {
-    private List<Preference> prefList = new ArrayList<Preference>();
+    private List<Preference> prefList = new ArrayList<>();
     private SharedPreferences prefs;
     private static final String TAG = "SettingsFragment";
 
@@ -96,7 +96,7 @@ public class SettingsFragment extends PagerFragment
         SettingsAdapter adapter = (SettingsAdapter)listView.getAdapter();
         adapter.notifyItemChanged(position);
 
-        editor.commit();
+        editor.apply();
     }
 
     @Override

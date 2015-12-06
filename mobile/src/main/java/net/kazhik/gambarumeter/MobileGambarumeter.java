@@ -1,12 +1,15 @@
 package net.kazhik.gambarumeter;
 
 import android.app.Activity;
+import android.database.SQLException;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import net.kazhik.gambarumeterlib.storage.DataStorage;
 
 import java.util.List;
 
@@ -31,6 +34,7 @@ public class MobileGambarumeter extends Activity {
                     .commit();
 
         }
+        this.initializeDatabase();
 
     }
 
@@ -48,9 +52,18 @@ public class MobileGambarumeter extends Activity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+        return id == R.id.action_settings || super.onOptionsItemSelected(item);
     }
+
+    private void initializeDatabase() {
+        try {
+            DataStorage storage = new DataStorage(this);
+            storage.open();
+            storage.close();
+
+        } catch (SQLException e) {
+            Log.e(TAG, e.getMessage(), e);
+        }
+    }
+
 }

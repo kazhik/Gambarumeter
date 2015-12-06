@@ -19,13 +19,17 @@ public abstract class AbstractTable {
     private DbTblHelper dbHelper;
     protected SQLiteDatabase db;
     protected final Context context;
-    private SimpleDateFormat sdfMsec =
+    private final SimpleDateFormat sdfMsec =
             new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault());
-    private SimpleDateFormat sdfSec =
+    private final SimpleDateFormat sdfSec =
             new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
 
     public AbstractTable(Context context) {
         this.context = context;
+    }
+    public AbstractTable(Context context, SQLiteDatabase db) {
+        this.context = context;
+        this.db = db;
     }
 
     public AbstractTable open(boolean readOnly) throws SQLException {
@@ -36,6 +40,12 @@ public abstract class AbstractTable {
             this.db = this.dbHelper.getWritableDatabase();
         }
         return this;
+    }
+    public AbstractTable openReadonly() throws SQLException {
+        return this.open(true);
+    }
+    public AbstractTable openWritable() throws SQLException {
+        return this.open(false);
     }
 
     public void close() {
@@ -66,7 +76,7 @@ public abstract class AbstractTable {
         for (int i = 0; i < num; i++) {
             if (i != 0)
                 buf.append(delim);
-            buf.append((String) list.get(i));
+            buf.append(list.get(i));
         }
         return buf.toString();
     }
@@ -76,7 +86,7 @@ public abstract class AbstractTable {
         try {
             c = db.rawQuery("select * from " + tableName + " limit 1", null);
             if (c != null) {
-                ar = new ArrayList<String>(Arrays.asList(c.getColumnNames()));
+                ar = new ArrayList<>(Arrays.asList(c.getColumnNames()));
             }
         } catch (Exception e) {
             Log.v(tableName, e.getMessage(), e);
