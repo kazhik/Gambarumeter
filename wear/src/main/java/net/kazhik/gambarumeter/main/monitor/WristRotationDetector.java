@@ -32,9 +32,15 @@ public class WristRotationDetector {
             return false;
         }
 
-        if ((timestamp - this.prevTimestamp) < this.interval) {
+        if ((timestamp - this.prevTimestamp) > this.interval) {
+            this.rotateCount = 0;
+        } else {
             for (int i = 0; i < 3; i++) {
                 if (Math.abs(newValues[i] - this.prevValues[i]) > threshold * 2) {
+                    Log.d(TAG, "onSensorEvent:" +
+                            newValues[0] + "/" +
+                            newValues[1] + "/" +
+                            newValues[2] + "; " + (timestamp - this.prevTimestamp));
                     if (this.rotateCount == 1) {
                         this.rotateCount = 0;
                         return true;
@@ -43,20 +49,11 @@ public class WristRotationDetector {
                     break;
                 }
             }
-        } else {
-            this.rotateCount = 0;
         }
-
 
         this.prevTimestamp = timestamp;
-        Log.d(TAG, "onSensorEvent:" +
-                newValues[0] + "/" +
-                newValues[1] + "/" +
-                newValues[2] + "; " + (timestamp - this.prevTimestamp));
 
-        for (int i = 0; i < 3; i++) {
-            this.prevValues[i] = newValues[i];
-        }
+        System.arraycopy(newValues, 0, this.prevValues, 0, 3);
 
         return false;
     }

@@ -49,7 +49,6 @@ public class DistanceView implements Runnable {
     }
 
     public void refresh() {
-        Log.d(TAG, "distanceUnitStr: " + this.distanceUnitStr);
         this.distanceUnitText.setText(this.distanceUnitStr);
         
         if (!this.available) {

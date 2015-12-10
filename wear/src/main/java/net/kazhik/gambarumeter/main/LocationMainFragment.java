@@ -231,7 +231,7 @@ public class LocationMainFragment extends MainFragment
     }
 
 
-    // SensorValueListener
+    // LocationSensorValueListener
     @Override
     public void onLocationChanged(long timestamp, float distance, float speed) {
         if (!this.stopwatch.isRunning()) {
@@ -243,13 +243,13 @@ public class LocationMainFragment extends MainFragment
         this.notificationView.updateDistance(distance);
     }
 
-    // SensorValueListener
+    // LocationSensorValueListener
     @Override
     public void onLocationAvailable() {
         this.distanceView.setAvailable(true);
     }
 
-    // SensorValueListener
+    // LocationSensorValueListener
     @Override
     public void onLap(long timestamp, float distance, long lap) {
         this.notificationView.updateLap(lap);

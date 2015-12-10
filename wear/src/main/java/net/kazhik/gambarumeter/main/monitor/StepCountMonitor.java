@@ -7,6 +7,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.util.Log;
 
 import com.google.android.gms.wearable.DataMap;
@@ -30,10 +31,23 @@ public class StepCountMonitor implements SensorEventListener {
 
     private Sensor stepCountSensor;
     private float initialValue = 0;
+    private float prevValue = 0;
     private boolean started = false;
     private SensorValue currentValue = new SensorValue(0, 0f);
     private List<SensorValue> dataList = new ArrayList<>();
-    private Handler handler = new Handler();
+    private Handler handler;
+    private Runnable storeCurrentStepsRunnable = new Runnable() {
+        @Override
+        public void run() {
+            storeCurrentValue(System.currentTimeMillis());
+            if (started) {
+                Log.d(TAG, "storeCurrentStepsRunnable");
+                handler.postDelayed(storeCurrentStepsRunnable, TimeUnit.SECONDS.toMillis(60));
+            }
+
+        }
+    };
+    private HandlerThread dataSaveThread = new HandlerThread("DataSaveThread");
     private static final String TAG = "StepCountMonitor";
 
     public void init(Context context,
@@ -47,31 +61,30 @@ public class StepCountMonitor implements SensorEventListener {
         this.stepCountSensor =
                 this.sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
 
+        this.dataSaveThread.start();
+        this.handler = new Handler(this.dataSaveThread.getLooper());
+
     }
     public int getStepCount() {
         return (int)(this.currentValue.getValue() - this.initialValue);
     }
     public void start() {
         this.initialValue = 0;
+        this.prevValue = 0;
         this.dataList.clear();
         this.sensorManager.registerListener(this,
                 this.stepCountSensor,
                 SensorManager.SENSOR_DELAY_NORMAL);
-        this.handler.postAtTime(new Runnable() {
 
-            @Override
-            public void run() {
-                storeCurrentValue(System.currentTimeMillis());
-
-            }
-        }, TimeUnit.SECONDS.toMillis(60));
-
+        this.handler.postDelayed(this.storeCurrentStepsRunnable,
+                TimeUnit.SECONDS.toMillis(60));
 
         this.started = true;
     }
     public void stop() {
         this.started = false;
         this.sensorManager.unregisterListener(this, this.stepCountSensor);
+//        this.dataSaveThread.quitSafely();
 
     }
 
@@ -82,7 +95,7 @@ public class StepCountMonitor implements SensorEventListener {
             stepCountTable.insert(
                     sensorValue.getTimestamp(),
                     startTime,
-                    (int)sensorValue.getValue());
+                    (int) sensorValue.getValue());
         }
 
     }
@@ -105,18 +118,12 @@ public class StepCountMonitor implements SensorEventListener {
         return lastTimestamp;
     }
     public void storeCurrentValue(long timestamp) {
-        long lastTimestamp = this.getLastTimestamp();
-        if (lastTimestamp != timestamp && this.currentValue.getValue() != 0f) {
+        if (this.currentValue.getValue() > this.prevValue ) {
             float steps = this.currentValue.getValue() - this.initialValue;
             this.dataList.add(new SensorValue(timestamp, steps));
+            this.prevValue = steps;
         }
 
-    }
-    private void storeStepCount(long timestamp, float stepCount) {
-        long lastTimestamp = this.getLastTimestamp();
-        if (timestamp >= lastTimestamp + TimeUnit.SECONDS.toMillis(60)) {
-            this.dataList.add(new SensorValue(timestamp, stepCount));
-        }
     }
 
     @Override
