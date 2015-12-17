@@ -42,6 +42,7 @@ import net.kazhik.gambarumeterlib.storage.WorkoutTable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by kazhik on 15/10/14.
@@ -119,6 +120,35 @@ public class MainFragment extends Fragment
     }
 
     private void initializeUI() {
+        Activity activity = this.getActivity();
+
+        ListView lv = (ListView) activity.findViewById(R.id.history);
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent,
+                                    View view,
+                                    int position,
+                                    long id) {
+
+                ListView listView = (ListView) parent;
+                Map<String, String> map = (Map<String, String>) listView
+                        .getItemAtPosition(position);
+
+                Log.d(TAG, "startTime: " + map.get("startTime") + ":" + map.get("startTimeStr"));
+
+                ChartFragment chartFragment = new ChartFragment();
+                Bundle chartParam = new Bundle();
+                chartParam.putLong("startTime", Long.valueOf(map.get("startTime")));
+                chartFragment.setArguments(chartParam);
+
+                getFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, chartFragment)
+                        .addToBackStack(null)
+                        .commit();
+
+            }
+        });
+        registerForContextMenu(lv);
 
     }
 

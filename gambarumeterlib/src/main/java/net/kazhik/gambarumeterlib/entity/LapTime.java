@@ -3,12 +3,13 @@ package net.kazhik.gambarumeterlib.entity;
 /**
  * Created by kazhik on 14/12/01.
  */
-public class LapTime extends SplitTime {
+public class LapTime extends SplitTimeStepCount {
     private long laptime;
     private String distanceUnitStr;
 
-    public LapTime(long timestamp, float distance, long laptime, String distanceUnit) {
-        super(timestamp, distance);
+    public LapTime(long timestamp, float distance, long laptime, int stepCount,
+                   String distanceUnit) {
+        super(timestamp, distance, stepCount);
         this.laptime = laptime;
         
         this.distanceUnitStr = distanceUnit;

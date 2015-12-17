@@ -35,19 +35,6 @@ public class StepCountMonitor implements SensorEventListener {
     private boolean started = false;
     private SensorValue currentValue = new SensorValue(0, 0f);
     private List<SensorValue> dataList = new ArrayList<>();
-    private Handler handler;
-    private Runnable storeCurrentStepsRunnable = new Runnable() {
-        @Override
-        public void run() {
-            storeCurrentValue(System.currentTimeMillis());
-            if (started) {
-                Log.d(TAG, "storeCurrentStepsRunnable");
-                handler.postDelayed(storeCurrentStepsRunnable, TimeUnit.SECONDS.toMillis(60));
-            }
-
-        }
-    };
-    private HandlerThread dataSaveThread = new HandlerThread("DataSaveThread");
     private static final String TAG = "StepCountMonitor";
 
     public void init(Context context,
@@ -61,9 +48,6 @@ public class StepCountMonitor implements SensorEventListener {
         this.stepCountSensor =
                 this.sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
 
-        this.dataSaveThread.start();
-        this.handler = new Handler(this.dataSaveThread.getLooper());
-
     }
     public int getStepCount() {
         return (int)(this.currentValue.getValue() - this.initialValue);
@@ -75,9 +59,6 @@ public class StepCountMonitor implements SensorEventListener {
         this.sensorManager.registerListener(this,
                 this.stepCountSensor,
                 SensorManager.SENSOR_DELAY_NORMAL);
-
-        this.handler.postDelayed(this.storeCurrentStepsRunnable,
-                TimeUnit.SECONDS.toMillis(60));
 
         this.started = true;
     }

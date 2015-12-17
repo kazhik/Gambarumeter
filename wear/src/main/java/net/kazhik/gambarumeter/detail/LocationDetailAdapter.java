@@ -38,11 +38,13 @@ public class LocationDetailAdapter extends WearableListView.Adapter {
     public static class ItemViewHolder extends WearableListView.ViewHolder {
         private TextView distanceText;
         private TextView lapTimeText;
+        private TextView stepCountText;
         public ItemViewHolder(View itemView) {
             super(itemView);
             // find the text view within the custom item's layout
             this.distanceText = (TextView) itemView.findViewById(R.id.distance);
             this.lapTimeText = (TextView) itemView.findViewById(R.id.laptime);
+            this.stepCountText = (TextView) itemView.findViewById(R.id.stepcount_value);
         }
     }
 
@@ -53,7 +55,7 @@ public class LocationDetailAdapter extends WearableListView.Adapter {
                                                           int viewType) {
 
         // Inflate our custom layout for list items
-        return new ItemViewHolder(this.inflater.inflate(R.layout.location_item, null));
+        return new ItemViewHolder(this.inflater.inflate(R.layout.location_item, parent, false));
     }
 
     // Replace the contents of a list item
@@ -66,6 +68,7 @@ public class LocationDetailAdapter extends WearableListView.Adapter {
         ItemViewHolder itemHolder = (ItemViewHolder) holder;
         TextView distanceText = itemHolder.distanceText;
         TextView lapTimeText = itemHolder.lapTimeText;
+        TextView stepCountText = itemHolder.stepCountText;
 
         // replace text contents
         LapTime lapInfo = this.dataSet.get(position);
@@ -76,6 +79,8 @@ public class LocationDetailAdapter extends WearableListView.Adapter {
 
         long laptime = lapInfo.getLaptime();
         lapTimeText.setText(this.formatLapTime(laptime));
+
+        stepCountText.setText(String.valueOf(lapInfo.getStepCount()));
 
         // replace list item's metadata
         holder.itemView.setTag(position);

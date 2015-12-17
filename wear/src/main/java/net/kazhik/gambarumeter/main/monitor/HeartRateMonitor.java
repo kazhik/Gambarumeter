@@ -115,24 +115,16 @@ public class HeartRateMonitor extends SensorService {
 
         return average;
     }
-    private int storeHeartRate(long timestamp, float heartRate, int accuracy) {
+    public int storeCurrentValue(long timestamp) {
         // raw data in queue, rate per minute in dataList
 
-        if (this.queue.isEmpty()) {
-            this.queue.add(new SensorValue(timestamp, heartRate, accuracy));
-            return 0;
+        SensorValue average = this.calculateAverageHeartRateInQueue();
+        if (average.getValue() != 0f) {
+            this.dataList.add(average);
         }
-        SensorValue average = new SensorValue(0, 0);
-        long firstTimestamp = this.queue.peek().getTimestamp();
-        if (timestamp > firstTimestamp + (1000 * 60)) {
-            average = this.calculateAverageHeartRateInQueue();
-            if (average.getValue() != 0f) {
-                this.dataList.add(average);
-            }
-        }
-        this.queue.add(new SensorValue(timestamp, heartRate, accuracy));
         return (int)average.getValue();
     }
+
     @Override
     public void onSensorEvent(long timestamp, float[] sensorValue, int accuracy) {
         switch (accuracy) {
@@ -147,7 +139,7 @@ public class HeartRateMonitor extends SensorService {
         if (sensorValue[0] != this.currentValue.getValue()) {
             this.listener.onHeartRateChanged(newTimestamp, (int)sensorValue[0]);
             if (this.started) {
-                this.storeHeartRate(newTimestamp, sensorValue[0], accuracy);
+                this.queue.add(new SensorValue(timestamp, sensorValue[0], accuracy));
             }
         }
 

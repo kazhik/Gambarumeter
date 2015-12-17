@@ -253,6 +253,7 @@ public class LocationMainFragment extends MainFragment
     @Override
     public void onLap(long timestamp, float distance, long lap) {
         this.notificationView.updateLap(lap);
+        this.stepCountMonitor.storeCurrentValue(timestamp);
     }
 
     // SensorValueListener

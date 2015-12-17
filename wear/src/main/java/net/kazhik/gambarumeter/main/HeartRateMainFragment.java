@@ -215,5 +215,12 @@ public class HeartRateMainFragment extends MainFragment
 
     }
 
+    @Override
+    protected void storeCurrentValue(long timestamp) {
+        super.storeCurrentValue(timestamp);
+
+        this.heartRateMonitor.storeCurrentValue(timestamp);
+    }
+
 
 }

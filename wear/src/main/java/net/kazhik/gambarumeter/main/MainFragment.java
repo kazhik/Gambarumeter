@@ -11,6 +11,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
@@ -48,6 +50,7 @@ import net.kazhik.gambarumeter.main.view.StepCountView;
 import net.kazhik.gambarumeter.pager.PagerFragment;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by kazhik on 14/11/11.
@@ -76,6 +79,18 @@ public abstract class MainFragment extends PagerFragment
     private UserInputManager userInputManager;
     private Vibrator vibrator;
 
+    private Handler handler;
+    private HandlerThread saveDataThread = new HandlerThread("SaveDataThread");
+    private Runnable saveDataRunnable = new Runnable() {
+        @Override
+        public void run() {
+            storeCurrentValue(System.currentTimeMillis());
+            if (stopwatch.isRunning()) {
+                handler.postDelayed(saveDataRunnable, TimeUnit.SECONDS.toMillis(60));
+            }
+        }
+    };
+
     private GoogleApiClient googleApiClient;
 
     private static final String TAG = "MainFragment";
@@ -101,6 +116,10 @@ public abstract class MainFragment extends PagerFragment
                 .build();
 
         this.vibrator = (Vibrator) activity.getSystemService(Context.VIBRATOR_SERVICE);
+
+        this.saveDataThread.start();
+        this.handler = new Handler(this.saveDataThread.getLooper());
+
     }
 
     @Nullable
@@ -252,6 +271,10 @@ public abstract class MainFragment extends PagerFragment
                 .refresh();
 
         this.stopwatch.start();
+
+        this.handler.postDelayed(this.saveDataRunnable,
+                TimeUnit.SECONDS.toMillis(60));
+
     }
     protected void stopWorkout() {
         this.stopwatch.stop();
@@ -426,5 +449,9 @@ public abstract class MainFragment extends PagerFragment
         super.onStop();
     }
 
+    protected void storeCurrentValue(long timestamp) {
+        this.stepCountMonitor.storeCurrentValue(timestamp);
+
+    }
 
 }

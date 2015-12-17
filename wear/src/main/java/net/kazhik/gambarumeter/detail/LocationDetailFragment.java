@@ -16,7 +16,9 @@ import net.kazhik.gambarumeter.R;
 import net.kazhik.gambarumeter.Util;
 import net.kazhik.gambarumeterlib.entity.LapTime;
 import net.kazhik.gambarumeterlib.entity.SplitTime;
+import net.kazhik.gambarumeterlib.entity.SplitTimeStepCount;
 import net.kazhik.gambarumeterlib.storage.SplitTable;
+import net.kazhik.gambarumeterlib.storage.SplitTimeView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,12 +44,12 @@ public class LocationDetailFragment extends DetailFragment {
                 Util.distanceUnitDisplayStr(prefDistanceUnit, activity.getResources());
         
         // read data from database
-        List<SplitTime> splits = new ArrayList<>();
+        List<SplitTimeStepCount> splits = new ArrayList<>();
         try {
-            SplitTable splitTable = new SplitTable(activity);
-            splitTable.open(true);
-            splits = splitTable.selectAll(this.getStartTime());
-            splitTable.close();
+            SplitTimeView splitTimeView = new SplitTimeView(activity);
+            splitTimeView.open(true);
+            splits = splitTimeView.selectAll(this.getStartTime());
+            splitTimeView.close();
 
         } catch (SQLException e) {
             Log.e(TAG, e.getMessage(), e);
@@ -65,7 +67,8 @@ public class LocationDetailFragment extends DetailFragment {
         // calculate laptimes
         List<LapTime> laptimes = new ArrayList<>();
         long prevTimestamp = 0;
-        for (SplitTime split: splits) {
+        int prevStepCount = 0;
+        for (SplitTimeStepCount split: splits) {
             long currentLap = (split.getTimestamp() - prevTimestamp) / 1000;
             if (prevTimestamp != 0) {
                 Log.d(TAG, split.getDistance() + ": " + currentLap);
@@ -73,9 +76,11 @@ public class LocationDetailFragment extends DetailFragment {
                 float distance = Util.convertMeter(split.getDistance(), prefDistanceUnit);
                 
                 laptimes.add(new LapTime(split.getTimestamp(),
-                        distance, currentLap, distanceUnitStr));
+                        distance, currentLap, split.getStepCount() - prevStepCount,
+                        distanceUnitStr));
             }
             prevTimestamp = split.getTimestamp();
+            prevStepCount = split.getStepCount();
         }
 
         // update listview
