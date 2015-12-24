@@ -344,7 +344,7 @@ public class MainFragment extends Fragment
         );
         ListView lv = (ListView)activity.findViewById(R.id.history);
         lv.setAdapter(this.listAdapter);
-        lv.setSelection(lv.getCount() - 1);
+        lv.setSelection(0);
         this.listAdapter.notifyDataSetChanged();
     }
 

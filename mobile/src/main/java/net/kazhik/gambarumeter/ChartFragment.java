@@ -17,8 +17,10 @@ import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.utils.ValueFormatter;
 
 import net.kazhik.gambarumeterlib.entity.SensorValue;
+import net.kazhik.gambarumeterlib.entity.SplitTimeStepCount;
 import net.kazhik.gambarumeterlib.storage.HeartRateTable;
 import net.kazhik.gambarumeterlib.storage.LocationTable;
+import net.kazhik.gambarumeterlib.storage.SplitTimeView;
 import net.kazhik.gambarumeterlib.storage.StepCountTable;
 
 import java.util.ArrayList;
@@ -68,22 +70,11 @@ public class ChartFragment extends Fragment {
     private void loadData(long startTime) {
         Context context = this.getActivity();
 
-        HeartRateTable heartRateTable = new HeartRateTable(context);
-        heartRateTable.openReadonly();
-        List<SensorValue> hr = heartRateTable.selectAll(startTime);
-        heartRateTable.close();
 
-        LocationTable locationTable = new LocationTable(context);
-        locationTable.openReadonly();
-        List<Location> locations = locationTable.selectAll(startTime);
-        locationTable.close();
-
-        StepCountTable stepCountTable = new StepCountTable(context);
-        stepCountTable.openReadonly();
-        List<SensorValue> stepCounts = stepCountTable.selectAll(startTime);
-        stepCountTable.close();
-
-
+        SplitTimeView splitTimeView = new SplitTimeView(context);
+        splitTimeView.openReadonly();
+        List<SplitTimeStepCount> splits = splitTimeView.selectAll(startTime);
+        splitTimeView.close();
 
         ArrayList<String> xVals = new ArrayList<>();
         ArrayList<Entry> yHeartRate = new ArrayList<>();
@@ -91,8 +82,8 @@ public class ChartFragment extends Fragment {
         ArrayList<Entry> yDistance = new ArrayList<>();
 
 
-        for (int x = 0; x < hr.size(); x++) {
             /*
+        for (int x = 0; x < hr.size(); x++) {
             HeartRate data = hr.get(x);
             Log.d(TAG, data.getTimestamp() + "/" + data.getHeartRate() + "/" + data.getHrv());
             long timestamp = hr.get(x).getTimestamp();
@@ -105,8 +96,8 @@ public class ChartFragment extends Fragment {
             if (data.getHrv() > 0) {
                 yHrv.add(new Entry(data.getHrv(), x));
             }
-            */
         }
+            */
 
         LineDataSet hrSet = new LineDataSet(yHeartRate, getString(R.string.heart_rate));
         LineDataSet stepSet = new LineDataSet(ySteps, getString(R.string.steps));

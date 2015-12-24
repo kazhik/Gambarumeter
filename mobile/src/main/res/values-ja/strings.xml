@@ -8,5 +8,8 @@
     <string name="heart_rate">心拍数</string>
 
     <string name="distance">距離</string>
+    <string name="mobile_settings">モバイル設定</string>
+    <string name="wear_settings">ウェアラブル設定</string>
+    <string name="export">エクスポート</string>
 
 </resources>

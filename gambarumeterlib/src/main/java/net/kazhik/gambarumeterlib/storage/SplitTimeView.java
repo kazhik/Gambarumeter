@@ -4,6 +4,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.util.Log;
 
+import net.kazhik.gambarumeterlib.Util;
+import net.kazhik.gambarumeterlib.entity.LapTime;
 import net.kazhik.gambarumeterlib.entity.SplitTimeStepCount;
 
 import java.text.ParseException;
@@ -57,6 +59,35 @@ public class SplitTimeView extends AbstractTable {
         return dataList;
 
     }
+    public List<LapTime> selectLaps(long startTime,
+                                    String prefDistanceUnit,
+                                    String distanceUnitStr) {
+
+        List<SplitTimeStepCount> splits = this.selectAll(startTime);
+
+        // calculate laptimes
+        List<LapTime> laptimes = new ArrayList<>();
+        long prevTimestamp = 0;
+        int prevStepCount = 0;
+        for (SplitTimeStepCount split: splits) {
+            long currentLap = (split.getTimestamp() - prevTimestamp) / 1000;
+            if (prevTimestamp != 0) {
+                Log.d(TAG, split.getDistance() + ": " + currentLap);
+
+                float distance = Util.convertMeter(split.getDistance(), prefDistanceUnit);
+
+                laptimes.add(new LapTime(split.getTimestamp(),
+                        distance, currentLap, split.getStepCount() - prevStepCount,
+                        distanceUnitStr));
+            }
+            prevTimestamp = split.getTimestamp();
+            prevStepCount = split.getStepCount();
+        }
+        return laptimes;
+
+    }
+
+
 
     @Override
     public String getTableName() {

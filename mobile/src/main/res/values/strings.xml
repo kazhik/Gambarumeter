@@ -14,4 +14,16 @@
 
     <string name="distance">distance</string>
 
+    <string name="drawer_open">Open drawer</string>
+    <string name="drawer_close">Close drawer</string>
+    <string-array name="drawer_menu">
+        <item>@string/export</item>
+        <item>@string/mobile_settings</item>
+        <item>@string/wear_settings</item>
+    </string-array>
+    <string name="export">Export</string>
+    <string name="mobile_settings">Settings</string>
+    <string name="wear_settings">Wear Settings</string>
+
+
 </resources>

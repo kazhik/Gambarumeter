@@ -7,6 +7,7 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
+    android:background="@color/background"
     tools:context=".MobileGambarumeter"
     android:orientation="vertical">
 
@@ -16,6 +17,7 @@
         android:id="@+id/history"
         android:layout_weight="1"
         android:layout_marginTop="10dp"
+        android:background="@color/background"
         android:dividerHeight="5dp" />
 
 </LinearLayout>
