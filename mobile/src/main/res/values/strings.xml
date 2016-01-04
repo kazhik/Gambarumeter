@@ -11,6 +11,9 @@
 
     <string name="bpm" translatable="false">bpm</string>
     <string name="steps">steps</string>
+    <string name="lap">Lap</string>
+
+    <string name="stepLabel">steps</string>
 
     <string name="distance">distance</string>
 

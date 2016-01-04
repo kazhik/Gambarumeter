@@ -11,5 +11,7 @@
     <string name="mobile_settings">モバイル設定</string>
     <string name="wear_settings">ウェアラブル設定</string>
     <string name="export">エクスポート</string>
+    <string name="stepLabel">歩数</string>
+    <string name="lap">ラップ</string>
 
 </resources>

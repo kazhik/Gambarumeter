@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
 import android.graphics.Color;
-import android.location.Location;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,12 +15,8 @@ import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.utils.ValueFormatter;
 
-import net.kazhik.gambarumeterlib.entity.SensorValue;
 import net.kazhik.gambarumeterlib.entity.SplitTimeStepCount;
-import net.kazhik.gambarumeterlib.storage.HeartRateTable;
-import net.kazhik.gambarumeterlib.storage.LocationTable;
 import net.kazhik.gambarumeterlib.storage.SplitTimeView;
-import net.kazhik.gambarumeterlib.storage.StepCountTable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +33,17 @@ public class ChartFragment extends Fragment {
         @Override
         public String getFormattedValue(float value) {
             return String.valueOf((int)value);
+        }
+    };
+    private static final ValueFormatter laptimeFormatter = new ValueFormatter() {
+        @Override
+        public String getFormattedValue(float value) {
+            // convert seconds -> min:sec
+
+            String laptimeStr = String.format("%d:%02d",
+                    (int)value / 60, (int)value % 60);
+
+            return laptimeStr;
         }
     };
 
@@ -63,7 +69,7 @@ public class ChartFragment extends Fragment {
         Activity activity = this.getActivity();
         this.chart = (LineChart)activity.findViewById(R.id.chart);
         this.chart.setDescription(null);
-        this.chart.getAxisLeft().setValueFormatter(valueFormatter);
+        this.chart.getAxisLeft().setValueFormatter(laptimeFormatter);
         this.chart.getAxisRight().setValueFormatter(valueFormatter);
 
     }
@@ -80,28 +86,35 @@ public class ChartFragment extends Fragment {
         ArrayList<Entry> yHeartRate = new ArrayList<>();
         ArrayList<Entry> ySteps = new ArrayList<>();
         ArrayList<Entry> yDistance = new ArrayList<>();
+        ArrayList<Entry> yLap = new ArrayList<>();
 
+        long prevTimestamp = splits.get(0).getTimestamp();
+        int prevStepCount = splits.get(0).getStepCount();
+        for (int x = 1; x < splits.size(); x++) {
+            SplitTimeStepCount data = splits.get(x);
+            int distance = (int) (data.getDistance() / 1000); //TODO: mile
+            xVals.add(String.valueOf(distance));
+            if (data.getStepCount() > 0) {
+                ySteps.add(new Entry(data.getStepCount() - prevStepCount, x));
+            }
+            int laptime = (int) ((data.getTimestamp() - prevTimestamp) / 1000);
+            yLap.add(new Entry(laptime, x));
 
+            prevStepCount = data.getStepCount();
+            prevTimestamp = data.getTimestamp();
             /*
-        for (int x = 0; x < hr.size(); x++) {
-            HeartRate data = hr.get(x);
-            Log.d(TAG, data.getTimestamp() + "/" + data.getHeartRate() + "/" + data.getHrv());
-            long timestamp = hr.get(x).getTimestamp();
-            xVals.add(DateUtils.formatDateTime(activity,
-                    timestamp,
+            xVals.add(DateUtils.formatDateTime(context,
+                    data.getTimestamp() - prevTimestamp,
                     DateUtils.FORMAT_SHOW_TIME));
-            if (data.getHeartRate() > 0) {
-                yHeartRate.add(new Entry(data.getHeartRate(), x));
+            if (data.getDistance() > 0) {
+                yDistance.add(new Entry(data.getDistance(), x));
             }
-            if (data.getHrv() > 0) {
-                yHrv.add(new Entry(data.getHrv(), x));
-            }
-        }
             */
+        }
 
         LineDataSet hrSet = new LineDataSet(yHeartRate, getString(R.string.heart_rate));
-        LineDataSet stepSet = new LineDataSet(ySteps, getString(R.string.steps));
-        LineDataSet distanceSet = new LineDataSet(yDistance, getString(R.string.distance));
+        LineDataSet stepSet = new LineDataSet(ySteps, getString(R.string.stepLabel));
+        LineDataSet lapSet = new LineDataSet(yLap, getString(R.string.lap));
 
 //        set1.enableDashedLine(10f, 5f, 0f);
         hrSet.setColor(Color.RED);
@@ -112,16 +125,16 @@ public class ChartFragment extends Fragment {
         hrSet.setValueTextSize(9f);
         hrSet.setFillAlpha(65);
         hrSet.setFillColor(Color.RED);
-        hrSet.setValueFormatter(valueFormatter);
 
-        distanceSet.setColor(Color.GREEN);
-        distanceSet.setCircleColor(Color.GREEN);
-        distanceSet.setLineWidth(1f);
-        distanceSet.setCircleSize(3f);
-        distanceSet.setDrawCircleHole(false);
-        distanceSet.setValueTextSize(9f);
-        distanceSet.setFillAlpha(65);
-        distanceSet.setFillColor(Color.GREEN);
+        lapSet.setColor(Color.GREEN);
+        lapSet.setCircleColor(Color.GREEN);
+        lapSet.setLineWidth(1f);
+        lapSet.setCircleSize(3f);
+        lapSet.setDrawCircleHole(false);
+        lapSet.setValueTextSize(9f);
+        lapSet.setFillAlpha(65);
+        lapSet.setFillColor(Color.GREEN);
+        lapSet.setValueFormatter(laptimeFormatter);
 
         stepSet.setColor(Color.BLUE);
         stepSet.setCircleColor(Color.BLUE);
@@ -135,7 +148,7 @@ public class ChartFragment extends Fragment {
         ArrayList<LineDataSet> dataSets = new ArrayList<>();
         dataSets.add(hrSet);
         dataSets.add(stepSet);
-        dataSets.add(distanceSet);
+        dataSets.add(lapSet);
 
         LineData data = new LineData(xVals, dataSets);
 
