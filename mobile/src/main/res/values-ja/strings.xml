@@ -13,5 +13,8 @@
     <string name="export">エクスポート</string>
     <string name="stepLabel">歩数</string>
     <string name="lap">ラップ</string>
+    <string name="chart">グラフ</string>
+    <string name="map">地図</string>
+    <string name="split_time">スプリットタイム</string>
 
 </resources>

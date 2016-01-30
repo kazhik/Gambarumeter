@@ -5,14 +5,9 @@ package net.kazhik.gambarumeterlib.entity;
  */
 public class LapTime extends SplitTimeStepCount {
     private long laptime;
-    private String distanceUnitStr;
-
-    public LapTime(long timestamp, float distance, long laptime, int stepCount,
-                   String distanceUnit) {
+    public LapTime(long timestamp, float distance, long laptime, int stepCount) {
         super(timestamp, distance, stepCount);
         this.laptime = laptime;
-        
-        this.distanceUnitStr = distanceUnit;
     }
 
     public long getLaptime() {
@@ -21,14 +16,6 @@ public class LapTime extends SplitTimeStepCount {
 
     public void setLaptime(long laptime) {
         this.laptime = laptime;
-    }
-
-    public String getDistanceUnitStr() {
-        return distanceUnitStr;
-    }
-
-    public void setDistanceUnitStr(String distanceUnitStr) {
-        this.distanceUnitStr = distanceUnitStr;
     }
 
 

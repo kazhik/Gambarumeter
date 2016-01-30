@@ -145,6 +145,16 @@ public class MainFragment extends Fragment
                         .replace(R.id.fragment_container, chartFragment)
                         .addToBackStack(null)
                         .commit();
+                /*
+                DetailFragment detailFragment = new DetailFragment();
+                Bundle param = new Bundle();
+                param.putLong("startTime", Long.valueOf(map.get("startTime")));
+                detailFragment.setArguments(param);
+                getFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, detailFragment)
+                        .addToBackStack(null)
+                        .commit();
+                */
 
             }
         });

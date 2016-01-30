@@ -59,9 +59,8 @@ public class SplitTimeView extends AbstractTable {
         return dataList;
 
     }
-    public List<LapTime> selectLaps(long startTime,
-                                    String prefDistanceUnit,
-                                    String distanceUnitStr) {
+
+    public List<LapTime> selectLaps(long startTime) {
 
         List<SplitTimeStepCount> splits = this.selectAll(startTime);
 
@@ -74,11 +73,10 @@ public class SplitTimeView extends AbstractTable {
             if (prevTimestamp != 0) {
                 Log.d(TAG, split.getDistance() + ": " + currentLap);
 
-                float distance = Util.convertMeter(split.getDistance(), prefDistanceUnit);
-
                 laptimes.add(new LapTime(split.getTimestamp(),
-                        distance, currentLap, split.getStepCount() - prevStepCount,
-                        distanceUnitStr));
+                        split.getDistance(),
+                        currentLap,
+                        split.getStepCount() - prevStepCount));
             }
             prevTimestamp = split.getTimestamp();
             prevStepCount = split.getStepCount();
@@ -86,7 +84,6 @@ public class SplitTimeView extends AbstractTable {
         return laptimes;
 
     }
-
 
 
     @Override

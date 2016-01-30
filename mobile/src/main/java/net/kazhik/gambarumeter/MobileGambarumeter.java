@@ -1,13 +1,11 @@
 package net.kazhik.gambarumeter;
 
-import android.app.Activity;
-import android.content.SharedPreferences;
+import android.app.Fragment;
 import android.content.res.Configuration;
 import android.database.SQLException;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -111,12 +109,14 @@ public class MobileGambarumeter extends AppCompatActivity implements AdapterView
             public void onDrawerClosed(View view) {
                 super.onDrawerClosed(view);
                 getSupportActionBar().setTitle(mTitle);
+                clearDrawerItem();
             }
 
             /** Called when a drawer has settled in a completely open state. */
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
                 getSupportActionBar().setTitle(mDrawerTitle);
+                setDrawerItem();
             }
         };
 
@@ -126,21 +126,77 @@ public class MobileGambarumeter extends AppCompatActivity implements AdapterView
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
-        List<Map<String, String>> drawerItems =
-                new ArrayList<Map<String, String>>();
+        // Set the list's click listener
+        mDrawerList.setOnItemClickListener(this);
+
+    }
+    private void clearDrawerItem() {
+        List<Map<String, String>> drawerItems = new ArrayList<>();
+
+        SimpleAdapter drawerAdapter = new SimpleAdapter (this.getBaseContext(),
+                drawerItems, R.layout.drawer_list_item,
+                new String[] {"text", "icon"},
+                new int[] {R.id.drawer_text, R.id.drawer_icon});
+
+
+        // Set the adapter for the list view
+        mDrawerList.setAdapter(drawerAdapter);
+
+    }
+    private void setDrawerItem() {
+        Fragment f = getFragmentManager().findFragmentById(R.id.fragment_container);
+        if (f instanceof MainFragment) {
+            setMainDrawerItem();
+        } else {
+            setDetailDrawerItem();
+        }
+    }
+    private void setDetailDrawerItem() {
+        List<Map<String, String>> drawerItems = new ArrayList<>();
 
         Map<String, String> drawerItem;
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        String keyword = prefs.getString("Keyword", "");
+        drawerItem = new HashMap<>();
+        drawerItem.put("id", String.valueOf(R.string.chart));
+        drawerItem.put("text", getString(R.string.chart));
+        drawerItem.put("icon", String.valueOf(R.drawable.line_chart));
+        drawerItems.add(drawerItem);
 
-        drawerItem = new HashMap<String, String>();
+        drawerItem = new HashMap<>();
+        drawerItem.put("id", String.valueOf(R.string.map));
+        drawerItem.put("text", getString(R.string.map));
+        drawerItem.put("icon", String.valueOf(android.R.drawable.ic_menu_mapmode));
+        drawerItems.add(drawerItem);
+
+        drawerItem = new HashMap<>();
+        drawerItem.put("id", String.valueOf(R.string.split_time));
+        drawerItem.put("text", getString(R.string.split_time));
+        drawerItem.put("icon",
+                String.valueOf(android.R.drawable.ic_menu_recent_history));
+        drawerItems.add(drawerItem);
+
+        SimpleAdapter drawerAdapter = new SimpleAdapter (this.getBaseContext(),
+                drawerItems, R.layout.drawer_list_item,
+                new String[] {"text", "icon"},
+                new int[] {R.id.drawer_text, R.id.drawer_icon});
+
+
+        // Set the adapter for the list view
+        mDrawerList.setAdapter(drawerAdapter);
+
+    }
+    private void setMainDrawerItem() {
+        List<Map<String, String>> drawerItems = new ArrayList<>();
+
+        Map<String, String> drawerItem;
+
+        drawerItem = new HashMap<>();
         drawerItem.put("id", String.valueOf(R.string.mobile_settings));
         drawerItem.put("text", getString(R.string.mobile_settings));
         drawerItem.put("icon", String.valueOf(R.drawable.settings));
         drawerItems.add(drawerItem);
 
-        drawerItem = new HashMap<String, String>();
+        drawerItem = new HashMap<>();
         drawerItem.put("id", String.valueOf(R.string.wear_settings));
         drawerItem.put("text", getString(R.string.wear_settings));
         drawerItem.put("icon", String.valueOf(R.drawable.settings));
@@ -154,10 +210,9 @@ public class MobileGambarumeter extends AppCompatActivity implements AdapterView
 
         // Set the adapter for the list view
         mDrawerList.setAdapter(drawerAdapter);
-        // Set the list's click listener
-        mDrawerList.setOnItemClickListener(this);
 
     }
+
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);

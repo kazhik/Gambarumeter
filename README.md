@@ -9,6 +9,6 @@ This app works standalone. You don't have to carry your phone when you run.
 
 === Copyright and license ===
 
-Copyright (C) 2014-2015 kazhik kazhik@gmail.com
+Copyright (C) 2014-2016 kazhik kazhik@gmail.com
 
 Released under the GNU General Public License v3: http://www.gnu.org/licenses/gpl.html
