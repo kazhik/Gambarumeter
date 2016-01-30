@@ -18,13 +18,14 @@
             android:layout_marginEnd="2dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="distance"
+            android:text="@string/detail_distance"
             android:textColor="@color/text" />
         <net.kazhik.gambarumeterlib.AutoResizeTextView
             android:id="@+id/laptime"
             android:layout_marginEnd="2dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="@string/detail_laptime"
             android:textColor="@color/text" />
     </LinearLayout>
     <LinearLayout
@@ -38,10 +39,9 @@
 
         <net.kazhik.gambarumeterlib.AutoResizeTextView
             android:id="@+id/stepcount_value"
-            android:layout_marginEnd="2dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="0"
+            android:text="@string/detail_stepcount"
             android:textColor="@color/text" />
         <net.kazhik.gambarumeterlib.AutoResizeTextView
             android:id="@+id/stepcount_label"

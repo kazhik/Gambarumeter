@@ -41,8 +41,9 @@ public abstract class NotificationView {
         this.notificationBuilder = new NotificationCompat.Builder(context)
                 .setSmallIcon(R.drawable.ic_launcher)
                 .setOnlyAlertOnce(true)
-                .extend(extender);
-
+                .extend(extender)
+                .setPriority(NotificationCompat.PRIORITY_MAX)
+                .setOngoing(true);
     }
     public Context getContext() {
         return this.context;
@@ -75,11 +76,16 @@ public abstract class NotificationView {
     public abstract String makeLongText(String str);
     public void show(long elapsed) {
 
+        /*
         this.notificationBuilder
                 .setContentTitle(Html.fromHtml(
                         "<b>" + this.makeSummaryText(elapsed) + "</b>"))
                 .setContentText(Html.fromHtml(
                         "<b>" + this.makeDetailedText() + "</b>"));
+         */
+        this.notificationBuilder
+                .setContentTitle(Html.fromHtml(
+                        "<b>" + this.makeSummaryText(elapsed) + "</b>"));
 
         NotificationManagerCompat.from(this.context)
                 .notify(NOTIFICATION_ID, this.notificationBuilder.build());

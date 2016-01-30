@@ -10,7 +10,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import net.kazhik.gambarumeter.R;
 import net.kazhik.gambarumeter.Util;
@@ -21,11 +20,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by kazhik on 14/11/18.
+ * Created by kazhik on 16/01/21.
  */
-public class LocationDetailFragment extends DetailFragment {
-
-    private static final String TAG = "LocationDetailFragment";
+public class FullDetailFragment extends DetailFragment {
+    private static final String TAG = "FullDetailFragment";
 
     public WearableListView.Adapter getAdapter() {
         Activity activity = this.getActivity();
@@ -42,7 +40,7 @@ public class LocationDetailFragment extends DetailFragment {
             Log.e(TAG, e.getMessage(), e);
         }
 
-        return new LocationDetailAdapter(activity, laptimes);
+        return new FullDetailAdapter(activity, laptimes);
 
     }
 

@@ -26,16 +26,10 @@ public class HeartRateDetailFragment extends DetailFragment {
 
     private static final String TAG = "HeartRateDetailFragment";
 
-    @Override
-    public View onCreateView(LayoutInflater inflater,
-                             ViewGroup container,
-                             Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.heartrate_detail, container, false);
-    }
-    public void refreshListItem() {
+    public WearableListView.Adapter getAdapter() {
         Activity activity = this.getActivity();
         long startTime = this.getStartTime();
-        
+
         List<SensorValue> heartRates = new ArrayList<>();
         try {
             HeartRateTable heartRateTable = new HeartRateTable(activity);
@@ -48,14 +42,6 @@ public class HeartRateDetailFragment extends DetailFragment {
             Log.e(TAG, e.getMessage(), e);
         }
 
-        if (heartRates.isEmpty()) {
-            Toast.makeText(this.getActivity(),
-                    R.string.no_detail,
-                    Toast.LENGTH_SHORT)
-                    .show();
-            this.close();
-            return;
-        }
         StepCountTable stepCountTable = new StepCountTable(activity);
         stepCountTable.open(true);
         List<HeartRateDetail> heartRateDetails = new ArrayList<>();
@@ -77,23 +63,13 @@ public class HeartRateDetailFragment extends DetailFragment {
                     .setHeartRate((int) heartRate.getValue())
                     .setStepCount(stepsPerMinute);
             heartRateDetails.add(heartRateDetail);
-            
+
         }
         stepCountTable.close();
 
-        HeartRateDetailAdapter adapter =
-                new HeartRateDetailAdapter(activity, heartRateDetails);
+        return new HeartRateDetailAdapter(activity, heartRateDetails);
 
-        WearableListView listView =
-                (WearableListView)activity.findViewById(R.id.heartrate_list);
-        if (listView == null) {
-            Log.d(TAG, "heartrate_list not found");
-            return;
-        }
-        listView.setAdapter(adapter);
-        listView.setGreedyTouchMode(true);
-        listView.setClickListener(this);
-        adapter.notifyDataSetChanged();
+
 
     }
 

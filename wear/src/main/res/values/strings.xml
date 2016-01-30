@@ -30,5 +30,10 @@
     <string name="gps_off">Geolocation setting is off</string>
     <string name="no_detail">No detailed data available</string>
 
+    <string name="detail_distance">1.01km</string>
+    <string name="detail_laptime">4:55</string>
+    <string name="detail_stepcount">980</string>
+    <string name="detail_timestamp">1:56:54</string>
+    <string name="detail_heartrate">76</string>
 
 </resources>

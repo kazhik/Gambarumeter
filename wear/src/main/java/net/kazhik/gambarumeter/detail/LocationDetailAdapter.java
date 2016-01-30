@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import net.kazhik.gambarumeter.R;
+import net.kazhik.gambarumeter.Util;
 import net.kazhik.gambarumeterlib.entity.LapTime;
 
 import java.util.List;
@@ -20,7 +21,8 @@ import java.util.List;
 public class LocationDetailAdapter extends WearableListView.Adapter {
     private List<LapTime> dataSet;
     private final LayoutInflater inflater;
-    private String prefDistanceUnit;
+    private String distanceUnitPref;
+    private String distanceUnitStr;
     private static final String TAG = "LocationDetailAdapter";
 
     // Provide a suitable constructor (depends on the kind of dataset)
@@ -30,8 +32,16 @@ public class LocationDetailAdapter extends WearableListView.Adapter {
 
         SharedPreferences prefs =
                 PreferenceManager.getDefaultSharedPreferences(context);
-        this.prefDistanceUnit = prefs.getString("distanceUnit", "metre");
+        this.distanceUnitPref = prefs.getString("distanceUnit", "metre");
 
+        this.distanceUnitStr =
+                Util.distanceUnitDisplayStr(this.distanceUnitPref,
+                        context.getResources());
+
+    }
+    public void setDistanceUnit(String pref, String displayStr) {
+        this.distanceUnitPref = pref;
+        this.distanceUnitStr = displayStr;
     }
 
     // Provide a reference to the type of views you're using
@@ -55,7 +65,11 @@ public class LocationDetailAdapter extends WearableListView.Adapter {
                                                           int viewType) {
 
         // Inflate our custom layout for list items
-        return new ItemViewHolder(this.inflater.inflate(R.layout.location_item, parent, false));
+        int layoutId = this.getLayoutId();
+        return new ItemViewHolder(this.inflater.inflate(layoutId, parent, false));
+    }
+    protected int getLayoutId() {
+        return R.layout.location_item;
     }
 
     // Replace the contents of a list item
@@ -72,9 +86,10 @@ public class LocationDetailAdapter extends WearableListView.Adapter {
 
         // replace text contents
         LapTime lapInfo = this.dataSet.get(position);
-        String distanceUnitStr = lapInfo.getDistanceUnitStr();
+        float distance =
+                Util.convertMeter(lapInfo.getDistance(), this.distanceUnitPref);
         String distanceStr = String.format("%.2f%s",
-                lapInfo.getDistance(), distanceUnitStr);
+                distance, this.distanceUnitStr);
         distanceText.setText(distanceStr);
 
         long laptime = lapInfo.getLaptime();

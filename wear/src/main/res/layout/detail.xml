@@ -2,13 +2,11 @@
 <android.support.wearable.view.BoxInsetLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/location"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background">
 
     <FrameLayout
-        android:id="@+id/location_layout"
         android:layout_height="match_parent"
         android:layout_width="match_parent"
         app:layout_box="left|bottom|right">
@@ -28,7 +26,7 @@
             android:autoText="false" />
 
         <android.support.wearable.view.WearableListView
-            android:id="@+id/location_list"
+            android:id="@+id/detail_list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
