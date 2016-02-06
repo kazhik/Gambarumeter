@@ -44,9 +44,11 @@ public class LocationRecord {
         }
         float flatDistance = this.prevLocation.distanceTo(newLoc);
 
+        /* accuracy is not reliable
         if (newLoc.getAccuracy() > flatDistance) {
             return distance;
         }
+        */
         distance.setDistance(flatDistance);
 
         if (this.prevLocation.hasAltitude() && newLoc.hasAltitude()) {
