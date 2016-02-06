@@ -26,7 +26,7 @@ public class SplitTimeView extends AbstractTable {
         String query = "select a.timestamp, a.distance, " +
                 "(select step_count from gm_stepcount b " +
                 " where a.start_time = b.start_time " +
-                " and b.timestamp < a.timestamp " +
+                " and b.timestamp <= a.timestamp " +
                 " order by b.timestamp desc limit 1) as stepcount " +
                 "from gm_lap a " +
                 "where a.start_time = ? " +
