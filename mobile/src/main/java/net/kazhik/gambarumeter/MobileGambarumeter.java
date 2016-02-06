@@ -16,6 +16,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.Toast;
 
 import net.kazhik.gambarumeterlib.storage.DataStorage;
 
@@ -175,6 +176,13 @@ public class MobileGambarumeter extends AppCompatActivity implements AdapterView
                 String.valueOf(android.R.drawable.ic_menu_recent_history));
         drawerItems.add(drawerItem);
 
+        drawerItem = new HashMap<>();
+        drawerItem.put("id", String.valueOf(R.string.export_file));
+        drawerItem.put("text", getString(R.string.export_file));
+        drawerItem.put("icon",
+                String.valueOf(android.R.drawable.ic_menu_set_as));
+        drawerItems.add(drawerItem);
+
         SimpleAdapter drawerAdapter = new SimpleAdapter (this.getBaseContext(),
                 drawerItems, R.layout.drawer_list_item,
                 new String[] {"text", "icon"},
@@ -234,6 +242,31 @@ public class MobileGambarumeter extends AppCompatActivity implements AdapterView
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        Fragment f = this.getFragmentManager().findFragmentById(R.id.fragment_container);
+        long startTime = f.getArguments().getLong("startTime");
+        Log.d(TAG, "startTime: " + startTime);
 
+        Map<String, String> clickedItem;
+        //noinspection unchecked
+        clickedItem = (Map<String, String>) mDrawerList.getItemAtPosition(position);
+        Integer resId = Integer.valueOf(clickedItem.get("id"));
+        switch (resId) {
+            case R.string.export_file:
+                this.exportFile(startTime);
+                break;
+        }
+
+    }
+    private void exportFile(long startTime) {
+        if (startTime == 0) {
+            return;
+        }
+
+        ExternalFile externalFile = new ExternalFile();
+
+        String filepath = externalFile.exportGpxFile(this, startTime);
+
+        Toast.makeText(this, this.getString(R.string.saved, filepath),
+                Toast.LENGTH_LONG).show();
     }
 }

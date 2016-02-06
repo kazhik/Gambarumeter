@@ -20,16 +20,21 @@
     <string name="drawer_open" translatable="false">Open drawer</string>
     <string name="drawer_close" translatable="false">Close drawer</string>
     <string-array name="drawer_menu">
-        <item>@string/export</item>
+        <item>@string/export_file</item>
         <item>@string/mobile_settings</item>
         <item>@string/wear_settings</item>
     </string-array>
-    <string name="export">Export</string>
+    <string name="export_file">Export</string>
+    <string name="import_file">Import</string>
     <string name="mobile_settings">Settings</string>
     <string name="wear_settings">Wear Settings</string>
 
     <string name="chart">Chart</string>
     <string name="map">Map</string>
     <string name="split_time">Split Time</string>
+
+    <string name="nodata">No data</string>
+    <string name="saved">Saved as %1$s</string>
+
 
 </resources>

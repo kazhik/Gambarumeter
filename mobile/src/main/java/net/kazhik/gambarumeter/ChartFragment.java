@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.data.Entry;
@@ -81,6 +82,12 @@ public class ChartFragment extends Fragment {
         splitTimeView.openReadonly();
         List<SplitTimeStepCount> splits = splitTimeView.selectAll(startTime);
         splitTimeView.close();
+
+        if (splits.isEmpty()) {
+            Toast.makeText(context, context.getString(R.string.nodata),
+                    Toast.LENGTH_LONG).show();
+            return;
+        }
 
         ArrayList<String> xVals = new ArrayList<>();
         ArrayList<Entry> yHeartRate = new ArrayList<>();
