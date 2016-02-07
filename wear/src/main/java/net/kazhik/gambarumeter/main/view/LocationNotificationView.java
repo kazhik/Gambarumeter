@@ -2,7 +2,7 @@ package net.kazhik.gambarumeter.main.view;
 
 import android.text.format.DateUtils;
 
-import net.kazhik.gambarumeter.Util;
+import net.kazhik.gambarumeterlib.Util;
 
 import java.text.DecimalFormat;
 

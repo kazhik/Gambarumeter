@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import net.kazhik.gambarumeter.R;
-import net.kazhik.gambarumeter.Util;
+import net.kazhik.gambarumeterlib.Util;
 import net.kazhik.gambarumeterlib.entity.WorkoutInfo;
 
 import java.text.DateFormat;

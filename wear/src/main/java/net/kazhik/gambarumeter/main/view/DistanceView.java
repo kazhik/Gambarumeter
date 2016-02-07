@@ -3,7 +3,7 @@ package net.kazhik.gambarumeter.main.view;
 import android.util.Log;
 import android.widget.TextView;
 
-import net.kazhik.gambarumeter.Util;
+import net.kazhik.gambarumeterlib.Util;
 
 /**
  * Created by kazhik on 14/10/18.

@@ -29,4 +29,12 @@ public class Util {
         }
         return displayStr;
     }
+    public static String formatLapTime(long lapTime) {
+
+        long hour = lapTime / 60 / 60;
+        long min = lapTime / 60 - (hour * 60);
+        long sec = lapTime % 60;
+
+        return String.format("%d:%02d:%02d", hour, min, sec);
+    }
 }

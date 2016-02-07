@@ -16,11 +16,11 @@ import android.widget.Toast;
 import com.google.android.gms.wearable.DataMap;
 
 import net.kazhik.gambarumeter.R;
-import net.kazhik.gambarumeter.Util;
 import net.kazhik.gambarumeter.main.monitor.GeolocationMonitor;
 import net.kazhik.gambarumeter.main.monitor.LocationSensorValueListener;
 import net.kazhik.gambarumeter.main.view.DistanceView;
 import net.kazhik.gambarumeter.main.view.LocationNotificationView;
+import net.kazhik.gambarumeterlib.Util;
 import net.kazhik.gambarumeterlib.storage.DataStorage;
 import net.kazhik.gambarumeterlib.storage.WorkoutTable;
 

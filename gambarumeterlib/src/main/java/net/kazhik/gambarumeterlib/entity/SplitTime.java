@@ -15,6 +15,9 @@ public class SplitTime {
     public long getTimestamp() {
         return timestamp;
     }
+    public long getTimestampSec() {
+        return timestamp / 1000;
+    }
 
     public SplitTime setTimestamp(long timestamp) {
         this.timestamp = timestamp;

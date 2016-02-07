@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import net.kazhik.gambarumeter.R;
-import net.kazhik.gambarumeter.Util;
+import net.kazhik.gambarumeterlib.Util;
 import net.kazhik.gambarumeterlib.entity.LapTime;
 
 import java.util.List;
@@ -93,22 +93,13 @@ public class LocationDetailAdapter extends WearableListView.Adapter {
         distanceText.setText(distanceStr);
 
         long laptime = lapInfo.getLaptime();
-        lapTimeText.setText(this.formatLapTime(laptime));
+        lapTimeText.setText(Util.formatLapTime(laptime));
 
         stepCountText.setText(String.valueOf(lapInfo.getStepCount()));
 
         // replace list item's metadata
         holder.itemView.setTag(position);
     }
-    private String formatLapTime(long lapTime) {
-
-        long hour = lapTime / 60 / 60;
-        long min = lapTime / 60 - (hour * 60);
-        long sec = lapTime % 60;
-
-        return String.format("%d:%02d:%02d", hour, min, sec);
-    }
-
     // Return the size of your dataset
     // (invoked by the WearableListView's layout manager)
     @Override

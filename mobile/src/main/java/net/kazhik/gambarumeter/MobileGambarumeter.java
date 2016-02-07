@@ -251,10 +251,57 @@ public class MobileGambarumeter extends AppCompatActivity implements AdapterView
         clickedItem = (Map<String, String>) mDrawerList.getItemAtPosition(position);
         Integer resId = Integer.valueOf(clickedItem.get("id"));
         switch (resId) {
+            case R.string.map:
+                this.openMapView(startTime);
+                break;
+            case R.string.chart:
+                this.openChartView(startTime);
+                break;
             case R.string.export_file:
                 this.exportFile(startTime);
                 break;
+            case R.string.split_time:
+                this.openSplitTimeView(startTime);
+                break;
         }
+        mDrawerLayout.closeDrawer(mDrawerList);
+
+    }
+    private void openMapView(long startTime) {
+        LocationFragment locationFragment = new LocationFragment();
+        Bundle param = new Bundle();
+        param.putLong("startTime", startTime);
+        locationFragment.setArguments(param);
+
+        getFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, locationFragment)
+                .commit();
+
+    }
+    private void openChartView(long startTime) {
+        ChartFragment chartFragment = new ChartFragment();
+        Bundle param = new Bundle();
+        param.putLong("startTime", startTime);
+        chartFragment.setArguments(param);
+
+        getFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, chartFragment)
+                .commit();
+
+    }
+    private void openSplitTimeView(long startTime) {
+        if (startTime == 0) {
+            return;
+        }
+        SplitTimeFragment splitTimeFragment = new SplitTimeFragment();
+        Bundle param = new Bundle();
+        param.putLong("startTime", startTime);
+        splitTimeFragment.setArguments(param);
+
+        getFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, splitTimeFragment)
+//                .addToBackStack(null)
+                .commit();
 
     }
     private void exportFile(long startTime) {
