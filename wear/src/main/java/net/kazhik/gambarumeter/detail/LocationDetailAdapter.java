@@ -1,8 +1,6 @@
 package net.kazhik.gambarumeter.detail;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.support.wearable.view.WearableListView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,7 +8,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import net.kazhik.gambarumeter.R;
-import net.kazhik.gambarumeterlib.Util;
+import net.kazhik.gambarumeterlib.DistanceUtil;
+import net.kazhik.gambarumeterlib.TimeUtil;
 import net.kazhik.gambarumeterlib.entity.LapTime;
 
 import java.util.List;
@@ -21,8 +20,7 @@ import java.util.List;
 public class LocationDetailAdapter extends WearableListView.Adapter {
     private List<LapTime> dataSet;
     private final LayoutInflater inflater;
-    private String distanceUnitPref;
-    private String distanceUnitStr;
+    private DistanceUtil distanceUtil;
     private static final String TAG = "LocationDetailAdapter";
 
     // Provide a suitable constructor (depends on the kind of dataset)
@@ -30,18 +28,8 @@ public class LocationDetailAdapter extends WearableListView.Adapter {
         this.inflater = LayoutInflater.from(context);
         this.dataSet = dataset;
 
-        SharedPreferences prefs =
-                PreferenceManager.getDefaultSharedPreferences(context);
-        this.distanceUnitPref = prefs.getString("distanceUnit", "metre");
+        this.distanceUtil = DistanceUtil.getInstance(context);
 
-        this.distanceUnitStr =
-                Util.distanceUnitDisplayStr(this.distanceUnitPref,
-                        context.getResources());
-
-    }
-    public void setDistanceUnit(String pref, String displayStr) {
-        this.distanceUnitPref = pref;
-        this.distanceUnitStr = displayStr;
     }
 
     // Provide a reference to the type of views you're using
@@ -86,14 +74,12 @@ public class LocationDetailAdapter extends WearableListView.Adapter {
 
         // replace text contents
         LapTime lapInfo = this.dataSet.get(position);
-        float distance =
-                Util.convertMeter(lapInfo.getDistance(), this.distanceUnitPref);
-        String distanceStr = String.format("%.2f%s",
-                distance, this.distanceUnitStr);
+        String distanceStr =
+                this.distanceUtil.getDistanceAndUnitStr(lapInfo.getDistance());
         distanceText.setText(distanceStr);
 
         long laptime = lapInfo.getLaptime();
-        lapTimeText.setText(Util.formatLapTime(laptime));
+        lapTimeText.setText(TimeUtil.formatSec(laptime));
 
         stepCountText.setText(String.valueOf(lapInfo.getStepCount()));
 

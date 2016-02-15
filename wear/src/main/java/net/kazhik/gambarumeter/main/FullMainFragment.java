@@ -11,12 +11,13 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import com.google.android.gms.wearable.DataMap;
+
 import net.kazhik.gambarumeter.R;
 import net.kazhik.gambarumeter.main.monitor.HeartRateMonitor;
 import net.kazhik.gambarumeter.main.monitor.HeartRateSensorValueListener;
-import net.kazhik.gambarumeter.main.view.FullNotificationView;
 import net.kazhik.gambarumeter.main.view.HeartRateView;
-import net.kazhik.gambarumeter.main.view.LocationNotificationView;
+import net.kazhik.gambarumeterlib.storage.DataStorage;
 
 import java.util.Date;
 
@@ -87,6 +88,20 @@ public class FullMainFragment extends LocationMainFragment
         }
 
         super.stopWorkout();
+    }
+    @Override
+    protected DataMap putData(DataMap dataMap) {
+        dataMap = super.putData(dataMap);
+
+        dataMap = this.heartRateMonitor.putData(dataMap);
+
+        DataMap workoutDataMap = dataMap.getDataMap(DataStorage.TBL_WORKOUT);
+        workoutDataMap.putInt(DataStorage.COL_HEART_RATE,
+                this.heartRateMonitor.getAverageHeartRate());
+        dataMap.putDataMap(DataStorage.TBL_WORKOUT, workoutDataMap);
+
+        return dataMap;
+
     }
 
     // SensorValueListener

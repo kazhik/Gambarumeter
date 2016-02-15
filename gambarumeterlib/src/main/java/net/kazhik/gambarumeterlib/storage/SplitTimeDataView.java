@@ -4,7 +4,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.util.Log;
 
-import net.kazhik.gambarumeterlib.Util;
 import net.kazhik.gambarumeterlib.entity.LapTime;
 import net.kazhik.gambarumeterlib.entity.SplitTimeStepCount;
 
@@ -15,10 +14,10 @@ import java.util.List;
 /**
  * Created by kazhik on 15/06/20.
  */
-public class SplitTimeView extends AbstractTable {
+public class SplitTimeDataView extends AbstractTable {
     private static final String TAG = "SplitTimeView";
 
-    public SplitTimeView(Context context) {
+    public SplitTimeDataView(Context context) {
         super(context);
     }
 

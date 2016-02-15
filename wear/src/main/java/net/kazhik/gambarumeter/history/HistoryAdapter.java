@@ -1,8 +1,6 @@
 package net.kazhik.gambarumeter.history;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.support.wearable.view.WearableListView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import net.kazhik.gambarumeter.R;
-import net.kazhik.gambarumeterlib.Util;
+import net.kazhik.gambarumeterlib.DistanceUtil;
 import net.kazhik.gambarumeterlib.entity.WorkoutInfo;
 
 import java.text.DateFormat;
@@ -24,7 +22,7 @@ public class HistoryAdapter extends WearableListView.Adapter {
     private List<WorkoutInfo> dataSet;
     private final Context context;
     private final LayoutInflater inflater;
-    private String prefDistanceUnit;
+    private DistanceUtil distanceUtil;
     private static final String TAG = "HistoryAdapter";
 
     // Provide a suitable constructor (depends on the kind of dataset)
@@ -33,9 +31,7 @@ public class HistoryAdapter extends WearableListView.Adapter {
         this.inflater = LayoutInflater.from(context);
         this.dataSet = dataset;
 
-        SharedPreferences prefs =
-                PreferenceManager.getDefaultSharedPreferences(context);
-        this.prefDistanceUnit = prefs.getString("distanceUnit", "metre");
+        this.distanceUtil = DistanceUtil.getInstance(context);
 
     }
 
@@ -92,15 +88,7 @@ public class HistoryAdapter extends WearableListView.Adapter {
 
         String resultStr = this.formatSplitTime(stopTime - startTime);
         if (distance > 0.0f) {
-            distance /= Util.lapDistance(this.prefDistanceUnit);
-
-            String distanceUnit =
-                    Util.distanceUnitDisplayStr(this.prefDistanceUnit, this.context.getResources());
-
-            String distanceStr = String.format("%.2f%s",
-                    distance, distanceUnit);
-
-            resultStr += "/" + distanceStr;
+            resultStr += "/" + this.distanceUtil.getDistanceAndUnitStr(distance);
         } else if (heartRate > 0) {
             String heartRateStr = String.format("%d%s", heartRate,
                     this.context.getResources().getString(R.string.bpm));

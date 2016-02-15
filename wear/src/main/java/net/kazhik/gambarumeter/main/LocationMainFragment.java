@@ -20,7 +20,6 @@ import net.kazhik.gambarumeter.main.monitor.GeolocationMonitor;
 import net.kazhik.gambarumeter.main.monitor.LocationSensorValueListener;
 import net.kazhik.gambarumeter.main.view.DistanceView;
 import net.kazhik.gambarumeter.main.view.LocationNotificationView;
-import net.kazhik.gambarumeterlib.Util;
 import net.kazhik.gambarumeterlib.storage.DataStorage;
 import net.kazhik.gambarumeterlib.storage.WorkoutTable;
 
@@ -40,29 +39,15 @@ public class LocationMainFragment extends MainFragment
 
     @Override
     public void refreshView() {
-        if (this.getActivity() == null) {
-            Log.d(TAG, "Activity doesn't exist");
+        Context context = this.getActivity();
+        if (context == null) {
+            Log.d(TAG, "Context doesn't exist");
             return;
         }
         Log.d(TAG, "refreshView");
         if (this.locationMonitor != null) {
-            this.setDistanceUnit();
             this.getActivity().runOnUiThread(this.distanceView);
         }
-    }
-
-    private void setDistanceUnit() {
-        String distanceUnit = this.prefs.getString("distanceUnit", "metre");
-        String distanceUnitStr =
-                Util.distanceUnitDisplayStr(distanceUnit,
-                        this.getActivity().getResources());
-
-        this.distanceView
-                .setDistanceUnit(distanceUnit)
-                .setDistanceUnitStr(distanceUnitStr);
-
-        this.notificationView.setDistanceUnit(distanceUnit);
-        Log.d(TAG, "setDistanceUnit: " + distanceUnit);
     }
 
     @Override
@@ -118,8 +103,7 @@ public class LocationMainFragment extends MainFragment
             TextView distanceUnitLabel
                     = (TextView)activity.findViewById(R.id.distance_label);
 
-            this.distanceView.initialize(distanceValue, distanceUnitLabel);
-            this.setDistanceUnit();
+            this.distanceView.initialize(activity, distanceValue, distanceUnitLabel);
             this.distanceView.refresh();
             activity.findViewById(R.id.distance).setVisibility(View.VISIBLE);
         } else {
@@ -135,11 +119,9 @@ public class LocationMainFragment extends MainFragment
         this.notificationView.clear();
 
         if (this.locationMonitor != null) {
-            String distanceUnit = this.prefs.getString("distanceUnit", "metre");
             this.distanceView.setDistance(0)
-                    .setDistanceUnit(distanceUnit)
                     .refresh();
-            this.locationMonitor.start(Util.lapDistance(distanceUnit));
+            this.locationMonitor.start();
         }
         super.startWorkout();
     }

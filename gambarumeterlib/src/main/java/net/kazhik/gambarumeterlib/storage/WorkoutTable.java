@@ -55,16 +55,28 @@ public class WorkoutTable extends AbstractTable {
         return (int)this.db.insertOrThrow(TABLE_NAME, null, values);
 
     }
+    public WorkoutInfo select(long startTime) {
+        List<WorkoutInfo> workoutInfos = this.select(startTime, 0);
+        return workoutInfos.get(0);
+    }
     public List<WorkoutInfo> selectAll() {
-        return this.selectAll(0);
+        return this.select(0, 0);
     }
     public List<WorkoutInfo> selectAll(int max) {
+        return this.select(0, max);
+    }
+    private List<WorkoutInfo> select(long startTime, int max) {
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
         qb.setTables(TABLE_NAME);
 
-        String[] columns = { "start_time", "stop_time", "step_count", "distance", "heart_rate" };
-        String selection = null;
-        String[] selectionArgs = null;
+        String[] columns =
+                { "start_time", "stop_time", "step_count", "distance", "heart_rate" };
+        String selection = "start_time = ?";
+        String[] selectionArgs = {this.formatDateMsec(startTime)};
+        if (startTime == 0) {
+            selection = null;
+            selectionArgs = null;
+        }
         String sortOrder = "start_time desc";
         String limit = (max == 0)? null: Integer.toString(max);
 
@@ -98,7 +110,6 @@ public class WorkoutTable extends AbstractTable {
         return dataList;
 
     }
-
     public boolean delete(long startTime) {
         String where = "start_time = ?";
         String[] whereArgs = {this.formatDateMsec(startTime)};

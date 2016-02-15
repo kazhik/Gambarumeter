@@ -2,10 +2,7 @@ package net.kazhik.gambarumeter;
 
 import android.app.Activity;
 import android.app.Fragment;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,13 +11,8 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
-import net.kazhik.gambarumeterlib.Util;
-import net.kazhik.gambarumeterlib.entity.WorkoutInfo;
-import net.kazhik.gambarumeterlib.storage.WorkoutTable;
-
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -71,7 +63,7 @@ public class ExternalFileFragment extends Fragment {
             float distance = workout.getDistance();
             int heartRate = workout.getHeartRate();
 
-            String resultStr = this.formatSplitTime(stopTime - startTime);
+            String resultStr = this.formatMsec(stopTime - startTime);
             if (distance > 0.0f) {
                 distance /= Util.lapDistance(this.prefDistanceUnit);
 
@@ -128,15 +120,6 @@ public class ExternalFileFragment extends Fragment {
 
                 Log.d(TAG, "startTime: " + map.get("startTime") + ":" + map.get("startTimeStr"));
 
-                ChartFragment chartFragment = new ChartFragment();
-                Bundle chartParam = new Bundle();
-                chartParam.putLong("startTime", Long.valueOf(map.get("startTime")));
-                chartFragment.setArguments(chartParam);
-
-                getFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container, chartFragment)
-                        .addToBackStack(null)
-                        .commit();
 
             }
         });

@@ -1,9 +1,9 @@
 package net.kazhik.gambarumeter.main.view;
 
-import android.util.Log;
+import android.content.Context;
 import android.widget.TextView;
 
-import net.kazhik.gambarumeterlib.Util;
+import net.kazhik.gambarumeterlib.DistanceUtil;
 
 /**
  * Created by kazhik on 14/10/18.
@@ -12,8 +12,7 @@ public class DistanceView implements Runnable {
     private TextView distanceText;
     private TextView distanceUnitText;
     private float distance = 0;
-    private String distanceUnit;
-    private String distanceUnitStr;
+    private DistanceUtil distanceUtil;
     private boolean available;
     private static final String TAG = "DistanceView";
 
@@ -23,19 +22,20 @@ public class DistanceView implements Runnable {
 
         this.setAvailable(false);
     }
+    public void initialize(Context context,
+                           TextView distanceText,
+                           TextView distanceUnitText) {
+
+        this.distanceText = distanceText;
+        this.distanceUnitText = distanceUnitText;
+
+        this.setAvailable(false);
+
+        this.distanceUtil = DistanceUtil.getInstance(context);
+    }
 
     public DistanceView setDistance(float distance) {
         this.distance = distance;
-
-        return this;
-    }
-    public DistanceView setDistanceUnit(String distanceUnit) {
-        this.distanceUnit = distanceUnit;
-        
-        return this;
-    }
-    public DistanceView setDistanceUnitStr(String distanceUnitStr) {
-        this.distanceUnitStr = distanceUnitStr;
 
         return this;
     }
@@ -49,13 +49,12 @@ public class DistanceView implements Runnable {
     }
 
     public void refresh() {
-        this.distanceUnitText.setText(this.distanceUnitStr);
+        this.distanceUnitText.setText(this.distanceUtil.getUnitStr());
         
         if (!this.available) {
             return;
         }
-        float distance = Util.convertMeter(this.distance, this.distanceUnit);
-        String str = String.format("%.2f", distance);
+        String str = this.distanceUtil.getDistanceStr(this.distance);
         this.distanceText.setText(str);
     }
 

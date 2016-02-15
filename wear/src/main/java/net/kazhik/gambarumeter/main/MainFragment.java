@@ -295,7 +295,6 @@ public abstract class MainFragment extends PagerFragment
 
         // put data on datamap
         DataMap dataMap = putData(putDataMapReq.getDataMap());
-
         Log.d(TAG, "newData: " + dataMap.toString());
 
         PutDataRequest putDataReq = putDataMapReq.asPutDataRequest();

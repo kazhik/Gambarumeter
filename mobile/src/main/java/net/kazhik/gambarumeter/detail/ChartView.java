@@ -1,13 +1,9 @@
-package net.kazhik.gambarumeter;
+package net.kazhik.gambarumeter.detail;
 
-import android.app.Activity;
-import android.app.Fragment;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.LineChart;
@@ -16,20 +12,21 @@ import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.utils.ValueFormatter;
 
+import net.kazhik.gambarumeter.R;
+import net.kazhik.gambarumeterlib.DistanceUtil;
 import net.kazhik.gambarumeterlib.entity.SplitTimeStepCount;
-import net.kazhik.gambarumeterlib.storage.SplitTimeView;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by kazhik on 15/06/13.
+ * Created by kazhik on 16/02/07.
  */
-public class ChartFragment extends Fragment {
-
+public class ChartView implements DetailView {
     private LineChart chart;
+    private Context context;
 
-    private static final String TAG = "ChartFragment";
+    private static final String TAG = "ChartView";
     private static final ValueFormatter valueFormatter = new ValueFormatter() {
         @Override
         public String getFormattedValue(float value) {
@@ -47,44 +44,21 @@ public class ChartFragment extends Fragment {
             return laptimeStr;
         }
     };
-
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.chart_fragment, container, false);
+    public void setContext(Context context) {
+        this.context = context;
     }
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        this.initializeChart();
-
-        long startTime = getArguments().getLong("startTime");
-
-        this.loadData(startTime);
-    }
-    private void initializeChart() {
-
-        Activity activity = this.getActivity();
-        this.chart = (LineChart)activity.findViewById(R.id.chart);
+    public void setRootView(View root) {
+        this.chart = (LineChart)root.findViewById(R.id.chart);
         this.chart.setDescription(null);
         this.chart.getAxisLeft().setValueFormatter(laptimeFormatter);
         this.chart.getAxisRight().setValueFormatter(valueFormatter);
 
     }
-    private void loadData(long startTime) {
-        Context context = this.getActivity();
-
-
-        SplitTimeView splitTimeView = new SplitTimeView(context);
-        splitTimeView.openReadonly();
-        List<SplitTimeStepCount> splits = splitTimeView.selectAll(startTime);
-        splitTimeView.close();
-
+    public void load(List<SplitTimeStepCount> splits) {
         if (splits.isEmpty()) {
-            Toast.makeText(context, context.getString(R.string.nodata),
+            Toast.makeText(this.context, context.getString(R.string.nodata),
                     Toast.LENGTH_LONG).show();
             return;
         }
@@ -95,11 +69,14 @@ public class ChartFragment extends Fragment {
         ArrayList<Entry> yDistance = new ArrayList<>();
         ArrayList<Entry> yLap = new ArrayList<>();
 
+        DistanceUtil distanceUtil = DistanceUtil.getInstance(this.context);
+
         long prevTimestamp = splits.get(0).getTimestamp();
         int prevStepCount = splits.get(0).getStepCount();
         for (int x = 1; x < splits.size(); x++) {
             SplitTimeStepCount data = splits.get(x);
-            int distance = (int) (data.getDistance() / 1000); //TODO: mile
+
+            int distance = (int)distanceUtil.convertMeter(data.getDistance());
             xVals.add(String.valueOf(distance));
             if (data.getStepCount() > 0) {
                 ySteps.add(new Entry(data.getStepCount() - prevStepCount, x));
@@ -119,39 +96,20 @@ public class ChartFragment extends Fragment {
             */
         }
 
-        LineDataSet hrSet = new LineDataSet(yHeartRate, getString(R.string.heart_rate));
-        LineDataSet stepSet = new LineDataSet(ySteps, getString(R.string.stepLabel));
-        LineDataSet lapSet = new LineDataSet(yLap, getString(R.string.lap));
+        LineDataSet hrSet = this.getDefaultLineDataSet(yHeartRate,
+                this.context.getString(R.string.heart_rate),
+                Color.RED);
 
-//        set1.enableDashedLine(10f, 5f, 0f);
-        hrSet.setColor(Color.RED);
-        hrSet.setCircleColor(Color.RED);
-        hrSet.setLineWidth(1f);
-        hrSet.setCircleSize(3f);
-        hrSet.setDrawCircleHole(false);
-        hrSet.setValueTextSize(9f);
-        hrSet.setFillAlpha(65);
-        hrSet.setFillColor(Color.RED);
-
-        lapSet.setColor(Color.GREEN);
-        lapSet.setCircleColor(Color.GREEN);
-        lapSet.setLineWidth(1f);
-        lapSet.setCircleSize(3f);
-        lapSet.setDrawCircleHole(false);
-        lapSet.setValueTextSize(9f);
-        lapSet.setFillAlpha(65);
-        lapSet.setFillColor(Color.GREEN);
+        LineDataSet lapSet = this.getDefaultLineDataSet(yLap,
+                this.context.getString(R.string.lap),
+                Color.GREEN);
         lapSet.setValueFormatter(laptimeFormatter);
 
-        stepSet.setColor(Color.BLUE);
-        stepSet.setCircleColor(Color.BLUE);
-        stepSet.setLineWidth(1f);
-        stepSet.setCircleSize(3f);
-        stepSet.setDrawCircleHole(false);
-        stepSet.setValueTextSize(9f);
-        stepSet.setFillAlpha(65);
-        stepSet.setFillColor(Color.BLUE);
+        LineDataSet stepSet = this.getDefaultLineDataSet(ySteps,
+                this.context.getString(R.string.stepLabel),
+                Color.BLUE);
 
+//        set1.enableDashedLine(10f, 5f, 0f);
         ArrayList<LineDataSet> dataSets = new ArrayList<>();
         dataSets.add(hrSet);
         dataSets.add(stepSet);
@@ -162,6 +120,52 @@ public class ChartFragment extends Fragment {
         // set data
         this.chart.setData(data);
 
+
+    }
+    private LineDataSet getDefaultLineDataSet(List<Entry> yVal,
+                                              String label,
+                                              int color) {
+        LineDataSet lineDataSet = new LineDataSet(yVal, label);
+        lineDataSet.setLineWidth(1f);
+        lineDataSet.setCircleSize(3f);
+        lineDataSet.setDrawCircleHole(false);
+        lineDataSet.setValueTextSize(9f);
+        lineDataSet.setFillAlpha(65);
+
+        lineDataSet.setColor(color);
+        lineDataSet.setCircleColor(color);
+        lineDataSet.setFillColor(color);
+
+        return lineDataSet;
     }
 
+    @Override
+    public void onCreate(Bundle savedInstance) {
+
+    }
+
+    @Override
+    public void onResume() {
+
+    }
+
+    @Override
+    public void onPause() {
+
+    }
+
+    @Override
+    public void onDestroy() {
+
+    }
+
+    @Override
+    public void onLowMemory() {
+
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+
+    }
 }

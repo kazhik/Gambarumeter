@@ -22,6 +22,7 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.Wearable;
 
+import net.kazhik.gambarumeterlib.DistanceUtil;
 import net.kazhik.gambarumeterlib.LocationRecord;
 import net.kazhik.gambarumeterlib.entity.SplitTime;
 import net.kazhik.gambarumeterlib.storage.DataStorage;
@@ -57,6 +58,7 @@ public class GeolocationMonitor extends Service
     private LocationSensorValueListener listener;
     private LocationRecord record = new LocationRecord();
     private LocationManager locationManager;
+    private DistanceUtil distanceUtil;
 
     private static final int UPDATE_INTERVAL_MS = 5000;
     private static final int FASTEST_INTERVAL_MS = 3000;
@@ -91,15 +93,16 @@ public class GeolocationMonitor extends Service
                 (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         this.locationManager.addGpsStatusListener(this);
 
+        this.distanceUtil = DistanceUtil.getInstance(context);
     }
-    public void start(float lapDistance) {
+    public void start() {
         if (this.googleApiClient == null) {
             return;
         }
         if (!this.googleApiClient.isConnected()) {
             return;
         }
-        this.record.init(lapDistance);
+        this.record.init(this.distanceUtil.lapDistance());
         this.record.addLap(System.currentTimeMillis());
     }
     public void stop() {

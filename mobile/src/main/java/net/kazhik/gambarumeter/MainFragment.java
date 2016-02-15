@@ -2,12 +2,10 @@ package net.kazhik.gambarumeter;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.text.format.DateUtils;
 import android.util.Log;
@@ -25,6 +23,8 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.wearable.CapabilityApi;
+import com.google.android.gms.wearable.CapabilityInfo;
 import com.google.android.gms.wearable.DataApi;
 import com.google.android.gms.wearable.DataEvent;
 import com.google.android.gms.wearable.DataEventBuffer;
@@ -32,9 +32,11 @@ import com.google.android.gms.wearable.DataItem;
 import com.google.android.gms.wearable.DataItemBuffer;
 import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.DataMapItem;
+import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.Wearable;
 
-import net.kazhik.gambarumeterlib.Util;
+import net.kazhik.gambarumeterlib.DistanceUtil;
+import net.kazhik.gambarumeterlib.TimeUtil;
 import net.kazhik.gambarumeterlib.entity.WorkoutInfo;
 import net.kazhik.gambarumeterlib.storage.DataStorage;
 import net.kazhik.gambarumeterlib.storage.WorkoutTable;
@@ -43,20 +45,22 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by kazhik on 15/10/14.
  */
-public class MainFragment extends Fragment
+public class MainFragment extends DrawerFragment
         implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         DataApi.DataListener,
-        ResultCallback<DataItemBuffer> {
+        ResultCallback<DataItemBuffer>,
+        CapabilityApi.CapabilityListener {
 
     private GoogleApiClient mGoogleApiClient;
     private SimpleAdapter listAdapter;
     private ArrayList<HashMap<String, String>> mapList = new ArrayList<>();
-    private String prefDistanceUnit;
+    private DistanceUtil distanceUtil;
 
     private static final int CONTEXTMENU_DELETE = 1001;
 
@@ -70,9 +74,7 @@ public class MainFragment extends Fragment
 
         Context context = this.getActivity();
 
-        SharedPreferences prefs =
-                PreferenceManager.getDefaultSharedPreferences(context);
-        this.prefDistanceUnit = prefs.getString("distanceUnit", "metre");
+        this.distanceUtil = DistanceUtil.getInstance(context);
 
         mGoogleApiClient = new GoogleApiClient.Builder(context)
                 .addConnectionCallbacks(this)
@@ -92,6 +94,9 @@ public class MainFragment extends Fragment
     @Override
     public void onStop() {
         if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
+            Wearable.DataApi.removeListener(mGoogleApiClient, this);
+            Wearable.CapabilityApi
+                    .removeCapabilityListener(mGoogleApiClient, this, getString(R.string.app_name));
             mGoogleApiClient.disconnect();
         }
         super.onStop();
@@ -107,7 +112,8 @@ public class MainFragment extends Fragment
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
         return inflater.inflate(R.layout.main_fragment, container, false);
     }
     @Override
@@ -134,8 +140,10 @@ public class MainFragment extends Fragment
                 Map<String, String> map = (Map<String, String>) listView
                         .getItemAtPosition(position);
 
-                Log.d(TAG, "startTime: " + map.get("startTime") + ":" + map.get("startTimeStr"));
+                Log.d(TAG, "startTime: " + map.get("startTime")
+                        + ":" + map.get("startTimeStr"));
 
+                /*
                 ChartFragment chartFragment = new ChartFragment();
                 Bundle chartParam = new Bundle();
                 chartParam.putLong("startTime", Long.valueOf(map.get("startTime")));
@@ -145,7 +153,8 @@ public class MainFragment extends Fragment
                         .replace(R.id.fragment_container, chartFragment)
                         .addToBackStack(null)
                         .commit();
-                /*
+                */
+
                 DetailFragment detailFragment = new DetailFragment();
                 Bundle param = new Bundle();
                 param.putLong("startTime", Long.valueOf(map.get("startTime")));
@@ -154,7 +163,7 @@ public class MainFragment extends Fragment
                         .replace(R.id.fragment_container, detailFragment)
                         .addToBackStack(null)
                         .commit();
-                */
+
 
             }
         });
@@ -235,6 +244,10 @@ public class MainFragment extends Fragment
                 Wearable.DataApi.getDataItems(mGoogleApiClient);
         results.setResultCallback(this);
 
+        Wearable.CapabilityApi
+                .addCapabilityListener(mGoogleApiClient, this,
+                        getString(R.string.app_name));
+        checkConnection();
     }
 
     // GoogleApiClient.ConnectionCallbacks
@@ -264,6 +277,7 @@ public class MainFragment extends Fragment
     // ResultCallback<DataItemBuffer>
     @Override
     public void onResult(DataItemBuffer dataItems) {
+        Log.d(TAG, "onResult");
         for (DataItem dataItem : dataItems) {
             this.handleDataItem(dataItem);
         }
@@ -287,10 +301,6 @@ public class MainFragment extends Fragment
     }
     private void loadList() {
         Activity activity = this.getActivity();
-
-        SharedPreferences prefs =
-                PreferenceManager.getDefaultSharedPreferences(activity);
-        this.prefDistanceUnit = prefs.getString("distanceUnit", "metre");
 
         WorkoutTable workoutTable = new WorkoutTable(activity);
         workoutTable.openReadonly();
@@ -319,18 +329,9 @@ public class MainFragment extends Fragment
             float distance = workout.getDistance();
             int heartRate = workout.getHeartRate();
 
-            String resultStr = this.formatSplitTime(stopTime - startTime);
+            String resultStr = TimeUtil.formatMsec(stopTime - startTime);
             if (distance > 0.0f) {
-                distance /= Util.lapDistance(this.prefDistanceUnit);
-
-                String distanceUnit =
-                        Util.distanceUnitDisplayStr(this.prefDistanceUnit,
-                                activity.getResources());
-
-                String distanceStr = String.format("%.2f%s",
-                        distance, distanceUnit);
-
-                resultStr += "/" + distanceStr;
+                resultStr += "/" + this.distanceUtil.getDistanceAndUnitStr(distance);
             } else if (heartRate > 0) {
                 String heartRateStr = String.format("%d%s", heartRate,
                         activity.getResources().getString(R.string.bpm));
@@ -358,15 +359,74 @@ public class MainFragment extends Fragment
         this.listAdapter.notifyDataSetChanged();
     }
 
-    private String formatSplitTime(long splitTime) {
-        long splitTimeSec = splitTime / 1000;
+    @Override
+    public void onClickDrawerItem(int resId) {
 
-        long hour = splitTimeSec / 60 / 60;
-        long min = splitTimeSec / 60 - (hour * 60);
-        long sec = splitTimeSec % 60;
+    }
+    @Override
+    public void onClickDrawerItem(int resId, long startTime) {
 
-        return String.format("%d:%02d:%02d", hour, min, sec);
+    }
+    public List<Map<String, String>> makeDrawerItems() {
+        List<Map<String, String>> drawerItems = new ArrayList<>();
+
+        Map<String, String> drawerItem;
+
+        drawerItem = makeDrawerItem(R.string.mobile_settings,
+                R.drawable.settings);
+        drawerItems.add(drawerItem);
+
+        drawerItem = makeDrawerItem(R.string.wear_settings,
+                R.drawable.settings);
+        drawerItems.add(drawerItem);
+
+        return drawerItems;
+    }
+    private void checkConnection() {
+        AsyncTask.execute(new Runnable() {
+
+            @Override
+            public void run() {
+                CapabilityApi.GetCapabilityResult result =
+                        Wearable.CapabilityApi.getCapability(mGoogleApiClient,
+                                getString(R.string.app_name), CapabilityApi.FILTER_ALL)
+                                .await();
+
+                Log.d(TAG, "check connection result: " +
+                        result.getCapability().getNodes().size());
+                onCapabilityChanged(result.getCapability());
+
+            }
+        });
+/*
+        Wearable.CapabilityApi.getCapability(mGoogleApiClient, getString(R.string.app_name),
+                CapabilityApi.FILTER_ALL)
+                .setResultCallback(new ResultCallback<CapabilityApi.GetCapabilityResult>() {
+                    @Override
+                    public void onResult(CapabilityApi.GetCapabilityResult result) {
+                        if (!result.getStatus().isSuccess()) {
+                            Log.e(TAG, "Failed to get capabilities, "
+                                    + "status: " + result.getStatus().getStatusMessage());
+                            return;
+                        }
+                        Log.d(TAG, "check result");
+                        onCapabilityChanged(result.getCapability());
+                    }
+                });
+        */
     }
 
+    // CapabilityApi.CapabilityListener
+    @Override
+    public void onCapabilityChanged(CapabilityInfo capabilityInfo) {
+        Set<Node> connectedNodes = capabilityInfo.getNodes();
+        Log.d(TAG, "onCapabilityChanged:" + connectedNodes.size());
+        for (Node node : connectedNodes) {
+            // we are only considering those nodes that are directly connected
+            if (node.isNearby()) {
+                Log.d(TAG, "onCapabilityChanged:" + node.getDisplayName());
 
+            }
+        }
+    }
 }

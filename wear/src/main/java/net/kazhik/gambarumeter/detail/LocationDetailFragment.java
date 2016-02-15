@@ -6,7 +6,7 @@ import android.support.wearable.view.WearableListView;
 import android.util.Log;
 
 import net.kazhik.gambarumeterlib.entity.LapTime;
-import net.kazhik.gambarumeterlib.storage.SplitTimeView;
+import net.kazhik.gambarumeterlib.storage.SplitTimeDataView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,10 +24,10 @@ public class LocationDetailFragment extends DetailFragment {
         // read data from database
         List<LapTime> laptimes = new ArrayList<>();
         try {
-            SplitTimeView splitTimeView = new SplitTimeView(activity);
-            splitTimeView.open(true);
-            laptimes = splitTimeView.selectLaps(this.getStartTime());
-            splitTimeView.close();
+            SplitTimeDataView splitTimeDataView = new SplitTimeDataView(activity);
+            splitTimeDataView.open(true);
+            laptimes = splitTimeDataView.selectLaps(this.getStartTime());
+            splitTimeDataView.close();
 
         } catch (SQLException e) {
             Log.e(TAG, e.getMessage(), e);

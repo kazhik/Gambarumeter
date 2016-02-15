@@ -1,12 +1,14 @@
 package net.kazhik.gambarumeter;
 
-import android.app.Fragment;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.SQLException;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -16,12 +18,10 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
-import android.widget.Toast;
 
 import net.kazhik.gambarumeterlib.storage.DataStorage;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -54,6 +54,17 @@ public class MobileGambarumeter extends AppCompatActivity implements AdapterView
         mTitle = mDrawerTitle = getTitle();
         this.initializeDatabase();
         this.initializeDrawer();
+
+        Intent intent = getIntent();
+        Uri dataUri = intent.getData();
+        if (dataUri != null) {
+            this.importTcxFile(dataUri.getPath());
+        }
+
+    }
+    private void importTcxFile(String filepath) {
+        ExternalFile externalFile = new ExternalFile();
+        externalFile.importTcxFile(this, filepath);
 
     }
 
@@ -109,15 +120,22 @@ public class MobileGambarumeter extends AppCompatActivity implements AdapterView
             /** Called when a drawer has settled in a completely closed state. */
             public void onDrawerClosed(View view) {
                 super.onDrawerClosed(view);
-                getSupportActionBar().setTitle(mTitle);
+                setTitle(mTitle);
                 clearDrawerItem();
             }
 
             /** Called when a drawer has settled in a completely open state. */
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
-                getSupportActionBar().setTitle(mDrawerTitle);
+                setTitle(mDrawerTitle);
                 setDrawerItem();
+            }
+            public void setTitle(CharSequence title) {
+                ActionBar actionBar = getSupportActionBar();
+                if (actionBar == null) {
+                    return;
+                }
+                actionBar.setTitle(title);
             }
         };
 
@@ -145,70 +163,10 @@ public class MobileGambarumeter extends AppCompatActivity implements AdapterView
 
     }
     private void setDrawerItem() {
-        Fragment f = getFragmentManager().findFragmentById(R.id.fragment_container);
-        if (f instanceof MainFragment) {
-            setMainDrawerItem();
-        } else {
-            setDetailDrawerItem();
-        }
-    }
-    private void setDetailDrawerItem() {
-        List<Map<String, String>> drawerItems = new ArrayList<>();
-
-        Map<String, String> drawerItem;
-
-        drawerItem = new HashMap<>();
-        drawerItem.put("id", String.valueOf(R.string.chart));
-        drawerItem.put("text", getString(R.string.chart));
-        drawerItem.put("icon", String.valueOf(R.drawable.line_chart));
-        drawerItems.add(drawerItem);
-
-        drawerItem = new HashMap<>();
-        drawerItem.put("id", String.valueOf(R.string.map));
-        drawerItem.put("text", getString(R.string.map));
-        drawerItem.put("icon", String.valueOf(android.R.drawable.ic_menu_mapmode));
-        drawerItems.add(drawerItem);
-
-        drawerItem = new HashMap<>();
-        drawerItem.put("id", String.valueOf(R.string.split_time));
-        drawerItem.put("text", getString(R.string.split_time));
-        drawerItem.put("icon",
-                String.valueOf(android.R.drawable.ic_menu_recent_history));
-        drawerItems.add(drawerItem);
-
-        drawerItem = new HashMap<>();
-        drawerItem.put("id", String.valueOf(R.string.export_file));
-        drawerItem.put("text", getString(R.string.export_file));
-        drawerItem.put("icon",
-                String.valueOf(android.R.drawable.ic_menu_set_as));
-        drawerItems.add(drawerItem);
-
-        SimpleAdapter drawerAdapter = new SimpleAdapter (this.getBaseContext(),
-                drawerItems, R.layout.drawer_list_item,
-                new String[] {"text", "icon"},
-                new int[] {R.id.drawer_text, R.id.drawer_icon});
-
-
-        // Set the adapter for the list view
-        mDrawerList.setAdapter(drawerAdapter);
-
-    }
-    private void setMainDrawerItem() {
-        List<Map<String, String>> drawerItems = new ArrayList<>();
-
-        Map<String, String> drawerItem;
-
-        drawerItem = new HashMap<>();
-        drawerItem.put("id", String.valueOf(R.string.mobile_settings));
-        drawerItem.put("text", getString(R.string.mobile_settings));
-        drawerItem.put("icon", String.valueOf(R.drawable.settings));
-        drawerItems.add(drawerItem);
-
-        drawerItem = new HashMap<>();
-        drawerItem.put("id", String.valueOf(R.string.wear_settings));
-        drawerItem.put("text", getString(R.string.wear_settings));
-        drawerItem.put("icon", String.valueOf(R.drawable.settings));
-        drawerItems.add(drawerItem);
+        DrawerFragment f =
+                (DrawerFragment)getFragmentManager().findFragmentById(
+                        R.id.fragment_container);
+        List<Map<String, String>> drawerItems = f.makeDrawerItems();
 
         SimpleAdapter drawerAdapter = new SimpleAdapter (this.getBaseContext(),
                 drawerItems, R.layout.drawer_list_item,
@@ -234,6 +192,10 @@ public class MobileGambarumeter extends AppCompatActivity implements AdapterView
     }
     @Override
     public void onBackPressed() {
+        if (mDrawerLayout.isDrawerOpen(mDrawerList)) {
+            mDrawerLayout.closeDrawer(mDrawerList);
+            return;
+        }
         this.getFragmentManager().popBackStack();
         if(this.getFragmentManager().getBackStackEntryCount() == 0) {
             super.onBackPressed();
@@ -241,79 +203,28 @@ public class MobileGambarumeter extends AppCompatActivity implements AdapterView
     }
 
     @Override
+    protected void onNewIntent(Intent intent) {
+        Log.d(TAG, "onNewIntent: " + intent);
+//        super.onNewIntent(intent);
+
+    }
+
+    @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Fragment f = this.getFragmentManager().findFragmentById(R.id.fragment_container);
-        long startTime = f.getArguments().getLong("startTime");
+        DrawerFragment f =
+                (DrawerFragment)this.getFragmentManager().findFragmentById(
+                        R.id.fragment_container);
+        Bundle args = f.getArguments();
+        long startTime = args.getLong("startTime");
         Log.d(TAG, "startTime: " + startTime);
+
 
         Map<String, String> clickedItem;
         //noinspection unchecked
         clickedItem = (Map<String, String>) mDrawerList.getItemAtPosition(position);
         Integer resId = Integer.valueOf(clickedItem.get("id"));
-        switch (resId) {
-            case R.string.map:
-                this.openMapView(startTime);
-                break;
-            case R.string.chart:
-                this.openChartView(startTime);
-                break;
-            case R.string.export_file:
-                this.exportFile(startTime);
-                break;
-            case R.string.split_time:
-                this.openSplitTimeView(startTime);
-                break;
-        }
+        f.onClickDrawerItem(resId, startTime);
         mDrawerLayout.closeDrawer(mDrawerList);
 
-    }
-    private void openMapView(long startTime) {
-        LocationFragment locationFragment = new LocationFragment();
-        Bundle param = new Bundle();
-        param.putLong("startTime", startTime);
-        locationFragment.setArguments(param);
-
-        getFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, locationFragment)
-                .commit();
-
-    }
-    private void openChartView(long startTime) {
-        ChartFragment chartFragment = new ChartFragment();
-        Bundle param = new Bundle();
-        param.putLong("startTime", startTime);
-        chartFragment.setArguments(param);
-
-        getFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, chartFragment)
-                .commit();
-
-    }
-    private void openSplitTimeView(long startTime) {
-        if (startTime == 0) {
-            return;
-        }
-        SplitTimeFragment splitTimeFragment = new SplitTimeFragment();
-        Bundle param = new Bundle();
-        param.putLong("startTime", startTime);
-        splitTimeFragment.setArguments(param);
-
-        getFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, splitTimeFragment)
-//                .addToBackStack(null)
-                .commit();
-
-    }
-    private void exportFile(long startTime) {
-        if (startTime == 0) {
-            return;
-        }
-
-        ExternalFile externalFile = new ExternalFile();
-
-        String filepath = externalFile.exportGpxFile(this, startTime);
-
-        Toast.makeText(this, this.getString(R.string.saved, filepath),
-                Toast.LENGTH_LONG).show();
     }
 }

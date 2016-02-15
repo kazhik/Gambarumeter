@@ -6,18 +6,26 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
+import android.util.Xml;
 
+import com.google.android.gms.wearable.DataMap;
+
+import net.kazhik.gambarumeterlib.storage.DataStorage;
 import net.kazhik.gambarumeterlib.storage.LocationTable;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
+import org.xmlpull.v1.XmlSerializer;
 
+import java.io.BufferedInputStream;
 import java.io.Closeable;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
+import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -29,22 +37,29 @@ import java.util.List;
 public class ExternalFile {
     private static final String TAG = "ExternalFile";
     private String dir;
+    private SimpleDateFormat timeFormatter =
+            new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 
     public ExternalFile() {
         this.dir = Environment.getExternalStorageDirectory().getPath();
 
     }
     public void importGpxFile(Context context, String filename) {
-        List<Location> locations = this.readGpxFile(context, filename);
+        /*
+        List<Location> locations = this.readGpxFile(filename);
         this.saveLocations(context, locations);
+        */
+    }
+    public void importTcxFile(Context context, String filename) {
+
     }
 
-    private List<Location> readGpxFile(Context context, String filename) {
+    private List<Location> readGpxFile(String filename) {
         List<Location> locations = new ArrayList<>();
         InputStream fis = null;
         XmlPullParserFactory pullMaker;
         try {
-            fis = context.getAssets().open(this.dir + "/" + filename);
+            fis = new BufferedInputStream(new FileInputStream(filename));
             pullMaker = XmlPullParserFactory.newInstance();
 
             XmlPullParser parser = pullMaker.newPullParser();
@@ -151,6 +166,7 @@ public class ExternalFile {
         }
         long startTime = locations.get(0).getTime();
         LocationTable locTable = new LocationTable(context);
+        locTable.openWritable();
         for (Location loc: locations) {
             locTable.insert(startTime, loc);
         }
@@ -192,10 +208,155 @@ public class ExternalFile {
         }
         return true;
     }
-    private String getFilePath(String dirname, long startTime) {
+    private String getGpxFilePath(String dirname, long startTime) {
+        return this.getFilePath(dirname, startTime, "gpx");
+    }
+    private String getTcxFilePath(String dirname, long startTime) {
+        return this.getFilePath(dirname, startTime, "tcx");
+    }
+    private String getFilePath(String dirname, long startTime, String extension) {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd_HH_mm_ss");
-        return dirname + "/" + formatter.format(new Date(startTime)) + ".xml";
+        return String.format("%s/%s.%s",
+                dirname,
+                formatter.format(new Date(startTime)),
+                extension);
 
+    }
+    public void writeText(XmlSerializer serializer,
+                          String tagName,
+                          String text) throws IOException {
+        serializer.startTag("", tagName);
+        serializer.text(text);
+        serializer.endTag("", tagName);
+
+    }
+    public void writeExtension(XmlSerializer serializer,
+                               String groupTagName,
+                               String tagName,
+                               String text) throws IOException {
+        serializer.startTag("", "Extensions");
+        serializer.startTag("", groupTagName);
+        serializer.attribute("", "xmlns",
+                "http://www.garmin.com/xmlschemas/ActivityExtension/v1");
+        this.writeText(serializer, tagName, text);
+        serializer.endTag("", groupTagName);
+        serializer.endTag("", "Extensions");
+
+    }
+    public String exportTcxFile(Context context, long startTime) {
+        String appname = context.getString(R.string.app_name);
+
+        String dirname = this.prepareAppDir(appname);
+        String tcxFilePath = this.getTcxFilePath(dirname, startTime);
+
+        DataStorage dataStorage = new DataStorage(context);
+        DataMap dataMap = dataStorage.load(startTime);
+        dataStorage.close();
+
+        XmlSerializer serializer = Xml.newSerializer();
+        FileOutputStream tcxFile = null;
+        OutputStreamWriter stWriter = null;
+        try {
+//            StringWriter writer = new StringWriter();
+            tcxFile = new FileOutputStream(tcxFilePath);
+            stWriter = new OutputStreamWriter(tcxFile);
+            serializer.setOutput(stWriter);
+            serializer.setFeature("http://xmlpull.org/v1/doc/features.html#indent-output",
+                    true);
+            serializer.startDocument("UTF-8", true);
+            serializer.startTag("", "TrainingCenterDatabase");
+            serializer.attribute("",
+                    "xsi:schemaLocation",
+                    "http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2 " +
+                            "http://www.garmin.com/xmlschemas/TrainingCenterDatabasev2.xsd");
+            serializer.startTag("", "Activities");
+            serializer.startTag("", "Activity");
+            serializer.attribute("", "Sport", "Running");
+            serializer.startTag("", "Lap");
+
+            String startTimeStr = this.timeFormatter.format(new Date(startTime));
+            serializer.attribute("", "StartTime", startTimeStr);
+
+            this.writeText(serializer, "Id", startTimeStr);
+
+            long totalTimeSeconds =
+                    (dataMap.getLong(DataStorage.COL_STOP_TIME) - startTime) / 1000;
+            this.writeText(serializer, "TotalTimeSeconds",
+                    String.valueOf(totalTimeSeconds));
+
+            this.writeText(serializer, "Calories", "0");
+            this.writeText(serializer, "Intensity", "Active");
+            this.writeText(serializer, "TriggerMethod", "Manual");
+
+            float distance = dataMap.getFloat(DataStorage.COL_DISTANCE);
+            this.writeText(serializer, "DistanceMeters", String.valueOf(distance));
+
+            int heartRate = dataMap.getInt(DataStorage.COL_HEART_RATE);
+            this.writeText(serializer, "AverageHeartRateBpm",
+                    String.valueOf(heartRate));
+
+            int steps = dataMap.getInt(DataStorage.COL_STEP_COUNT);
+            this.writeExtension(serializer,
+                    "ActivityLapExtension", "Steps", String.valueOf(steps));
+
+            List<DataMap> locationMapList =
+                    dataMap.getDataMapArrayList(DataStorage.TBL_LOCATION);
+            serializer.startTag("", "Track");
+            for (DataMap locationMap: locationMapList) {
+                serializer.startTag("", "Trackpoint");
+
+                long timestamp = locationMap.getLong(DataStorage.COL_TIMESTAMP);
+                String timestampStr = this.timeFormatter.format(new Date(timestamp));
+                this.writeText(serializer, "Time", timestampStr);
+                serializer.startTag("", "Position");
+                double latitude = locationMap.getDouble(DataStorage.COL_LATITUDE);
+                String latitudeStr = String.valueOf(latitude);
+                this.writeText(serializer, "LatitudeDegrees", latitudeStr);
+                double longitude = locationMap.getDouble(DataStorage.COL_LONGITUDE);
+                String longitudeStr = String.valueOf(longitude);
+                this.writeText(serializer, "LongitudeDegrees", longitudeStr);
+                serializer.endTag("", "Position");
+                double altitude = locationMap.getDouble(DataStorage.COL_ALTITUDE);
+                String altitudeStr = String.valueOf(altitude);
+                this.writeText(serializer, "AltitudeMeters", altitudeStr);
+
+                serializer.endTag("", "Trackpoint");
+
+            }
+            serializer.endTag("", "Track");
+            //serializer.text(str);
+            serializer.endTag("", "Lap");
+            serializer.endTag("", "Activity");
+            serializer.endTag("", "Activities");
+            /*
+            serializer.attribute("", "number", String.valueOf(messages.size()));
+            for (Message msg: messages){
+                serializer.startTag("", "message");
+                serializer.attribute("", "date", msg.getDate());
+                serializer.startTag("", "title");
+                serializer.text(msg.getTitle());
+                serializer.endTag("", "title");
+                serializer.startTag("", "url");
+                serializer.text(msg.getLink().toExternalForm());
+                serializer.endTag("", "url");
+                serializer.startTag("", "body");
+                serializer.text(msg.getDescription());
+                serializer.endTag("", "body");
+                serializer.endTag("", "message");
+            }
+            */
+            serializer.endTag("", "TrainingCenterDatabase");
+            serializer.endDocument();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            this.close(stWriter);
+            this.close(tcxFile);
+        }
+
+
+
+        return tcxFilePath;
     }
     public String exportGpxFile(Context context, long startTime) {
         List<Location> locations = this.readLocations(context, startTime);
@@ -203,7 +364,7 @@ public class ExternalFile {
         String appname = context.getString(R.string.app_name);
 
         String dirname = this.prepareAppDir(appname);
-        String gpxFilePath = this.getFilePath(dirname, startTime);
+        String gpxFilePath = this.getGpxFilePath(dirname, startTime);
         GpxMetaInfo gpxMetaInfo = new GpxMetaInfo();
         gpxMetaInfo.setCreator(appname);
         this.writeGpxFile(gpxFilePath, gpxMetaInfo, locations);

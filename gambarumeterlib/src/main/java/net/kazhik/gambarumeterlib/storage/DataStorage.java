@@ -2,12 +2,20 @@ package net.kazhik.gambarumeterlib.storage;
 
 import android.content.Context;
 import android.database.SQLException;
+import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.location.Location;
 import android.util.Log;
 
 import com.google.android.gms.wearable.DataMap;
+
+import net.kazhik.gambarumeterlib.entity.SensorValue;
+import net.kazhik.gambarumeterlib.entity.SplitTime;
+import net.kazhik.gambarumeterlib.entity.WorkoutInfo;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class DataStorage {
     private static class DatabaseHelper extends SQLiteOpenHelper {
@@ -106,6 +114,85 @@ public class DataStorage {
         this.DBHelper.close();
     }
 
+    public DataMap load(long startTime) {
+        DataMap dataMap = new DataMap();
+
+        SQLiteDatabase db = this.open();
+        db.beginTransaction();
+        try {
+
+
+            HeartRateTable heartRateTable = new HeartRateTable(this.context, db);
+            List<SensorValue> heartRates = heartRateTable.selectAll(startTime);
+            ArrayList<DataMap> heartRateMapList = new ArrayList<>();
+            for (SensorValue heartRate: heartRates) {
+                DataMap hrMap = new DataMap();
+                hrMap.putLong(DataStorage.COL_TIMESTAMP, heartRate.getTimestamp());
+                hrMap.putInt(DataStorage.COL_HEART_RATE, (int)heartRate.getValue());
+                hrMap.putInt(DataStorage.COL_ACCURACY, heartRate.getAccuracy());
+                heartRateMapList.add(hrMap);
+            }
+            dataMap.putDataMapArrayList(DataStorage.TBL_HEARTRATE, heartRateMapList);
+
+            LocationTable locationTable = new LocationTable(this.context, db);
+            List<Location> locations = locationTable.selectAll(startTime);
+            ArrayList<DataMap> locationMapList = new ArrayList<>();
+            for (Location location: locations) {
+                DataMap locMap = new DataMap();
+                locMap.putLong(DataStorage.COL_TIMESTAMP, location.getTime());
+                locMap.putDouble(DataStorage.COL_LATITUDE, location.getLatitude());
+                locMap.putDouble(DataStorage.COL_LONGITUDE, location.getLongitude());
+                locMap.putDouble(DataStorage.COL_ALTITUDE, location.getAltitude());
+                locMap.putFloat(DataStorage.COL_ACCURACY, location.getAccuracy());
+                locationMapList.add(locMap);
+            }
+            dataMap.putDataMapArrayList(DataStorage.TBL_LOCATION, locationMapList);
+
+            SplitTable splitTable = new SplitTable(this.context, db);
+            List<SplitTime> splits = splitTable.selectAll(startTime);
+            ArrayList<DataMap> splitMapList = new ArrayList<>();
+            for (SplitTime split: splits) {
+                DataMap splitMap = new DataMap();
+                splitMap.putLong(DataStorage.COL_TIMESTAMP, split.getTimestamp());
+                splitMap.putFloat(DataStorage.COL_DISTANCE, split.getDistance());
+
+                splitMapList.add(splitMap);
+            }
+            dataMap.putDataMapArrayList(DataStorage.TBL_SPLITTIME, splitMapList);
+
+            StepCountTable stepCountTable = new StepCountTable(this.context, db);
+            List<SensorValue> stepCounts = stepCountTable.selectAll(startTime);
+            ArrayList<DataMap> stepCountMapList = new ArrayList<>();
+            for (SensorValue stepCount: stepCounts) {
+                DataMap stepCountMap = new DataMap();
+                stepCountMap.putLong(DataStorage.COL_TIMESTAMP,
+                        stepCount.getTimestamp());
+                stepCountMap.putLong(DataStorage.COL_STEP_COUNT,
+                        (long)stepCount.getValue());
+                stepCountMapList.add(stepCountMap);
+            }
+            dataMap.putDataMapArrayList(DataStorage.TBL_STEPCOUNT, stepCountMapList);
+
+            WorkoutTable workoutTable = new WorkoutTable(this.context, db);
+            WorkoutInfo workoutInfo = workoutTable.select(startTime);
+
+            dataMap.putLong(DataStorage.COL_START_TIME, startTime);
+            dataMap.putLong(DataStorage.COL_STOP_TIME, workoutInfo.getStopTime());
+            dataMap.putInt(DataStorage.COL_STEP_COUNT, workoutInfo.getStepCount());
+            dataMap.putFloat(DataStorage.COL_DISTANCE, workoutInfo.getDistance());
+            dataMap.putInt(DataStorage.COL_HEART_RATE, workoutInfo.getHeartRate());
+
+            db.setTransactionSuccessful();
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage(), e);
+        } finally {
+            db.endTransaction();
+        }
+
+        this.close();
+
+        return dataMap;
+    }
     public void save(DataMap dataMap) {
 
         DataMap workoutDataMap = dataMap.getDataMap(DataStorage.TBL_WORKOUT);
@@ -172,6 +259,8 @@ public class DataStorage {
             }
 
             db.setTransactionSuccessful();
+        } catch (SQLiteConstraintException e) {
+            Log.w(TAG, "Already exists: startTime=" + startTime);
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
         } finally {
