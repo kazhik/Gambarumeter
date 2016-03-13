@@ -24,7 +24,8 @@ public class WorkoutTable extends AbstractTable {
                     "stop_time DATETIME," +
                     "step_count INTEGER," +
                     "heart_rate INTEGER," +
-                    "distance REAL" +
+                    "distance REAL," +
+                    "synced INTEGER" +
                     ")";
     private static final String TAG = "WorkoutTable";
 
@@ -51,13 +52,55 @@ public class WorkoutTable extends AbstractTable {
         values.put("step_count", stepCount);
         values.put("distance", distance);
         values.put("heart_rate", heartRate);
+        values.put("synced", 0);
 
         return (int)this.db.insertOrThrow(TABLE_NAME, null, values);
 
     }
+    public List<Long> selectNotSynced() {
+        SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
+        qb.setTables(TABLE_NAME);
+
+        String[] columns =
+                { "start_time" };
+        String selection = "synced == ? or synced is null";
+        String[] selectionArgs = {"0"};
+        String sortOrder = "start_time desc";
+        String limit = null;
+
+        Cursor cursor = qb.query(this.db, columns, selection, selectionArgs, null,
+                null, sortOrder, limit);
+
+        List<Long> dataList = new ArrayList<>();
+
+        if (cursor.getCount() == 0) {
+            return dataList;
+        }
+
+        try {
+            cursor.moveToFirst();
+            while (!cursor.isAfterLast()) {
+                dataList.add(this.parseDate(cursor.getString(0)));
+                cursor.moveToNext();
+            }
+        } catch (ParseException e) {
+            Log.e(TAG, e.getMessage(), e);
+        } finally {
+            cursor.close();
+        }
+
+        return dataList;
+
+    }
+
     public WorkoutInfo select(long startTime) {
         List<WorkoutInfo> workoutInfos = this.select(startTime, 0);
         return workoutInfos.get(0);
+    }
+    public boolean exists(long startTime) {
+        List<WorkoutInfo> workoutInfos = this.select(startTime, 0);
+
+        return !workoutInfos.isEmpty();
     }
     public List<WorkoutInfo> selectAll() {
         return this.select(0, 0);
@@ -119,6 +162,20 @@ public class WorkoutTable extends AbstractTable {
             deleted = this.db.delete(TABLE_NAME, where, whereArgs);
         }
         return (deleted > 0);
+    }
+    public boolean updateSynced(long startTime) {
+        String where = "start_time = ?";
+        String[] whereArgs = {this.formatDateMsec(startTime)};
+
+        ContentValues values = new ContentValues();
+
+        values.put("synced", 1);
+
+        int updated = this.db.update(TABLE_NAME, values, where, whereArgs);
+
+
+        return (updated > 0);
+
     }
     public String getTableName(){
         return TABLE_NAME;

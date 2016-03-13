@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 
@@ -21,6 +22,7 @@ public class UserInputManager
     public interface UserInputListener {
         void onUserStart();
         void onUserStop();
+        void onUserDismiss();
     }
     private ImageButton startButton;
     private ImageButton stopButton;
@@ -33,7 +35,7 @@ public class UserInputManager
     public UserInputManager(UserInputListener listener) {
         this.listener = listener;
     }
-    public UserInputManager initTouch(Context context, LinearLayout layout) {
+    public UserInputManager initTouch(Context context, FrameLayout layout) {
         this.gestureDetector = new GestureDetectorCompat(context, this);
         this.gestureDetector.setOnDoubleTapListener(this);
         layout.setOnTouchListener(this);
@@ -54,6 +56,7 @@ public class UserInputManager
         return this;
     }
 
+    // View.OnClickListener
     @Override
     public void onClick(View view) {
         if (view.getId() == R.id.start) {
@@ -65,11 +68,13 @@ public class UserInputManager
 
         }
     }
+    // View.OnTouchListener
     @Override
     public boolean onTouch(View view, MotionEvent motionEvent) {
+        Log.d(TAG, "onTouch");
         return this.gestureDetector.onTouchEvent(motionEvent);
-
     }
+
     private void onUserStart() {
         this.toggleVisibility(true);
 
@@ -96,7 +101,19 @@ public class UserInputManager
     @Override
     public void onLongPress(MotionEvent e) {
         Log.d(TAG, "onLongPress");
-        super.onLongPress(e);
+        this.listener.onUserDismiss();
+    }
+
+    @Override
+    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+        Log.d(TAG, " onScroll: " + e1.toString()+e2.toString());
+        return super.onScroll(e1, e2, distanceX, distanceY);
+    }
+
+    @Override
+    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+        Log.d(TAG, " onFling: " + e1.toString()+e2.toString());
+        return super.onFling(e1, e2, velocityX, velocityY);
     }
 
     @Override
@@ -116,5 +133,4 @@ public class UserInputManager
 
         return false;
     }
-
 }

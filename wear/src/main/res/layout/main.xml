@@ -8,13 +8,13 @@
     android:layout_width="match_parent">
 
     <FrameLayout
+        android:id="@+id/main_layout"
         android:layout_gravity="top"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <LinearLayout
             app:layout_box="all"
-            android:id="@+id/main_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
@@ -151,6 +151,10 @@
             </LinearLayout>
 
         </LinearLayout>
+        <android.support.wearable.view.DismissOverlayView
+            android:id="@+id/dismiss_overlay"
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"/>
     </FrameLayout>
 
 </android.support.wearable.view.BoxInsetLayout>

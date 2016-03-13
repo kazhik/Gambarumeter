@@ -288,14 +288,15 @@ public class ExternalFile {
             this.writeText(serializer, "Intensity", "Active");
             this.writeText(serializer, "TriggerMethod", "Manual");
 
-            float distance = dataMap.getFloat(DataStorage.COL_DISTANCE);
+            DataMap workoutDataMap = dataMap.getDataMap(DataStorage.TBL_WORKOUT);
+            float distance = workoutDataMap.getFloat(DataStorage.COL_DISTANCE);
             this.writeText(serializer, "DistanceMeters", String.valueOf(distance));
 
-            int heartRate = dataMap.getInt(DataStorage.COL_HEART_RATE);
+            int heartRate = workoutDataMap.getInt(DataStorage.COL_HEART_RATE);
             this.writeText(serializer, "AverageHeartRateBpm",
                     String.valueOf(heartRate));
 
-            int steps = dataMap.getInt(DataStorage.COL_STEP_COUNT);
+            int steps = workoutDataMap.getInt(DataStorage.COL_STEP_COUNT);
             this.writeExtension(serializer,
                     "ActivityLapExtension", "Steps", String.valueOf(steps));
 

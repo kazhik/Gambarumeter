@@ -19,5 +19,9 @@
     <string name="export_file">エクスポート</string>
     <string name="import_file">インポート</string>
     <string name="saved">%1$sとして保存しました</string>
+    <string name="pref_distance_unit">距離の単位</string>
+    <string name="pref_location">位置情報</string>
+    <string name="pref_metre">メートル</string>
+    <string name="pref_mile">マイル</string>
 
 </resources>

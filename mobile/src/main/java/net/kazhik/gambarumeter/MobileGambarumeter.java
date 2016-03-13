@@ -215,7 +215,11 @@ public class MobileGambarumeter extends AppCompatActivity implements AdapterView
                 (DrawerFragment)this.getFragmentManager().findFragmentById(
                         R.id.fragment_container);
         Bundle args = f.getArguments();
-        long startTime = args.getLong("startTime");
+        long startTime = 0;
+        if (args != null) {
+            startTime = args.getLong("startTime");
+
+        }
         Log.d(TAG, "startTime: " + startTime);
 
 

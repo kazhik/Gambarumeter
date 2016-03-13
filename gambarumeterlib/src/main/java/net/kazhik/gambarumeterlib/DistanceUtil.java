@@ -8,21 +8,26 @@ import android.preference.PreferenceManager;
 /**
  * Created by kazhik on 16/02/12.
  */
-public class DistanceUtil {
+public class DistanceUtil implements SharedPreferences.OnSharedPreferenceChangeListener {
     private static DistanceUtil distanceUtil;
     private String distanceUnitPref;
     private String distanceUnitStr;
     public static DistanceUtil getInstance(Context context) {
         if (distanceUtil == null) {
             distanceUtil = new DistanceUtil();
-            SharedPreferences prefs =
-                    PreferenceManager.getDefaultSharedPreferences(context);
-            String prefStr = prefs.getString("distanceUnit", "metre");
-            distanceUtil.distanceUnitPref = prefStr;
-            int resId = prefStr.equals("mile")? R.string.mile: R.string.km;
-            distanceUtil.distanceUnitStr = context.getString(resId);
+            distanceUtil.initialize(context);
         }
         return distanceUtil;
+    }
+    public void initialize(Context context) {
+        SharedPreferences prefs =
+                PreferenceManager.getDefaultSharedPreferences(context);
+        prefs.registerOnSharedPreferenceChangeListener(this);
+
+        String prefStr = prefs.getString("distanceUnit", "metre");
+        this.distanceUnitPref = prefStr;
+        int resId = prefStr.equals("mile")? R.string.mile: R.string.km;
+        this.distanceUnitStr = context.getString(resId);
     }
 
     public String getUnitStr() {
@@ -50,4 +55,12 @@ public class DistanceUtil {
         return String.format("%.2f", distance);
     }
 
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPrefs, String key) {
+        if (key.equals("distanceUnit")) {
+            this.distanceUnitPref =
+                    sharedPrefs.getString("distanceUnit", "metre");
+        }
+
+    }
 }

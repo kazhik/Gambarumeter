@@ -17,12 +17,13 @@ import android.os.IBinder;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
+import android.support.wearable.view.DismissOverlayView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -33,6 +34,7 @@ import com.google.android.gms.wearable.DataApi;
 import com.google.android.gms.wearable.DataEvent;
 import com.google.android.gms.wearable.DataEventBuffer;
 import com.google.android.gms.wearable.DataItem;
+import com.google.android.gms.wearable.DataItemBuffer;
 import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.PutDataMapRequest;
@@ -48,6 +50,8 @@ import net.kazhik.gambarumeter.main.monitor.Stopwatch;
 import net.kazhik.gambarumeter.main.view.SplitTimeView;
 import net.kazhik.gambarumeter.main.view.StepCountView;
 import net.kazhik.gambarumeter.pager.PagerFragment;
+import net.kazhik.gambarumeterlib.storage.DataStorage;
+import net.kazhik.gambarumeterlib.storage.WorkoutTable;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -62,7 +66,7 @@ public abstract class MainFragment extends PagerFragment
         UserInputManager.UserInputListener,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        DataApi.DataListener {
+        DataApi.DataListener, ResultCallback<DataItemBuffer> {
     private SensorManager sensorManager;
 
     protected Stopwatch stopwatch;
@@ -247,12 +251,12 @@ public abstract class MainFragment extends PagerFragment
     protected void initializeUI() {
         Activity activity = this.getActivity();
 
-        this.splitTimeView.initialize((TextView)activity.findViewById(R.id.split_time));
+        this.splitTimeView.initialize((TextView) activity.findViewById(R.id.split_time));
         this.stepCountView.initialize((TextView) activity.findViewById(R.id.stepcount_value));
 
         this.userInputManager = new UserInputManager(this)
                 .initTouch(activity,
-                        (LinearLayout)activity.findViewById(R.id.main_layout))
+                        (FrameLayout)activity.findViewById(R.id.main_layout))
                 .initButtons(
                         (ImageButton)activity.findViewById(R.id.start),
                         (ImageButton)activity.findViewById(R.id.stop)
@@ -290,25 +294,31 @@ public abstract class MainFragment extends PagerFragment
             this.stepCountMonitor.saveResult(db, startTime);
         }
     }
-    private void sendDataToMobile() {
-        PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/database");
+    private void sendNewDataToMobile() {
+        PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/newdata");
 
         // put data on datamap
         DataMap dataMap = putData(putDataMapReq.getDataMap());
         Log.d(TAG, "newData: " + dataMap.toString());
 
-        PutDataRequest putDataReq = putDataMapReq.asPutDataRequest();
+        this.sendDataToMobile(putDataMapReq.asPutDataRequest());
+
+    }
+    private void sendDataToMobile(PutDataRequest putDataReq) {
         PendingResult<DataApi.DataItemResult> pendingResult =
                 Wearable.DataApi.putDataItem(this.googleApiClient, putDataReq);
 
         pendingResult.setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
             @Override
             public void onResult(DataApi.DataItemResult dataItemResult) {
-                Log.d(TAG, "putDataItem done: ");
+                DataItem item = dataItemResult.getDataItem();
+                if (item != null) {
+                    Log.d(TAG, "putDataItem done: " + item.getUri());
+                }
             }
         });
-
     }
+
     protected DataMap putData(DataMap dataMap) {
         this.stepCountMonitor.putDataMap(dataMap);
 
@@ -327,8 +337,16 @@ public abstract class MainFragment extends PagerFragment
     public void onUserStop() {
         this.stopWorkout();
         this.saveResult();
-        this.sendDataToMobile();
+        this.sendNewDataToMobile();
         this.stopwatch.reset();
+    }
+    // UserInputManager.UserInputListener
+    @Override
+    public void onUserDismiss() {
+        DismissOverlayView dismissOverlay =
+                (DismissOverlayView) getActivity().findViewById(R.id.dismiss_overlay);
+
+        dismissOverlay.show();
     }
     // SensorValueListener
     @Override
@@ -339,7 +357,7 @@ public abstract class MainFragment extends PagerFragment
         this.userInputManager.toggleVisibility(false);
         this.stopWorkout();
         this.saveResult();
-        this.sendDataToMobile();
+        this.sendNewDataToMobile();
         this.stopwatch.reset();
         this.vibrator.vibrate(1000);
     }
@@ -401,6 +419,52 @@ public abstract class MainFragment extends PagerFragment
     public void onConnected(Bundle bundle) {
         Log.d(TAG, "onConnected");
         Wearable.DataApi.addListener(this.googleApiClient, this);
+        PendingResult<DataItemBuffer> results =
+                Wearable.DataApi.getDataItems(this.googleApiClient);
+        results.setResultCallback(this);
+
+        this.sendNotSyncedData();
+
+    }
+
+    private DataMap getNotSyncedDataMap(DataMap dataMap) {
+        WorkoutTable workoutTable = new WorkoutTable(this.getActivity());
+        workoutTable.openReadonly();
+        List<Long> notSyncedList = workoutTable.selectNotSynced();
+        workoutTable.close();
+
+        Log.d(TAG, "not synced: " + notSyncedList.size());
+        if (notSyncedList.isEmpty()) {
+            return dataMap;
+        }
+
+        long[] notSyncedArray = new long[notSyncedList.size()];
+        for (int i = 0; i < notSyncedList.size(); i++) {
+            notSyncedArray[i] = notSyncedList.get(i);
+        }
+        dataMap.putLongArray(DataStorage.COL_START_TIME, notSyncedArray);
+
+        return dataMap;
+    }
+    private void sendNotSyncedData() {
+        /*
+        AsyncTask.execute(new Runnable() {
+
+            @Override
+            public void run() {
+                MainFragment.this.sendNotSyncedData();
+            }
+        });
+        */
+        PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/unsaved");
+
+        DataMap dataMap = this.getNotSyncedDataMap(putDataMapReq.getDataMap());
+        if (dataMap.isEmpty()) {
+            return;
+        }
+        Log.d(TAG, "not synced: " + dataMap.toString());
+
+        this.sendDataToMobile(putDataMapReq.asPutDataRequest());
     }
 
     // GoogleApiClient.ConnectionCallbacks
@@ -423,13 +487,47 @@ public abstract class MainFragment extends PagerFragment
         Log.d(TAG, "onDataChanged");
         for (DataEvent event : dataEvents) {
             if (event.getType() == DataEvent.TYPE_CHANGED) {
-                // DataItem changed
-                DataItem item = event.getDataItem();
-                if (item.getUri().getPath().compareTo("/config") == 0) {
-                    DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
-//                    updateConfig(dataMap);
-                }
+                this.handleDataItem(event.getDataItem());
             }
+        }
+    }
+    private void handleDataItem(DataItem item) {
+        String dataPath = item.getUri().getPath();
+        Log.d(TAG, "handleDataItem: " + dataPath);
+        DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
+        switch (dataPath) {
+            case "/config":
+//                    updateConfig(dataMap);
+                break;
+            case "/unknown":
+                this.resendData(dataMap.getLongArray(DataStorage.COL_START_TIME));
+                break;
+        }
+
+    }
+
+    private void resendData(long[] unknowns) {
+        Context context = this.getActivity();
+        for (long startTime: unknowns) {
+            Log.d(TAG, "resend startTime: " + startTime);
+            DataStorage dataStorage = new DataStorage(context);
+            DataMap dataMap = dataStorage.load(startTime);
+            dataStorage.close();
+
+            PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/resend");
+
+            // put data on datamap
+            DataMap sendData = putDataMapReq.getDataMap();
+            sendData.putAll(dataMap);
+
+            Log.d(TAG, "resend: " + sendData.getDataMap(DataStorage.TBL_WORKOUT).toString());
+            this.sendDataToMobile(putDataMapReq.asPutDataRequest());
+
+            WorkoutTable workoutTable = new WorkoutTable(context);
+            workoutTable.openWritable();
+            workoutTable.updateSynced(startTime);
+            workoutTable.close();
+            break;
         }
     }
     @Override
@@ -453,4 +551,12 @@ public abstract class MainFragment extends PagerFragment
 
     }
 
+    @Override
+    public void onResult(DataItemBuffer dataItems) {
+        Log.d(TAG, "onResult:");
+        for (DataItem dataItem : dataItems) {
+            this.handleDataItem(dataItem);
+        }
+        dataItems.release();
+    }
 }

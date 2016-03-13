@@ -85,8 +85,6 @@ public class LocationRecord {
 
     }
     public long setNewLocation(Location location) {
-        Log.d(TAG, "setNewLocation: " + location.getTime());
-
         Distance latestMove = this.calculateDistance(location);
         if (this.prevLocation != null) {
             if (latestMove.getDistance() == 0.0f) {

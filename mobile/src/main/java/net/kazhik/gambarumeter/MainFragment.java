@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.text.format.DateUtils;
@@ -23,8 +22,6 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.wearable.CapabilityApi;
-import com.google.android.gms.wearable.CapabilityInfo;
 import com.google.android.gms.wearable.DataApi;
 import com.google.android.gms.wearable.DataEvent;
 import com.google.android.gms.wearable.DataEventBuffer;
@@ -32,7 +29,7 @@ import com.google.android.gms.wearable.DataItem;
 import com.google.android.gms.wearable.DataItemBuffer;
 import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.DataMapItem;
-import com.google.android.gms.wearable.Node;
+import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.Wearable;
 
 import net.kazhik.gambarumeterlib.DistanceUtil;
@@ -45,7 +42,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by kazhik on 15/10/14.
@@ -54,8 +50,7 @@ public class MainFragment extends DrawerFragment
         implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         DataApi.DataListener,
-        ResultCallback<DataItemBuffer>,
-        CapabilityApi.CapabilityListener {
+        ResultCallback<DataItemBuffer> {
 
     private GoogleApiClient mGoogleApiClient;
     private SimpleAdapter listAdapter;
@@ -95,8 +90,6 @@ public class MainFragment extends DrawerFragment
     public void onStop() {
         if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
             Wearable.DataApi.removeListener(mGoogleApiClient, this);
-            Wearable.CapabilityApi
-                    .removeCapabilityListener(mGoogleApiClient, this, getString(R.string.app_name));
             mGoogleApiClient.disconnect();
         }
         super.onStop();
@@ -244,10 +237,6 @@ public class MainFragment extends DrawerFragment
                 Wearable.DataApi.getDataItems(mGoogleApiClient);
         results.setResultCallback(this);
 
-        Wearable.CapabilityApi
-                .addCapabilityListener(mGoogleApiClient, this,
-                        getString(R.string.app_name));
-        checkConnection();
     }
 
     // GoogleApiClient.ConnectionCallbacks
@@ -285,13 +274,70 @@ public class MainFragment extends DrawerFragment
 
     }
     private void handleDataItem(DataItem item) {
-        if (item.getUri().getPath().equals("/database")) {
-            DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
-            Log.d(TAG, "database: " + dataMap.toString());
-            this.saveData(dataMap);
+        String dataPath = item.getUri().getPath();
+        Log.d(TAG, "handleDataItem: " + dataPath);
+        DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
+        switch (dataPath) {
+            case "/newdata":
+            case "/database":
+                Log.d(TAG, "newdata: " + dataMap.toString());
+                this.saveData(dataMap);
+                break;
+            case "/resend":
+                Log.d(TAG, "resend: " + dataMap.toString());
+                this.saveData(dataMap);
+                break;
+            case "/unsaved":
+                Log.d(TAG, "unsaved: " + dataMap.toString());
+                List<Long> unknownList = this.checkUnsaved(dataMap);
+                this.sendUnknownStartTime(unknownList);
+                break;
+            default:
+                break;
         }
 
     }
+    private List<Long> checkUnsaved(DataMap dataMap) {
+        long[] unsaved = dataMap.getLongArray(DataStorage.COL_START_TIME);
+        List<Long> unknownList = new ArrayList<>();
+
+        WorkoutTable workoutTable = new WorkoutTable(this.getActivity());
+        workoutTable.openReadonly();
+        for (long startTime: unsaved) {
+            boolean exists = workoutTable.exists(startTime);
+            if (!exists) {
+                unknownList.add(startTime);
+            }
+            Log.d(TAG, "startTime: " + startTime + ": exists=" + exists);
+        }
+        workoutTable.close();
+
+        return unknownList;
+    }
+    private void sendUnknownStartTime(List<Long> unknownList) {
+
+        long[] unknowns = new long[unknownList.size()];
+        for (int i = 0; i < unknownList.size(); i++) {
+            unknowns[i] = unknownList.get(i);
+        }
+
+        PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/unknown");
+
+        DataMap dataMap = putDataMapReq.getDataMap();
+        dataMap.putLongArray(DataStorage.COL_START_TIME, unknowns);
+
+        PendingResult<DataApi.DataItemResult> pendingResult =
+                Wearable.DataApi.putDataItem(this.mGoogleApiClient,
+                        putDataMapReq.asPutDataRequest());
+
+        pendingResult.setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
+            @Override
+            public void onResult(DataApi.DataItemResult dataItemResult) {
+                Log.d(TAG, "putDataItem done: ");
+            }
+        });
+    }
+
     private void saveData(DataMap dataMap) {
 
         DataStorage dataStorage = new DataStorage(this.getActivity());
@@ -365,6 +411,15 @@ public class MainFragment extends DrawerFragment
     }
     @Override
     public void onClickDrawerItem(int resId, long startTime) {
+        switch (resId) {
+            case R.string.mobile_settings:
+                getFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, new SettingsFragment())
+                        .addToBackStack(null)
+                        .commit();
+
+                break;
+        }
 
     }
     public List<Map<String, String>> makeDrawerItems() {
@@ -381,52 +436,5 @@ public class MainFragment extends DrawerFragment
         drawerItems.add(drawerItem);
 
         return drawerItems;
-    }
-    private void checkConnection() {
-        AsyncTask.execute(new Runnable() {
-
-            @Override
-            public void run() {
-                CapabilityApi.GetCapabilityResult result =
-                        Wearable.CapabilityApi.getCapability(mGoogleApiClient,
-                                getString(R.string.app_name), CapabilityApi.FILTER_ALL)
-                                .await();
-
-                Log.d(TAG, "check connection result: " +
-                        result.getCapability().getNodes().size());
-                onCapabilityChanged(result.getCapability());
-
-            }
-        });
-/*
-        Wearable.CapabilityApi.getCapability(mGoogleApiClient, getString(R.string.app_name),
-                CapabilityApi.FILTER_ALL)
-                .setResultCallback(new ResultCallback<CapabilityApi.GetCapabilityResult>() {
-                    @Override
-                    public void onResult(CapabilityApi.GetCapabilityResult result) {
-                        if (!result.getStatus().isSuccess()) {
-                            Log.e(TAG, "Failed to get capabilities, "
-                                    + "status: " + result.getStatus().getStatusMessage());
-                            return;
-                        }
-                        Log.d(TAG, "check result");
-                        onCapabilityChanged(result.getCapability());
-                    }
-                });
-        */
-    }
-
-    // CapabilityApi.CapabilityListener
-    @Override
-    public void onCapabilityChanged(CapabilityInfo capabilityInfo) {
-        Set<Node> connectedNodes = capabilityInfo.getNodes();
-        Log.d(TAG, "onCapabilityChanged:" + connectedNodes.size());
-        for (Node node : connectedNodes) {
-            // we are only considering those nodes that are directly connected
-            if (node.isNearby()) {
-                Log.d(TAG, "onCapabilityChanged:" + node.getDisplayName());
-
-            }
-        }
     }
 }

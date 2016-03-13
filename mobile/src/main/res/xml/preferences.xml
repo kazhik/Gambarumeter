@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:key="pref_key_location"
+        android:title="@string/pref_location">
+
+        <ListPreference
+            android:defaultValue="metre"
+            android:dialogTitle="@string/pref_distance_unit"
+            android:entries="@array/pref_distance_unit_entries"
+            android:entryValues="@array/pref_distance_unit_values"
+            android:key="distanceUnit"
+            android:title="@string/pref_distance_unit" />
+
+    </PreferenceCategory>
+</PreferenceScreen>

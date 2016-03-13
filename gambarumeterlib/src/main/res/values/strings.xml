@@ -1,6 +1,4 @@
 <resources>
-    <string name="app_name">GambarumeterLib</string>
-
     <string name="mile">mi</string>
     <string name="km">km</string>
 </resources>

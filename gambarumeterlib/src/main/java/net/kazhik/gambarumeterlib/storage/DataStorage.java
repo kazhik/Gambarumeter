@@ -80,7 +80,7 @@ public class DataStorage {
 
 
     public static final String DATABASE_NAME = "gambarumeter.sqlite";
-    public static final int DATABASE_VERSION = 8;
+    public static final int DATABASE_VERSION = 9;
 
     private static final String TAG = "DataStorage";
 
@@ -176,11 +176,14 @@ public class DataStorage {
             WorkoutTable workoutTable = new WorkoutTable(this.context, db);
             WorkoutInfo workoutInfo = workoutTable.select(startTime);
 
-            dataMap.putLong(DataStorage.COL_START_TIME, startTime);
-            dataMap.putLong(DataStorage.COL_STOP_TIME, workoutInfo.getStopTime());
-            dataMap.putInt(DataStorage.COL_STEP_COUNT, workoutInfo.getStepCount());
-            dataMap.putFloat(DataStorage.COL_DISTANCE, workoutInfo.getDistance());
-            dataMap.putInt(DataStorage.COL_HEART_RATE, workoutInfo.getHeartRate());
+            DataMap workoutDataMap = new DataMap();
+            workoutDataMap.putLong(DataStorage.COL_START_TIME, startTime);
+            workoutDataMap.putLong(DataStorage.COL_STOP_TIME, workoutInfo.getStopTime());
+            workoutDataMap.putInt(DataStorage.COL_STEP_COUNT, workoutInfo.getStepCount());
+            workoutDataMap.putFloat(DataStorage.COL_DISTANCE, workoutInfo.getDistance());
+            workoutDataMap.putInt(DataStorage.COL_HEART_RATE, workoutInfo.getHeartRate());
+
+            dataMap.putDataMap(DataStorage.TBL_WORKOUT, workoutDataMap);
 
             db.setTransactionSuccessful();
         } catch (Exception e) {

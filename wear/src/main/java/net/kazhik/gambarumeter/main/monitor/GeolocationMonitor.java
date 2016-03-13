@@ -213,8 +213,6 @@ public class GeolocationMonitor extends Service
     // LocationListener
     @Override
     public void onLocationChanged(Location location) {
-        Log.d(TAG, "onLocationChanged: ");
-
         long lap = this.record.setNewLocation(location);
         if (lap > 0) {
             this.listener.onLap(location.getTime(),

@@ -35,6 +35,10 @@
 
     <string name="nodata">No data</string>
     <string name="saved">Saved as %1$s</string>
+    <string name="pref_distance_unit">Distance Unit</string>
+    <string name="pref_location">Location</string>
+    <string name="pref_metre">Metre</string>
+    <string name="pref_mile">Mile</string>
 
 
 </resources>
