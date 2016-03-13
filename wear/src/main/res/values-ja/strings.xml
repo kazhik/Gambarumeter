@@ -25,5 +25,6 @@
 
     <string name="gps_off">位置情報がOFFになっています</string>
     <string name="no_detail">詳細データがありません</string>
+    <string name="longpress_exit">長押しでアプリを終了します</string>
 
 </resources>

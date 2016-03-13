@@ -6,15 +6,15 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.support.wearable.view.FragmentGridPagerAdapter;
 import android.support.wearable.view.GridViewPager;
+import android.widget.Toast;
 
+import net.kazhik.gambarumeter.R;
 import net.kazhik.gambarumeter.history.FullHistoryFragment;
 import net.kazhik.gambarumeter.history.HeartRateHistoryFragment;
-import net.kazhik.gambarumeter.history.HistoryFragment;
 import net.kazhik.gambarumeter.history.LocationHistoryFragment;
 import net.kazhik.gambarumeter.main.FullMainFragment;
 import net.kazhik.gambarumeter.main.HeartRateMainFragment;
 import net.kazhik.gambarumeter.main.LocationMainFragment;
-import net.kazhik.gambarumeter.settings.SettingsFragment;
 
 /**
  * Created by kazhik on 14/11/11.
@@ -22,11 +22,15 @@ import net.kazhik.gambarumeter.settings.SettingsFragment;
 public class PagerAdapter extends FragmentGridPagerAdapter
         implements GridViewPager.OnPageChangeListener {
 
+    private Context context;
     private PagerFragment[][] fragments;
+    private Toast toast;
     private static final String TAG = "PagerAdapter";
 
     public PagerAdapter(Context context, FragmentManager fm) {
         super(fm);
+
+        this.context = context;
 
         PackageManager pm = context.getPackageManager();
 
@@ -35,16 +39,14 @@ public class PagerAdapter extends FragmentGridPagerAdapter
                 this.fragments = new PagerFragment[][]{
                         {
                                 new FullMainFragment(),
-                                new FullHistoryFragment(),
-                                new SettingsFragment()
+                                new FullHistoryFragment()
                         }
                 };
             } else {
                 this.fragments = new PagerFragment[][]{
                         {
                                 new LocationMainFragment(),
-                                new LocationHistoryFragment(),
-                                new SettingsFragment()
+                                new LocationHistoryFragment()
                         }
                 };
             }
@@ -70,7 +72,19 @@ public class PagerAdapter extends FragmentGridPagerAdapter
     }
 
     @Override
-    public void onPageScrolled(int i, int i2, float v, float v2, int i3, int i4) {
+    public void onPageScrolled(int row, int column,
+                               float rowOffset, float columnOffset,
+                               int rowOffsetPixels, int columnOffsetPixels) {
+        if (column == 0 && columnOffset < 0) {
+            if (this.toast == null) {
+                this.toast = Toast.makeText(this.context,
+                        R.string.longpress_exit,
+                        Toast.LENGTH_SHORT);
+            }
+            if (!this.toast.getView().isShown()) {
+                this.toast.show();
+            }
+        }
 
     }
 

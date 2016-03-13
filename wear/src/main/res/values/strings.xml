@@ -29,6 +29,7 @@
 
     <string name="gps_off">Geolocation setting is off</string>
     <string name="no_detail">No detailed data available</string>
+    <string name="longpress_exit">Long press to exit</string>
 
     <string name="detail_distance">1.01km</string>
     <string name="detail_laptime">4:55</string>
