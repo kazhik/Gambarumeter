@@ -35,6 +35,7 @@ public class LocationNotificationView extends NotificationView {
     public String makeShortText() {
         String str = "";
         if (this.distance > 0) {
+            str += " ";
             str += this.distanceUtil.getDistanceAndUnitStr(this.distance);
         }
         return str;

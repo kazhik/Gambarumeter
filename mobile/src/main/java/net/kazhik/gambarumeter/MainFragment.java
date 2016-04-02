@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.text.format.DateUtils;
 import android.util.Log;
@@ -46,13 +48,8 @@ import java.util.Map;
 /**
  * Created by kazhik on 15/10/14.
  */
-public class MainFragment extends DrawerFragment
-        implements GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener,
-        DataApi.DataListener,
-        ResultCallback<DataItemBuffer> {
+public class MainFragment extends DrawerFragment {
 
-    private GoogleApiClient mGoogleApiClient;
     private SimpleAdapter listAdapter;
     private ArrayList<HashMap<String, String>> mapList = new ArrayList<>();
     private DistanceUtil distanceUtil;
@@ -65,42 +62,10 @@ public class MainFragment extends DrawerFragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Log.d(TAG, "onCreate");
-
         Context context = this.getActivity();
 
         this.distanceUtil = DistanceUtil.getInstance(context);
 
-        mGoogleApiClient = new GoogleApiClient.Builder(context)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(Wearable.API)
-                .build();
-
-    }
-    @Override
-    public void onStart() {
-        super.onStart();
-        if (!mGoogleApiClient.isConnected()) {
-            mGoogleApiClient.connect();
-        }
-    }
-
-    @Override
-    public void onStop() {
-        if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
-            Wearable.DataApi.removeListener(mGoogleApiClient, this);
-            mGoogleApiClient.disconnect();
-        }
-        super.onStop();
-    }
-
-    @Override
-    public void onDestroy() {
-        if (mGoogleApiClient != null) {
-            mGoogleApiClient.unregisterConnectionCallbacks(this);
-        }
-        super.onDestroy();
     }
 
     @Nullable
@@ -227,124 +192,7 @@ public class MainFragment extends DrawerFragment
         storage.close();
 
     }
-    // GoogleApiClient.ConnectionCallbacks
-    @Override
-    public void onConnected(Bundle bundle) {
-        Log.d(TAG, "onConnected");
-        Wearable.DataApi.addListener(mGoogleApiClient, this);
 
-        PendingResult<DataItemBuffer> results =
-                Wearable.DataApi.getDataItems(mGoogleApiClient);
-        results.setResultCallback(this);
-
-    }
-
-    // GoogleApiClient.ConnectionCallbacks
-    @Override
-    public void onConnectionSuspended(int i) {
-
-    }
-
-    // GoogleApiClient.OnConnectionFailedListener
-    @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
-
-    }
-
-    // DataApi.DataListener
-    @Override
-    public void onDataChanged(DataEventBuffer dataEvents) {
-        Log.d(TAG, "onDataChanged");
-        for (DataEvent event : dataEvents) {
-            if (event.getType() == DataEvent.TYPE_CHANGED) {
-                this.handleDataItem(event.getDataItem());
-            }
-        }
-
-    }
-
-    // ResultCallback<DataItemBuffer>
-    @Override
-    public void onResult(DataItemBuffer dataItems) {
-        Log.d(TAG, "onResult");
-        for (DataItem dataItem : dataItems) {
-            this.handleDataItem(dataItem);
-        }
-        dataItems.release();
-
-    }
-    private void handleDataItem(DataItem item) {
-        String dataPath = item.getUri().getPath();
-        Log.d(TAG, "handleDataItem: " + dataPath);
-        DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
-        switch (dataPath) {
-            case "/newdata":
-            case "/database":
-                Log.d(TAG, "newdata: " + dataMap.toString());
-                this.saveData(dataMap);
-                break;
-            case "/resend":
-                Log.d(TAG, "resend: " + dataMap.toString());
-                this.saveData(dataMap);
-                break;
-            case "/unsaved":
-                Log.d(TAG, "unsaved: " + dataMap.toString());
-                List<Long> unknownList = this.checkUnsaved(dataMap);
-                this.sendUnknownStartTime(unknownList);
-                break;
-            default:
-                break;
-        }
-
-    }
-    private List<Long> checkUnsaved(DataMap dataMap) {
-        long[] unsaved = dataMap.getLongArray(DataStorage.COL_START_TIME);
-        List<Long> unknownList = new ArrayList<>();
-
-        WorkoutTable workoutTable = new WorkoutTable(this.getActivity());
-        workoutTable.openReadonly();
-        for (long startTime: unsaved) {
-            boolean exists = workoutTable.exists(startTime);
-            if (!exists) {
-                unknownList.add(startTime);
-            }
-            Log.d(TAG, "startTime: " + startTime + ": exists=" + exists);
-        }
-        workoutTable.close();
-
-        return unknownList;
-    }
-    private void sendUnknownStartTime(List<Long> unknownList) {
-
-        long[] unknowns = new long[unknownList.size()];
-        for (int i = 0; i < unknownList.size(); i++) {
-            unknowns[i] = unknownList.get(i);
-        }
-
-        PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/unknown");
-
-        DataMap dataMap = putDataMapReq.getDataMap();
-        dataMap.putLongArray(DataStorage.COL_START_TIME, unknowns);
-
-        PendingResult<DataApi.DataItemResult> pendingResult =
-                Wearable.DataApi.putDataItem(this.mGoogleApiClient,
-                        putDataMapReq.asPutDataRequest());
-
-        pendingResult.setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
-            @Override
-            public void onResult(DataApi.DataItemResult dataItemResult) {
-                Log.d(TAG, "putDataItem done: ");
-            }
-        });
-    }
-
-    private void saveData(DataMap dataMap) {
-
-        DataStorage dataStorage = new DataStorage(this.getActivity());
-        dataStorage.save(dataMap);
-        dataStorage.close();
-
-    }
     private void loadList() {
         Activity activity = this.getActivity();
 
@@ -437,4 +285,5 @@ public class MainFragment extends DrawerFragment
 
         return drawerItems;
     }
+
 }

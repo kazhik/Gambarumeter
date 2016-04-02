@@ -40,6 +40,7 @@ public class SplitTimeView implements DetailView {
 
         SplitTimeStepCount first = splits.remove(0);
         long prevTimestamp = first.getTimestampSec();
+        int prevStepCount = 0;
 
         for (SplitTimeStepCount splitTime: splits) {
             HashMap<String, String> map = new HashMap<>();
@@ -54,7 +55,9 @@ public class SplitTimeView implements DetailView {
             map.put("laptime", laptimeStr);
             prevTimestamp = timestamp;
 
-            map.put("stepcount", String.valueOf(splitTime.getStepCount()));
+            int currStepCount = splitTime.getStepCount();
+            map.put("stepcount", String.valueOf(currStepCount - prevStepCount));
+            prevStepCount = currStepCount;
 
             //TODO: heartrate
             map.put("heartrate", "0");

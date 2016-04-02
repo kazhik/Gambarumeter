@@ -15,7 +15,7 @@ import java.util.List;
  * Created by kazhik on 15/06/20.
  */
 public class SplitTimeDataView extends AbstractTable {
-    private static final String TAG = "SplitTimeView";
+    private static final String TAG = "SplitTimeDataView";
 
     public SplitTimeDataView(Context context) {
         super(context);
@@ -70,7 +70,6 @@ public class SplitTimeDataView extends AbstractTable {
         for (SplitTimeStepCount split: splits) {
             long currentLap = (split.getTimestamp() - prevTimestamp) / 1000;
             if (prevTimestamp != 0) {
-                Log.d(TAG, split.getDistance() + ": " + currentLap);
 
                 laptimes.add(new LapTime(split.getTimestamp(),
                         split.getDistance(),

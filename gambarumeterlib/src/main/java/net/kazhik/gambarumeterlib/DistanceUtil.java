@@ -4,14 +4,18 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 /**
  * Created by kazhik on 16/02/12.
  */
 public class DistanceUtil implements SharedPreferences.OnSharedPreferenceChangeListener {
     private static DistanceUtil distanceUtil;
+    private Context context;
     private String distanceUnitPref;
     private String distanceUnitStr;
+    private static final String TAG = "DistanceUtil";
+
     public static DistanceUtil getInstance(Context context) {
         if (distanceUtil == null) {
             distanceUtil = new DistanceUtil();
@@ -20,14 +24,21 @@ public class DistanceUtil implements SharedPreferences.OnSharedPreferenceChangeL
         return distanceUtil;
     }
     public void initialize(Context context) {
+        this.context = context;
+
         SharedPreferences prefs =
                 PreferenceManager.getDefaultSharedPreferences(context);
         prefs.registerOnSharedPreferenceChangeListener(this);
 
         String prefStr = prefs.getString("distanceUnit", "metre");
-        this.distanceUnitPref = prefStr;
-        int resId = prefStr.equals("mile")? R.string.mile: R.string.km;
+
+        this.refreshPrefs(context, prefStr);
+    }
+    private void refreshPrefs(Context context, String distanceUnitPref) {
+        this.distanceUnitPref = distanceUnitPref;
+        int resId = distanceUnitPref.equals("mile")? R.string.mile: R.string.km;
         this.distanceUnitStr = context.getString(resId);
+
     }
 
     public String getUnitStr() {
@@ -57,9 +68,10 @@ public class DistanceUtil implements SharedPreferences.OnSharedPreferenceChangeL
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPrefs, String key) {
+        String value = sharedPrefs.getString(key, "");
+        Log.d(TAG, "onSharedPreferenceChanged: " + key + "=" + value);
         if (key.equals("distanceUnit")) {
-            this.distanceUnitPref =
-                    sharedPrefs.getString("distanceUnit", "metre");
+            this.refreshPrefs(this.context, value);
         }
 
     }

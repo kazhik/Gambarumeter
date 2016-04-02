@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.location.Location;
 import android.util.Log;
@@ -186,6 +187,8 @@ public class DataStorage {
             dataMap.putDataMap(DataStorage.TBL_WORKOUT, workoutDataMap);
 
             db.setTransactionSuccessful();
+        } catch (SQLiteException e) {
+            Log.w(TAG, e.getMessage());
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
         } finally {

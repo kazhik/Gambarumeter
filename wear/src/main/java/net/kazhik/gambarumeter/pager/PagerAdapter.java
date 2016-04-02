@@ -78,7 +78,7 @@ public class PagerAdapter extends FragmentGridPagerAdapter
         if (column == 0 && columnOffset < 0) {
             if (this.toast == null) {
                 this.toast = Toast.makeText(this.context,
-                        R.string.longpress_exit,
+                        R.string.longpress_quit,
                         Toast.LENGTH_SHORT);
             }
             if (!this.toast.getView().isShown()) {

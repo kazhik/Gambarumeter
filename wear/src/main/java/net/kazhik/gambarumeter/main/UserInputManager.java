@@ -8,7 +8,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 
 import net.kazhik.gambarumeter.R;
 
@@ -30,7 +29,7 @@ public class UserInputManager
     private GestureDetectorCompat gestureDetector;
     private UserInputListener listener;
     private boolean started = false;
-    private static final String TAG = "GestureManager";
+    private static final String TAG = "UserInputManager";
 
     public UserInputManager(UserInputListener listener) {
         this.listener = listener;
@@ -71,7 +70,6 @@ public class UserInputManager
     // View.OnTouchListener
     @Override
     public boolean onTouch(View view, MotionEvent motionEvent) {
-        Log.d(TAG, "onTouch");
         return this.gestureDetector.onTouchEvent(motionEvent);
     }
 
@@ -102,18 +100,6 @@ public class UserInputManager
     public void onLongPress(MotionEvent e) {
         Log.d(TAG, "onLongPress");
         this.listener.onUserDismiss();
-    }
-
-    @Override
-    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-        Log.d(TAG, " onScroll: " + e1.toString()+e2.toString());
-        return super.onScroll(e1, e2, distanceX, distanceY);
-    }
-
-    @Override
-    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-        Log.d(TAG, " onFling: " + e1.toString()+e2.toString());
-        return super.onFling(e1, e2, velocityX, velocityY);
     }
 
     @Override

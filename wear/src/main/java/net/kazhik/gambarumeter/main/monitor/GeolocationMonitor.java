@@ -175,7 +175,7 @@ public class GeolocationMonitor extends Service
     // GoogleApiClient.ConnectionCallbacks
     @Override
     public void onConnected(Bundle bundle) {
-        Log.d(TAG, "onConnected");
+        Log.d(TAG, "GoogleApiClient onConnected");
 
         LocationRequest locationRequest = LocationRequest.create()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
@@ -191,7 +191,7 @@ public class GeolocationMonitor extends Service
     // GoogleApiClient.ConnectionCallbacks
     @Override
     public void onConnectionSuspended(int i) {
-        Log.d(TAG, "onConnectionSuspended");
+        Log.d(TAG, "GoogleApiClient onConnectionSuspended");
 
     }
 

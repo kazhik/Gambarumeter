@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.util.Log;
 
@@ -92,9 +93,47 @@ public class WorkoutTable extends AbstractTable {
         return dataList;
 
     }
+    public List<Long> selectAllStartTime() {
+        SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
+        qb.setTables(TABLE_NAME);
+
+        String[] columns =
+                { "start_time" };
+        String selection = null;
+        String[] selectionArgs = null;
+        String sortOrder = "start_time desc";
+        String limit = null;
+
+        Cursor cursor = qb.query(this.db, columns, selection, selectionArgs, null,
+                null, sortOrder, limit);
+
+        List<Long> dataList = new ArrayList<>();
+
+        if (cursor.getCount() == 0) {
+            return dataList;
+        }
+
+        try {
+            cursor.moveToFirst();
+            while (!cursor.isAfterLast()) {
+                dataList.add(this.parseDate(cursor.getString(0)));
+                cursor.moveToNext();
+            }
+        } catch (ParseException e) {
+            Log.e(TAG, e.getMessage(), e);
+        } finally {
+            cursor.close();
+        }
+
+        return dataList;
+
+    }
 
     public WorkoutInfo select(long startTime) {
         List<WorkoutInfo> workoutInfos = this.select(startTime, 0);
+        if (workoutInfos.isEmpty()) {
+            throw new SQLiteException(startTime + " not found");
+        }
         return workoutInfos.get(0);
     }
     public boolean exists(long startTime) {
@@ -170,6 +209,20 @@ public class WorkoutTable extends AbstractTable {
         ContentValues values = new ContentValues();
 
         values.put("synced", 1);
+
+        int updated = this.db.update(TABLE_NAME, values, where, whereArgs);
+
+
+        return (updated > 0);
+
+    }
+    public boolean initializeSynced() {
+        String where = null;
+        String[] whereArgs = null;
+
+        ContentValues values = new ContentValues();
+
+        values.put("synced", 0);
 
         int updated = this.db.update(TABLE_NAME, values, where, whereArgs);
 

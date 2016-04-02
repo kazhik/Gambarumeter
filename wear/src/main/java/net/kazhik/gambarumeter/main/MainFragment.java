@@ -53,6 +53,7 @@ import net.kazhik.gambarumeter.pager.PagerFragment;
 import net.kazhik.gambarumeterlib.storage.DataStorage;
 import net.kazhik.gambarumeterlib.storage.WorkoutTable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -66,7 +67,8 @@ public abstract class MainFragment extends PagerFragment
         UserInputManager.UserInputListener,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        DataApi.DataListener, ResultCallback<DataItemBuffer> {
+        DataApi.DataListener,
+        ResultCallback<DataItemBuffer> {
     private SensorManager sensorManager;
 
     protected Stopwatch stopwatch;
@@ -103,7 +105,7 @@ public abstract class MainFragment extends PagerFragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Log.d(TAG, "onCreate:" + savedInstanceState);
+        Log.d(TAG, "onCreate: savedInstanceState = " + savedInstanceState);
 
         this.initializeSensor();
 
@@ -130,14 +132,11 @@ public abstract class MainFragment extends PagerFragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        Log.d(TAG, "onCreateView");
         return inflater.inflate(R.layout.main, container, false);
     }
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
-        Log.d(TAG, "onActivityCreated: ");
 
         this.initializeUI();
 
@@ -150,14 +149,7 @@ public abstract class MainFragment extends PagerFragment
         outState.putLong("start_time", this.stopwatch.getStartTime());
 
         super.onSaveInstanceState(outState);
-        Log.d(TAG, "onSaveInstanceState: " + outState.getLong("start_time"));
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-
-        Log.d(TAG, "onDestroyView: ");
+//        Log.d(TAG, "onSaveInstanceState: " + outState.getLong("start_time"));
     }
 
     private void voiceAction(Bundle savedInstanceState) {
@@ -305,6 +297,7 @@ public abstract class MainFragment extends PagerFragment
 
     }
     private void sendDataToMobile(PutDataRequest putDataReq) {
+        Log.d(TAG, "putDataItem:" + putDataReq.getUri().getPath());
         PendingResult<DataApi.DataItemResult> pendingResult =
                 Wearable.DataApi.putDataItem(this.googleApiClient, putDataReq);
 
@@ -312,8 +305,13 @@ public abstract class MainFragment extends PagerFragment
             @Override
             public void onResult(DataApi.DataItemResult dataItemResult) {
                 DataItem item = dataItemResult.getDataItem();
+
                 if (item != null) {
-                    Log.d(TAG, "putDataItem done: " + item.getUri());
+                    Log.d(TAG, "putDataItem:" + item.getUri().getPath() +
+                            " isSuccess=" + dataItemResult.getStatus().isSuccess());
+                } else {
+                    Log.d(TAG, "putDataItem: isSuccess=" +
+                            dataItemResult.getStatus().isSuccess());
                 }
             }
         });
@@ -417,52 +415,50 @@ public abstract class MainFragment extends PagerFragment
     // GoogleApiClient.ConnectionCallbacks
     @Override
     public void onConnected(Bundle bundle) {
-        Log.d(TAG, "onConnected");
+        Log.d(TAG, "GoogleApiClient onConnected");
         Wearable.DataApi.addListener(this.googleApiClient, this);
         PendingResult<DataItemBuffer> results =
                 Wearable.DataApi.getDataItems(this.googleApiClient);
         results.setResultCallback(this);
-
-        this.sendNotSyncedData();
+        this.sendNotSynced();
 
     }
+    private void initialize() {
+        WorkoutTable workoutTable = new WorkoutTable(this.getActivity());
+        workoutTable.openWritable();
+        workoutTable.initializeSynced();
+        workoutTable.close();
 
+    }
     private DataMap getNotSyncedDataMap(DataMap dataMap) {
         WorkoutTable workoutTable = new WorkoutTable(this.getActivity());
         workoutTable.openReadonly();
-        List<Long> notSyncedList = workoutTable.selectNotSynced();
+        List<Long> notSynced = workoutTable.selectNotSynced();
         workoutTable.close();
 
-        Log.d(TAG, "not synced: " + notSyncedList.size());
-        if (notSyncedList.isEmpty()) {
+        if (notSynced.isEmpty()) {
             return dataMap;
         }
+        Log.d(TAG, "not synced: " + notSynced.size());
 
-        long[] notSyncedArray = new long[notSyncedList.size()];
-        for (int i = 0; i < notSyncedList.size(); i++) {
-            notSyncedArray[i] = notSyncedList.get(i);
+        long[] notSyncedArray = new long[notSynced.size()];
+        for (int i = 0; i < notSynced.size(); i++) {
+            notSyncedArray[i] = notSynced.get(i);
         }
         dataMap.putLongArray(DataStorage.COL_START_TIME, notSyncedArray);
 
         return dataMap;
     }
-    private void sendNotSyncedData() {
-        /*
-        AsyncTask.execute(new Runnable() {
 
-            @Override
-            public void run() {
-                MainFragment.this.sendNotSyncedData();
-            }
-        });
-        */
-        PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/unsaved");
+
+    private void sendNotSynced() {
+        PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/notsynced");
 
         DataMap dataMap = this.getNotSyncedDataMap(putDataMapReq.getDataMap());
         if (dataMap.isEmpty()) {
             return;
         }
-        Log.d(TAG, "not synced: " + dataMap.toString());
+        Log.d(TAG, "notsynced: " + putDataMapReq.getDataMap().toString());
 
         this.sendDataToMobile(putDataMapReq.asPutDataRequest());
     }
@@ -484,7 +480,6 @@ public abstract class MainFragment extends PagerFragment
     // DataApi.DataListener
     @Override
     public void onDataChanged(DataEventBuffer dataEvents) {
-        Log.d(TAG, "onDataChanged");
         for (DataEvent event : dataEvents) {
             if (event.getType() == DataEvent.TYPE_CHANGED) {
                 this.handleDataItem(event.getDataItem());
@@ -493,43 +488,91 @@ public abstract class MainFragment extends PagerFragment
     }
     private void handleDataItem(DataItem item) {
         String dataPath = item.getUri().getPath();
-        Log.d(TAG, "handleDataItem: " + dataPath);
         DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
         switch (dataPath) {
             case "/config":
-//                    updateConfig(dataMap);
+                Log.d(TAG, "handleDataItem: " + dataPath);
+                updateConfig(dataMap);
                 break;
-            case "/unknown":
-                this.resendData(dataMap.getLongArray(DataStorage.COL_START_TIME));
+            case "/synced":
+                Log.d(TAG, "handleDataItem: " + dataPath);
+                List<Long> notSynced = this.updateSynced(dataMap);
+                if (!notSynced.isEmpty()) {
+                    Log.d(TAG, "not synced: " + notSynced.size());
+                    this.resendData(notSynced);
+                }
+                break;
+            default:
                 break;
         }
 
     }
 
-    private void resendData(long[] unknowns) {
+    private void updateConfig(DataMap dataMap) {
+        SharedPreferences.Editor editor = this.prefs.edit();
+        for (String key: dataMap.keySet()) {
+            String value = dataMap.getString(key);
+            Log.d(TAG, "updateConfig: " + key + "=" + value);
+            editor.putString(key, value);
+        }
+        editor.apply();
+
+    }
+    private List<Long> updateSynced(DataMap dataMap) {
+        List<Long> notSynced = new ArrayList<>();
+        WorkoutTable workoutTable = new WorkoutTable(this.getActivity());
+        workoutTable.openWritable();
+        for (String startTimeStr: dataMap.keySet()) {
+            long startTime = Long.valueOf(startTimeStr);
+            if (dataMap.getBoolean(startTimeStr) == true) {
+                boolean ret = workoutTable.updateSynced(startTime);
+                Log.d(TAG, "updateSynced: " + startTimeStr + " synced=" + ret);
+            } else {
+                notSynced.add(startTime);
+                Log.d(TAG, "updateSynced: " + startTimeStr + " not synced");
+            }
+        }
+        workoutTable.close();
+
+        return notSynced;
+    }
+
+    private void resendData(List<Long> notSynced) {
         Context context = this.getActivity();
-        for (long startTime: unknowns) {
-            Log.d(TAG, "resend startTime: " + startTime);
+        for (long startTime: notSynced) {
+            Log.d(TAG, "resendData: " + startTime);
             DataStorage dataStorage = new DataStorage(context);
             DataMap dataMap = dataStorage.load(startTime);
             dataStorage.close();
 
-            PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/resend");
+            DataMap workoutDataMap = dataMap.getDataMap(DataStorage.TBL_WORKOUT);
+            if (workoutDataMap == null) {
+                continue;
+            }
+//            Log.d(TAG, "resend: " + workoutDataMap.toString());
+
+            final PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/resend");
 
             // put data on datamap
             DataMap sendData = putDataMapReq.getDataMap();
             sendData.putAll(dataMap);
 
-            Log.d(TAG, "resend: " + sendData.getDataMap(DataStorage.TBL_WORKOUT).toString());
-            this.sendDataToMobile(putDataMapReq.asPutDataRequest());
+            sendData.putLong("updateTime", System.currentTimeMillis());
+            Log.d(TAG, "resend: " + putDataMapReq.getDataMap().toString());
 
-            WorkoutTable workoutTable = new WorkoutTable(context);
-            workoutTable.openWritable();
-            workoutTable.updateSynced(startTime);
-            workoutTable.close();
+            this.sendDataToMobile(putDataMapReq.asPutDataRequest());
+            /*
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    sendDataToMobile(putDataMapReq.asPutDataRequest());
+                }
+            }, 1000);
+            */
             break;
         }
     }
+
     @Override
     public void onStart() {
         super.onStart();
@@ -553,10 +596,11 @@ public abstract class MainFragment extends PagerFragment
 
     @Override
     public void onResult(DataItemBuffer dataItems) {
-        Log.d(TAG, "onResult:");
         for (DataItem dataItem : dataItems) {
             this.handleDataItem(dataItem);
         }
         dataItems.release();
     }
+
+
 }

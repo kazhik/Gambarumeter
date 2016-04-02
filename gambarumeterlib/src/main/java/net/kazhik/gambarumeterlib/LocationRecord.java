@@ -88,7 +88,6 @@ public class LocationRecord {
         Distance latestMove = this.calculateDistance(location);
         if (this.prevLocation != null) {
             if (latestMove.getDistance() == 0.0f) {
-                Log.d(TAG, "Not moved");
                 return 0;
             }
         }

@@ -36,15 +36,16 @@ public abstract class NotificationView {
 
         NotificationCompat.WearableExtender extender = new NotificationCompat.WearableExtender()
                 .setDisplayIntent(pendingIntent)
-                .setBackground(bmp)
-                .setCustomSizePreset(NotificationCompat.WearableExtender.SIZE_DEFAULT);
+                .setCustomSizePreset(NotificationCompat.WearableExtender.SIZE_SMALL)
+                .setBackground(bmp);
+
 
         this.notificationBuilder = new NotificationCompat.Builder(context)
                 .setSmallIcon(R.drawable.ic_launcher)
                 .setOnlyAlertOnce(true)
-                .extend(extender)
-//                .setPriority(NotificationCompat.PRIORITY_MAX)
-                .setOngoing(true);
+                .setPriority(NotificationCompat.PRIORITY_MAX)
+                .setOngoing(true)
+                .extend(extender);
     }
     public Context getContext() {
         return this.context;

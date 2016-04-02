@@ -21,17 +21,8 @@ public class WearGambarumeter extends Activity {
     private static final String TAG = "Gambarumeter";
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
-        Log.d(TAG, "onDestroy: ");
-    }
-
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        Log.d(TAG, "onCreate");
 
         setContentView(R.layout.pager);
 
