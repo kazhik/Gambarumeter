@@ -139,7 +139,7 @@ public class HeartRateMonitor extends SensorService {
         if (sensorValue[0] != this.currentValue.getValue()) {
             this.listener.onHeartRateChanged(newTimestamp, (int)sensorValue[0]);
             if (this.started) {
-                this.queue.add(new SensorValue(timestamp, sensorValue[0], accuracy));
+                this.queue.add(new SensorValue(newTimestamp, sensorValue[0], accuracy));
             }
         }
 

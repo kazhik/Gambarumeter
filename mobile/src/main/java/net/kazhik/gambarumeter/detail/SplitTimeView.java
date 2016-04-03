@@ -59,8 +59,8 @@ public class SplitTimeView implements DetailView {
             map.put("stepcount", String.valueOf(currStepCount - prevStepCount));
             prevStepCount = currStepCount;
 
-            //TODO: heartrate
-            map.put("heartrate", "0");
+            int heartRate = splitTime.getHeartRate();
+            map.put("heartrate", String.valueOf(heartRate));
 
             this.mapList.add(map);
         }

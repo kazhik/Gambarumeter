@@ -5,14 +5,18 @@ package net.kazhik.gambarumeterlib.entity;
  */
 public class SplitTimeStepCount extends SplitTime {
     private int stepCount;
+    private int heartRate;
 
     public SplitTimeStepCount(long timestamp, float distance, int stepCount) {
         super(timestamp, distance);
         this.stepCount = stepCount;
+        this.heartRate = 0;
     }
 
-    public SplitTimeStepCount(long timestamp, float distance) {
+    public SplitTimeStepCount(long timestamp, float distance, int stepCount, int heartRate) {
         super(timestamp, distance);
+        this.stepCount = stepCount;
+        this.heartRate = heartRate;
     }
 
     public int getStepCount() {
@@ -22,5 +26,13 @@ public class SplitTimeStepCount extends SplitTime {
     public SplitTimeStepCount setStepCount(int stepCount) {
         this.stepCount = stepCount;
         return this;
+    }
+
+    public int getHeartRate() {
+        return heartRate;
+    }
+
+    public void setHeartRate(int heartRate) {
+        this.heartRate = heartRate;
     }
 }

@@ -26,7 +26,11 @@ public class SplitTimeDataView extends AbstractTable {
                 "(select step_count from gm_stepcount b " +
                 " where a.start_time = b.start_time " +
                 " and b.timestamp <= a.timestamp " +
-                " order by b.timestamp desc limit 1) as stepcount " +
+                " order by b.timestamp desc limit 1) as stepcount, " +
+                "(select heart_rate from gm_heartrate c " +
+                " where a.start_time = c.start_time " +
+                " and c.timestamp <= a.timestamp " +
+                " order by c.timestamp desc limit 1) as heartrate " +
                 "from gm_lap a " +
                 "where a.start_time = ? " +
                 "order by a.timestamp";
@@ -46,7 +50,8 @@ public class SplitTimeDataView extends AbstractTable {
             while (!cursor.isAfterLast()) {
                 SplitTimeStepCount splitTimeStepCount =
                         new SplitTimeStepCount(this.parseDate(cursor.getString(0)),
-                                cursor.getFloat(1), cursor.getInt(2));
+                                cursor.getFloat(1), cursor.getInt(2),
+                                cursor.getInt(3));
                 dataList.add(splitTimeStepCount);
                 cursor.moveToNext();
             }
