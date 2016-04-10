@@ -11,6 +11,7 @@ import android.util.Log;
 
 import com.google.android.gms.wearable.DataMap;
 
+import net.kazhik.gambarumeterlib.TimeUtil;
 import net.kazhik.gambarumeterlib.entity.SensorValue;
 import net.kazhik.gambarumeterlib.entity.SplitTime;
 import net.kazhik.gambarumeterlib.entity.WorkoutInfo;
@@ -199,11 +200,12 @@ public class DataStorage {
 
         return dataMap;
     }
-    public void save(DataMap dataMap) {
+    public boolean save(DataMap dataMap) {
 
         DataMap workoutDataMap = dataMap.getDataMap(DataStorage.TBL_WORKOUT);
         long startTime = workoutDataMap.getLong(DataStorage.COL_START_TIME);
 
+        boolean success = true;
 
         SQLiteDatabase db = this.open();
         db.beginTransaction();
@@ -266,15 +268,18 @@ public class DataStorage {
 
             db.setTransactionSuccessful();
         } catch (SQLiteConstraintException e) {
-            Log.w(TAG, "Already exists: startTime=" + startTime);
+            Log.w(TAG, "Already exists: startTime=" +
+                    TimeUtil.formatDateTime(this.context, startTime));
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
+            success = false;
         } finally {
             db.endTransaction();
         }
 
         this.close();
 
+        return success;
 
     }
     public void delete(long startTime) {
