@@ -1,5 +1,9 @@
 package net.kazhik.gambarumeterlib;
 
+import android.content.Context;
+import android.text.format.DateUtils;
+import android.util.Log;
+
 /**
  * Created by kazhik on 14/12/29.
  */
@@ -16,6 +20,13 @@ public class TimeUtil {
     public static String formatMsec(long splitTime) {
         long splitTimeSec = splitTime / 1000;
         return formatSec(splitTimeSec);
+    }
+    public static String formatDateTime(Context context, long millis) {
+        int flag = DateUtils.FORMAT_SHOW_YEAR |
+                DateUtils.FORMAT_SHOW_DATE |
+                DateUtils.FORMAT_SHOW_TIME;
+
+        return DateUtils.formatDateTime(context, millis, flag);
     }
 
 }
