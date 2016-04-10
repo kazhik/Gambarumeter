@@ -334,6 +334,7 @@ public class MobileGambarumeter extends AppCompatActivity
 
     }
     private void handleDataItem(DataItem item) {
+        boolean success;
         String dataPath = item.getUri().getPath();
         DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
         switch (dataPath) {
@@ -342,6 +343,19 @@ public class MobileGambarumeter extends AppCompatActivity
                 Log.d(TAG, "handleDataItem: " + dataPath);
                 this.saveData(dataMap);
                 break;
+            case "/resync":
+                Log.d(TAG, "handleDataItem: " + dataPath);
+                success = this.saveData(dataMap);
+                Log.d(TAG, "handleDataItem: saved=" + success);
+                if (success) {
+                    DataMap workoutDataMap = dataMap.getDataMap(DataStorage.TBL_WORKOUT);
+                    long startTime = workoutDataMap.getLong(DataStorage.COL_START_TIME);
+                    List<History> hist = new ArrayList<>();
+                    hist.add(new History(startTime, true));
+                    this.resyncResult(hist);
+                }
+                break;
+            /*
             case "/resend":
                 Log.d(TAG, "handleDataItem: " + dataPath);
                 this.saveData(dataMap);
@@ -349,8 +363,9 @@ public class MobileGambarumeter extends AppCompatActivity
             case "/notsynced":
                 Log.d(TAG, "handleDataItem: " + dataPath);
                 List<History> history = this.checkExists(dataMap);
-                this.sendHistory(history);
+                this.resyncResult(history);
                 break;
+            */
             default:
                 break;
         }
@@ -392,13 +407,15 @@ public class MobileGambarumeter extends AppCompatActivity
 
         return unknownList;
     }
-    private void sendHistory(List<History> history) {
-        PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/synced");
+    private void resyncResult(List<History> history) {
+        PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/resynced");
 
         DataMap dataMap = putDataMapReq.getDataMap();
 
         for (History data: history) {
-            dataMap.putBoolean(String.valueOf(data.getStartTime()), data.exists());
+            String startTimeStr = String.valueOf(data.getStartTime());
+            Log.d(TAG, "resyncResult: " + startTimeStr + " exists=" + data.exists());
+            dataMap.putBoolean(startTimeStr, data.exists());
         }
 
         PendingResult<DataApi.DataItemResult> pendingResult =
@@ -408,7 +425,10 @@ public class MobileGambarumeter extends AppCompatActivity
         pendingResult.setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
             @Override
             public void onResult(DataApi.DataItemResult dataItemResult) {
-                Log.d(TAG, "putDataItem done: ");
+                Log.d(TAG, "putDataItem done: " +
+                        dataItemResult.getDataItem().getUri().getPath() +
+                        " isSuccess=" +
+                        dataItemResult.getStatus().isSuccess());
             }
         });
     }
@@ -455,11 +475,27 @@ public class MobileGambarumeter extends AppCompatActivity
 
     }
 
-    private void saveData(DataMap dataMap) {
+    private boolean saveData(DataMap dataMap) {
 
+        boolean success;
         DataStorage dataStorage = new DataStorage(this);
-        dataStorage.save(dataMap);
+        success = dataStorage.save(dataMap);
         dataStorage.close();
 
+        return success;
+    }
+
+    private void clearItems(String path) {
+        PutDataMapRequest putDataMapReq = PutDataMapRequest.create(path);
+
+        PendingResult<DataApi.DeleteDataItemsResult> result =
+                Wearable.DataApi.deleteDataItems(this.mGoogleApiClient, putDataMapReq.getUri());
+        result.setResultCallback(new ResultCallback<DataApi.DeleteDataItemsResult>() {
+            @Override
+            public void onResult(DataApi.DeleteDataItemsResult deleteDataItemsResult) {
+                Log.d(TAG, "deleteDataItems: success=" +
+                        deleteDataItemsResult.getStatus().isSuccess());
+            }
+        });
     }
 }
