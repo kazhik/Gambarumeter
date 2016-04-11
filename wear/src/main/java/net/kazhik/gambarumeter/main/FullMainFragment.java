@@ -24,7 +24,7 @@ import java.util.Date;
 /**
  * Created by kazhik on 16/01/21.
  */
-public class FullMainFragment extends LocationMainFragment
+public class FullMainFragment extends GpsMainFragment
         implements HeartRateSensorValueListener {
 
     private SensorManager sensorManager;

@@ -13,8 +13,8 @@ import net.kazhik.gambarumeter.history.FullHistoryFragment;
 import net.kazhik.gambarumeter.history.HeartRateHistoryFragment;
 import net.kazhik.gambarumeter.history.LocationHistoryFragment;
 import net.kazhik.gambarumeter.main.FullMainFragment;
+import net.kazhik.gambarumeter.main.GpsMainFragment;
 import net.kazhik.gambarumeter.main.HeartRateMainFragment;
-import net.kazhik.gambarumeter.main.LocationMainFragment;
 
 /**
  * Created by kazhik on 14/11/11.
@@ -45,7 +45,7 @@ public class PagerAdapter extends FragmentGridPagerAdapter
             } else {
                 this.fragments = new PagerFragment[][]{
                         {
-                                new LocationMainFragment(),
+                                new GpsMainFragment(),
                                 new LocationHistoryFragment()
                         }
                 };

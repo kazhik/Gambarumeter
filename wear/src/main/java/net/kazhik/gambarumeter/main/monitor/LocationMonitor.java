@@ -1,0 +1,172 @@
+package net.kazhik.gambarumeter.main.monitor;
+
+import android.app.Service;
+import android.content.Context;
+import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Binder;
+import android.os.Bundle;
+import android.os.IBinder;
+import android.util.Log;
+
+import com.google.android.gms.wearable.DataMap;
+
+import net.kazhik.gambarumeterlib.DistanceUtil;
+import net.kazhik.gambarumeterlib.LocationRecord;
+import net.kazhik.gambarumeterlib.entity.SplitTime;
+import net.kazhik.gambarumeterlib.storage.DataStorage;
+import net.kazhik.gambarumeterlib.storage.LocationTable;
+import net.kazhik.gambarumeterlib.storage.SplitTable;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Sequence of GPS monitoring:
+ * 
+ * MainFragment#initializeSensor
+ *   bindService ( creates LocationMonitor)
+ * MainFragment#onServiceConnected
+ *   LocationMonitor#init
+ * LocationMonitor#onLocationChanged
+ *
+ * Created by kazhik on 14/11/29.
+ */
+public class LocationMonitor extends Service
+        implements LocationListener {
+    
+    private Context context;
+
+    private GeolocationBinder binder = new GeolocationBinder();
+    private LocationSensorValueListener listener;
+    private LocationRecord record = new LocationRecord();
+    private LocationManager locationManager;
+    private DistanceUtil distanceUtil;
+
+    private static final int UPDATE_INTERVAL_MS = 5000;
+    private static final int UPDATE_DISTANCE = 5;
+    private static final String TAG = "LocationMonitor";
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        return this.binder;
+    }
+
+    public class GeolocationBinder extends Binder {
+
+        public LocationMonitor getService() {
+            return LocationMonitor.this;
+        }
+    }
+
+    public void init(Context context, LocationSensorValueListener listener) {
+        this.context = context;
+        this.listener = listener;
+
+        this.locationManager =
+                (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+        this.locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                UPDATE_INTERVAL_MS, UPDATE_DISTANCE, this);
+
+        this.distanceUtil = DistanceUtil.getInstance(context);
+    }
+    public void start() {
+        this.record.init(this.distanceUtil.lapDistance());
+        this.record.addLap(System.currentTimeMillis());
+    }
+    public void stop() {
+        this.record.addLap(System.currentTimeMillis());
+
+    }
+    public float getDistance() {
+        return this.record.getDistance();
+    }
+    private List<Location> getLocationList() {
+        return this.record.getLocationList();
+    }
+    private List<SplitTime> getSplits() {
+        return this.record.getSplits();
+    }
+
+    public DataMap putData(DataMap dataMap) {
+        ArrayList<DataMap> locationMapList = new ArrayList<>();
+        for (Location loc: this.getLocationList()) {
+            DataMap locMap = new DataMap();
+            locMap.putLong(DataStorage.COL_TIMESTAMP, loc.getTime());
+            locMap.putDouble(DataStorage.COL_LATITUDE, loc.getLatitude());
+            locMap.putDouble(DataStorage.COL_LONGITUDE, loc.getLongitude());
+            locMap.putDouble(DataStorage.COL_ALTITUDE, loc.getAltitude());
+            locMap.putFloat(DataStorage.COL_ACCURACY, loc.getAccuracy());
+
+            locationMapList.add(locMap);
+
+        }
+        dataMap.putDataMapArrayList(DataStorage.TBL_LOCATION, locationMapList);
+
+        ArrayList<DataMap> splitMapList = new ArrayList<>();
+        for (SplitTime split: this.getSplits()) {
+            DataMap splitMap = new DataMap();
+            splitMap.putLong(DataStorage.COL_TIMESTAMP, split.getTimestamp());
+            splitMap.putFloat(DataStorage.COL_DISTANCE, split.getDistance());
+
+            splitMapList.add(splitMap);
+        }
+        dataMap.putDataMapArrayList(DataStorage.TBL_SPLITTIME, splitMapList);
+
+        return dataMap;
+    }
+    public void saveResult(SQLiteDatabase db, long startTime) {
+        LocationTable locTable = new LocationTable(this.context, db);
+        for (Location loc: this.getLocationList()) {
+            Log.d(TAG, "saveResult:" + loc.getTime());
+            locTable.insert(startTime, loc);
+        }
+
+        SplitTable splitTable = new SplitTable(this.context, db);
+        for (SplitTime split: this.getSplits()) {
+            splitTable.insert(split.getTimestamp(), startTime, split.getDistance());
+        }
+
+    }
+    public void terminate() {
+        Log.d(TAG, "terminate: ");
+    }
+
+    // LocationListener
+    @Override
+    public void onLocationChanged(Location location) {
+        long lap = this.record.setNewLocation(location);
+        if (lap > 0) {
+            this.listener.onLap(location.getTime(),
+                    this.record.getDistance(),
+                    lap);
+        }
+        this.listener.onLocationChanged(location.getTime(),
+                this.record.getDistance(),
+                location.getSpeed());
+
+    }
+
+    // LocationListener
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
+    }
+
+    // LocationListener
+    @Override
+    public void onProviderEnabled(String provider) {
+
+    }
+
+    // LocationListener
+    @Override
+    public void onProviderDisabled(String provider) {
+
+    }
+
+}

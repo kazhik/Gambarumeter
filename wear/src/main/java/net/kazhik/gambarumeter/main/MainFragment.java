@@ -444,7 +444,7 @@ public abstract class MainFragment extends PagerFragment
         this.clearItems("/newdata");
         this.clearItems("/resynced");
         */
-        this.resync();
+//        this.resync();
 
     }
 
