@@ -4,6 +4,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
+import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -36,7 +37,7 @@ import java.util.List;
  * Created by kazhik on 14/11/29.
  */
 public class LocationMonitor extends Service
-        implements LocationListener {
+        implements LocationListener, GpsStatus.Listener {
     
     private Context context;
 
@@ -71,6 +72,7 @@ public class LocationMonitor extends Service
 
         this.locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
                 UPDATE_INTERVAL_MS, UPDATE_DISTANCE, this);
+        this.locationManager.addGpsStatusListener(this);
 
         this.distanceUtil = DistanceUtil.getInstance(context);
     }
@@ -134,6 +136,8 @@ public class LocationMonitor extends Service
     }
     public void terminate() {
         Log.d(TAG, "terminate: ");
+        this.locationManager.removeUpdates(this);
+        this.locationManager.removeGpsStatusListener(this);
     }
 
     // LocationListener
@@ -166,6 +170,15 @@ public class LocationMonitor extends Service
     // LocationListener
     @Override
     public void onProviderDisabled(String provider) {
+
+    }
+
+    // GpsStatus.Listener
+    @Override
+    public void onGpsStatusChanged(int event) {
+        if (event == GpsStatus.GPS_EVENT_FIRST_FIX) {
+            this.listener.onLocationAvailable();
+        }
 
     }
 
