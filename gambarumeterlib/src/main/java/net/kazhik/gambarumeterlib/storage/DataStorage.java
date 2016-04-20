@@ -275,6 +275,7 @@ public class DataStorage {
             success = false;
         } finally {
             db.endTransaction();
+            Log.d(TAG, "saved: " + TimeUtil.formatDateTime(this.context, startTime));
         }
 
         this.close();

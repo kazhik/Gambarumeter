@@ -7,6 +7,7 @@ import android.database.SQLException;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -24,6 +25,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.wearable.Asset;
 import com.google.android.gms.wearable.DataApi;
 import com.google.android.gms.wearable.DataEvent;
 import com.google.android.gms.wearable.DataEventBuffer;
@@ -34,9 +36,12 @@ import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.Wearable;
 
+import net.kazhik.gambarumeterlib.TimeUtil;
 import net.kazhik.gambarumeterlib.storage.DataStorage;
-import net.kazhik.gambarumeterlib.storage.WorkoutTable;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -340,81 +345,29 @@ public class MobileGambarumeter extends AppCompatActivity
         switch (dataPath) {
             case "/newdata":
             case "/database":
-                Log.d(TAG, "handleDataItem: " + dataPath);
-                this.saveData(dataMap);
+                success = this.saveData(dataMap);
+                Log.d(TAG, "handleDataItem: " + dataPath + " saved=" + success);
                 break;
             case "/resync":
-                Log.d(TAG, "handleDataItem: " + dataPath);
-                success = this.saveData(dataMap);
-                Log.d(TAG, "handleDataItem: saved=" + success);
-                if (success) {
-                    DataMap workoutDataMap = dataMap.getDataMap(DataStorage.TBL_WORKOUT);
-                    long startTime = workoutDataMap.getLong(DataStorage.COL_START_TIME);
-                    List<History> hist = new ArrayList<>();
-                    hist.add(new History(startTime, true));
-                    this.resyncResult(hist);
-                }
+                success = this.saveResyncData(dataMap);
+                Log.d(TAG, "handleDataItem: " + dataPath + " saved=" + success);
                 break;
-            /*
-            case "/resend":
-                Log.d(TAG, "handleDataItem: " + dataPath);
-                this.saveData(dataMap);
-                break;
-            case "/notsynced":
-                Log.d(TAG, "handleDataItem: " + dataPath);
-                List<History> history = this.checkExists(dataMap);
-                this.resyncResult(history);
-                break;
-            */
             default:
                 break;
         }
 
     }
-    private List<History> checkExists(DataMap dataMap) {
-        long[] received = dataMap.getLongArray(DataStorage.COL_START_TIME);
-        List<History> history = new ArrayList<>();
 
-        if (received == null || received.length == 0) {
-            return history;
-        }
-        WorkoutTable workoutTable = new WorkoutTable(this);
-        workoutTable.openReadonly();
-        for (long startTime: received) {
-            boolean exists = workoutTable.exists(startTime);
-            history.add(new History(startTime, exists));
-            Log.d(TAG, "startTime: " + startTime + ": exists=" + exists);
-        }
-        workoutTable.close();
-
-        return history;
-    }
-
-    private List<Long> checkUnsaved(DataMap dataMap) {
-        long[] unsaved = dataMap.getLongArray(DataStorage.COL_START_TIME);
-        List<Long> unknownList = new ArrayList<>();
-
-        WorkoutTable workoutTable = new WorkoutTable(this);
-        workoutTable.openReadonly();
-        for (long startTime: unsaved) {
-            boolean exists = workoutTable.exists(startTime);
-            if (!exists) {
-                unknownList.add(startTime);
-            }
-            Log.d(TAG, "startTime: " + startTime + ": exists=" + exists);
-        }
-        workoutTable.close();
-
-        return unknownList;
-    }
-    private void resyncResult(List<History> history) {
-        PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/resynced");
+    private void sendSyncResult(List<History> history) {
+        PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/synced");
 
         DataMap dataMap = putDataMapReq.getDataMap();
 
         for (History data: history) {
             String startTimeStr = String.valueOf(data.getStartTime());
-            Log.d(TAG, "resyncResult: " + startTimeStr + " exists=" + data.exists());
+            Log.d(TAG, "sendSyncResult: " +
+                    TimeUtil.formatDateTime(this, data.getStartTime()) +
+                    " exists=" + data.exists());
             dataMap.putBoolean(startTimeStr, data.exists());
         }
 
@@ -422,6 +375,7 @@ public class MobileGambarumeter extends AppCompatActivity
                 Wearable.DataApi.putDataItem(this.mGoogleApiClient,
                         putDataMapReq.asPutDataRequest());
 
+        Log.d(TAG, "putDataItem: " + putDataMapReq.getUri().getPath());
         pendingResult.setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
             @Override
             public void onResult(DataApi.DataItemResult dataItemResult) {
@@ -429,30 +383,6 @@ public class MobileGambarumeter extends AppCompatActivity
                         dataItemResult.getDataItem().getUri().getPath() +
                         " isSuccess=" +
                         dataItemResult.getStatus().isSuccess());
-            }
-        });
-    }
-    private void sendUnknownStartTime(List<Long> unknownList) {
-
-        long[] unknowns = new long[unknownList.size()];
-        for (int i = 0; i < unknownList.size(); i++) {
-            unknowns[i] = unknownList.get(i);
-        }
-
-        PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/unknown");
-
-        DataMap dataMap = putDataMapReq.getDataMap();
-        dataMap.putLongArray(DataStorage.COL_START_TIME, unknowns);
-
-        PendingResult<DataApi.DataItemResult> pendingResult =
-                Wearable.DataApi.putDataItem(this.mGoogleApiClient,
-                        putDataMapReq.asPutDataRequest());
-
-        pendingResult.setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
-            @Override
-            public void onResult(DataApi.DataItemResult dataItemResult) {
-                Log.d(TAG, "putDataItem done: " +
-                        dataItemResult.getDataItem().getUri().getPath());
             }
         });
     }
@@ -482,7 +412,53 @@ public class MobileGambarumeter extends AppCompatActivity
         success = dataStorage.save(dataMap);
         dataStorage.close();
 
+        if (success) {
+            DataMap workoutDataMap = dataMap.getDataMap(DataStorage.TBL_WORKOUT);
+            long startTime = workoutDataMap.getLong(DataStorage.COL_START_TIME);
+            List<History> hist = new ArrayList<>();
+            hist.add(new History(startTime, true));
+            this.sendSyncResult(hist);
+        }
+
         return success;
+    }
+
+    private boolean saveResyncData(final DataMap dataMap) {
+        AsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+                Asset resyncAsset = dataMap.getAsset("data");
+                InputStream is = Wearable.DataApi.getFdForAsset(
+                        mGoogleApiClient, resyncAsset).await().getInputStream();
+                mGoogleApiClient.disconnect();
+
+                ByteArrayOutputStream buffer = null;
+                try {
+                    buffer = new ByteArrayOutputStream();
+
+                    int nRead;
+                    byte[] data = new byte[16384];
+
+                    while ((nRead = is.read(data, 0, data.length)) != -1) {
+                        buffer.write(data, 0, nRead);
+                    }
+
+                    buffer.flush();
+                    DataMap dataMap = DataMap.fromByteArray(buffer.toByteArray());
+
+                    saveData(dataMap);
+
+                } catch (IOException e) {
+                    Log.e(TAG, e.getMessage(), e);
+                } finally {
+                }
+
+            }
+        });
+
+
+
+        return true;
     }
 
     private void clearItems(String path) {

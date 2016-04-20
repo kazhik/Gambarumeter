@@ -236,7 +236,7 @@ public class MainFragment extends DrawerFragment {
             resultStr += "/" + stepCountStr;
 
             map.put("result", resultStr);
-            Log.d(TAG, "startTime: " + map.get("startTime") + ":" + map.get("startTimeStr"));
+//            Log.d(TAG, "startTime: " + map.get("startTime") + ":" + map.get("startTimeStr"));
             this.mapList.add(map);
 
         }

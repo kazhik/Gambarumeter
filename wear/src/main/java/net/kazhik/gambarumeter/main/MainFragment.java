@@ -31,6 +31,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.wearable.Asset;
 import com.google.android.gms.wearable.DataApi;
 import com.google.android.gms.wearable.DataEvent;
 import com.google.android.gms.wearable.DataEventBuffer;
@@ -312,8 +313,8 @@ public abstract class MainFragment extends PagerFragment
                     Log.d(TAG, "putDataItem:" + item.getUri().getPath() +
                             " isSuccess=" + dataItemResult.getStatus().isSuccess());
                 } else {
-                    Log.d(TAG, "putDataItem: isSuccess=" +
-                            dataItemResult.getStatus().isSuccess());
+                    Log.d(TAG, "putDataItem: Status=" +
+                            dataItemResult.getStatus().toString());
                 }
             }
         });
@@ -438,13 +439,7 @@ public abstract class MainFragment extends PagerFragment
                 Wearable.DataApi.getDataItems(this.googleApiClient);
         results.setResultCallback(this);
 
-        /*
-        this.clearItems("/resync");
-        this.clearItems("/database");
-        this.clearItems("/newdata");
-        this.clearItems("/resynced");
-        */
-//        this.resync();
+        this.resync();
 
     }
 
@@ -486,12 +481,10 @@ public abstract class MainFragment extends PagerFragment
         return dataMap;
     }
 
-
     private void resync() {
         List<Long> notSynced = this.getNotSynced();
-        for (long startTime: notSynced) {
-            this.resync(startTime);
-            break; // one record
+        if (!notSynced.isEmpty()) {
+            this.resync(notSynced.get(0));
         }
     }
 
@@ -512,11 +505,20 @@ public abstract class MainFragment extends PagerFragment
         final PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/resync");
 
         // put data on datamap
+        Asset asset = Asset.createFromBytes(dataMap.toByteArray());
         DataMap sendData = putDataMapReq.getDataMap();
-        sendData.putAll(dataMap);
+        sendData.putAsset("data", asset);
 
-        //sendData.putLong("updateTime", System.currentTimeMillis());
-        Log.d(TAG, "resync: " + putDataMapReq.getDataMap().toString());
+        byte[] byteArray = sendData.getAsset("data").getData();
+        if (byteArray == null || byteArray.length == 0) {
+            Log.d(TAG, "resync: no asset: " + sendData.toString());
+            return;
+        }
+        byte[] assetdata = putDataMapReq.getDataMap().getAsset("data").getData();
+        DataMap dMap = DataMap.fromByteArray(assetdata);
+        Log.d(TAG, "resync: send asset: " + dMap.toString());
+
+//        sendData.putLong("updateTime", System.currentTimeMillis());
 
         this.sendDataToMobile(putDataMapReq.asPutDataRequest());
 
@@ -553,22 +555,11 @@ public abstract class MainFragment extends PagerFragment
                 Log.d(TAG, "handleDataItem: " + dataPath);
                 updateConfig(dataMap);
                 break;
-            /*
             case "/synced":
                 Log.d(TAG, "handleDataItem: " + dataPath);
-                final List<Long> notSynced = this.updateSynced(dataMap);
+                List<Long> notSynced = this.updateSynced(dataMap);
                 if (!notSynced.isEmpty()) {
                     Log.d(TAG, "not synced: " + notSynced.size());
-                    //this.resendData(notSynced);
-                }
-                break;
-            */
-            case "/resynced":
-                Log.d(TAG, "handleDataItem: " + dataPath);
-                final List<Long> notSynced = this.updateSynced(dataMap);
-                if (!notSynced.isEmpty()) {
-                    Log.d(TAG, "not synced: " + notSynced.size());
-                    //this.resendData(notSynced);
                 }
                 break;
             default:
@@ -589,64 +580,25 @@ public abstract class MainFragment extends PagerFragment
 
     }
     private List<Long> updateSynced(DataMap dataMap) {
+        Activity activity = this.getActivity();
         List<Long> notSynced = new ArrayList<>();
         WorkoutTable workoutTable = new WorkoutTable(this.getActivity());
         workoutTable.openWritable();
         for (String startTimeStr: dataMap.keySet()) {
-            Log.d(TAG, "updateSynced: " + startTimeStr);
             long startTime = Long.valueOf(startTimeStr);
             if (dataMap.getBoolean(startTimeStr) == true) {
                 boolean ret = workoutTable.updateSynced(startTime);
-                Log.d(TAG, "updateSynced: " + startTimeStr + " synced=" + ret);
+                Log.d(TAG, "updateSynced: " +
+                        TimeUtil.formatDateTime(activity, startTime) + " synced=" + ret);
             } else {
                 notSynced.add(startTime);
-                Log.d(TAG, "updateSynced: " + startTimeStr + " not synced");
+                Log.d(TAG, "updateSynced: " +
+                        TimeUtil.formatDateTime(activity, startTime) + " not synced");
             }
         }
         workoutTable.close();
 
         return notSynced;
-    }
-
-    private void sendNotSynced() {
-        PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/notsynced");
-
-        DataMap dataMap = this.getNotSyncedDataMap(putDataMapReq.getDataMap());
-        if (dataMap.isEmpty()) {
-            return;
-        }
-
-        this.sendDataToMobile(putDataMapReq.asPutDataRequest());
-    }
-
-
-    private void resendData(List<Long> notSynced) {
-        Context context = this.getActivity();
-        for (long startTime: notSynced) {
-            Log.d(TAG, "resendData: " + startTime);
-            DataStorage dataStorage = new DataStorage(context);
-            DataMap dataMap = dataStorage.load(startTime);
-            dataStorage.close();
-
-            DataMap workoutDataMap = dataMap.getDataMap(DataStorage.TBL_WORKOUT);
-            if (workoutDataMap == null) {
-                Log.d(TAG, "Workout data doesn't exist: " + startTime);
-                continue;
-            }
-            Log.d(TAG, "resend: " + workoutDataMap.toString());
-
-            final PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/resend");
-
-            // put data on datamap
-            DataMap sendData = putDataMapReq.getDataMap();
-            sendData.putAll(dataMap);
-
-            //sendData.putLong("updateTime", System.currentTimeMillis());
-            Log.d(TAG, "resend: " + putDataMapReq.getDataMap().toString());
-
-            this.sendDataToMobile(putDataMapReq.asPutDataRequest());
-            //break;
-        }
     }
 
     @Override
