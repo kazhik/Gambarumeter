@@ -136,8 +136,10 @@ public class LocationMonitor extends Service
     }
     public void terminate() {
         Log.d(TAG, "terminate: ");
-        this.locationManager.removeUpdates(this);
-        this.locationManager.removeGpsStatusListener(this);
+        if (this.locationManager != null) {
+            this.locationManager.removeUpdates(this);
+            this.locationManager.removeGpsStatusListener(this);
+        }
     }
 
     // LocationListener
