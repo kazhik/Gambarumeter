@@ -28,23 +28,24 @@ public abstract class NotificationView {
         this.context = context;
 
         Intent intent = new Intent(context, WearGambarumeter.class);
-        int flag = 0;
+        int flag = PendingIntent.FLAG_UPDATE_CURRENT;
         PendingIntent pendingIntent =
                 PendingIntent.getActivity(context, 0, intent, flag);
         Bitmap bmp = BitmapFactory.decodeResource(this.context.getResources(),
                 R.drawable.notification);
 
         NotificationCompat.WearableExtender extender = new NotificationCompat.WearableExtender()
-                .setDisplayIntent(pendingIntent)
-                .setCustomSizePreset(NotificationCompat.WearableExtender.SIZE_SMALL)
+//                .setDisplayIntent(pendingIntent)
+                .setCustomSizePreset(NotificationCompat.WearableExtender.SIZE_LARGE)
+                .setHintHideIcon(true)
                 .setBackground(bmp);
-
 
         this.notificationBuilder = new NotificationCompat.Builder(context)
                 .setSmallIcon(R.drawable.ic_launcher)
                 .setOnlyAlertOnce(true)
-                .setPriority(NotificationCompat.PRIORITY_MAX)
+//                .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setOngoing(true)
+                .setContentIntent(pendingIntent)
                 .extend(extender);
     }
     public Context getContext() {
@@ -81,13 +82,13 @@ public abstract class NotificationView {
         /*
         this.notificationBuilder
                 .setContentTitle(Html.fromHtml(
-                        "<b>" + this.makeSummaryText(elapsed) + "</b>"))
-                .setContentText(Html.fromHtml(
-                        "<b>" + this.makeDetailedText() + "</b>"));
+                        "<b>" + this.makeSummaryText(elapsed) + "</b>"));
          */
         this.notificationBuilder
                 .setContentTitle(Html.fromHtml(
-                        "<b>" + this.makeSummaryText(elapsed) + "</b>"));
+                        "<b>" + this.makeSummaryText(elapsed) + "</b>"))
+                .setContentText(Html.fromHtml(
+                        "<b>" + this.makeDetailedText() + "</b>"));
 
         NotificationManagerCompat.from(this.context)
                 .notify(NOTIFICATION_ID, this.notificationBuilder.build());
