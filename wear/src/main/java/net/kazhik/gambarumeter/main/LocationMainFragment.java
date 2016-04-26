@@ -19,7 +19,7 @@ import net.kazhik.gambarumeter.R;
 import net.kazhik.gambarumeter.main.monitor.GeolocationMonitor;
 import net.kazhik.gambarumeter.main.monitor.LocationSensorValueListener;
 import net.kazhik.gambarumeter.main.view.DistanceView;
-import net.kazhik.gambarumeter.main.view.LocationNotificationView;
+import net.kazhik.gambarumeter.main.notification.LocationNotificationView;
 import net.kazhik.gambarumeterlib.storage.DataStorage;
 import net.kazhik.gambarumeterlib.storage.WorkoutTable;
 
@@ -131,9 +131,8 @@ public class LocationMainFragment extends MainFragment
             this.locationMonitor.stop();
         }
 
-        this.notificationView.dismiss();
-
         super.stopWorkout();
+        this.notificationView.dismiss();
     }
     @Override
     protected DataMap putData(DataMap dataMap) {

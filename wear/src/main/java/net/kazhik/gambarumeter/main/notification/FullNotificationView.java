@@ -1,4 +1,4 @@
-package net.kazhik.gambarumeter.main.view;
+package net.kazhik.gambarumeter.main.notification;
 
 /**
  * Created by kazhik on 16/01/22.

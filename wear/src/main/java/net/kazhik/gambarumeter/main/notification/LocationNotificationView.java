@@ -1,4 +1,4 @@
-package net.kazhik.gambarumeter.main.view;
+package net.kazhik.gambarumeter.main.notification;
 
 import android.content.Context;
 import android.text.format.DateUtils;

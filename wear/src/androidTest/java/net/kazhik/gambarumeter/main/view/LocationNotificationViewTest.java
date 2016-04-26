@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.test.InstrumentationTestCase;
 
+import net.kazhik.gambarumeter.main.notification.LocationNotificationView;
+
 import java.lang.reflect.Method;
 import java.util.Locale;
 
