@@ -6,11 +6,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.text.Html;
 import android.text.format.DateUtils;
-import android.util.Log;
 
 import net.kazhik.gambarumeter.WearGambarumeter;
 import net.kazhik.gambarumeter.R;
@@ -21,6 +21,7 @@ import net.kazhik.gambarumeter.R;
 public abstract class NotificationView {
     private Context context;
     private NotificationCompat.Builder notificationBuilder;
+    private NotificationManagerCompat notificationMgr = null;
     private int stepCount = -1;
 
     private static final int NOTIFICATION_ID = 3000;
@@ -30,6 +31,42 @@ public abstract class NotificationView {
 
         this.context = context;
 
+        this.buildNotification2();
+
+    }
+
+    private void buildNotification2() {
+        Intent intent = new Intent(context, NotificationActivity.class);
+        int flag = PendingIntent.FLAG_UPDATE_CURRENT;
+        Bundle b = new Bundle();
+        b.putLong("time", 567);
+        PendingIntent pendingIntent =
+                PendingIntent.getActivity(context, 0, intent, flag, b);
+        Bitmap bmp = BitmapFactory.decodeResource(this.context.getResources(),
+                R.drawable.notification);
+        NotificationCompat.Action openMain
+                = new NotificationCompat.Action(R.drawable.empty, null, pendingIntent);
+
+        NotificationCompat.WearableExtender extender = new NotificationCompat.WearableExtender()
+                .setDisplayIntent(pendingIntent)
+                .setContentAction(0)
+                .addAction(openMain)
+//                .setHintHideIcon(true)
+                .setBackground(bmp);
+
+        this.notificationBuilder = new NotificationCompat.Builder(context)
+                .setSmallIcon(R.drawable.ic_launcher)
+                .setOnlyAlertOnce(true)
+                .setPriority(Notification.PRIORITY_MAX)
+                .setOngoing(true)
+//                .setContentIntent(pendingIntent)
+                .extend(extender);
+
+        this.notificationMgr = NotificationManagerCompat.from(this.context);
+
+    }
+
+    private void buildNotification() {
         Intent intent = new Intent(context, WearGambarumeter.class);
         int flag = PendingIntent.FLAG_UPDATE_CURRENT;
         PendingIntent pendingIntent =
@@ -43,17 +80,20 @@ public abstract class NotificationView {
 //                .setDisplayIntent(pendingIntent)
                 .setContentAction(0)
                 .addAction(openMain)
-//                .setHintHideIcon(true)
+                .setHintHideIcon(true)
                 .setBackground(bmp);
 
         this.notificationBuilder = new NotificationCompat.Builder(context)
                 .setSmallIcon(R.drawable.ic_launcher)
                 .setOnlyAlertOnce(true)
-                .setPriority(NotificationCompat.PRIORITY_MAX)
+                .setPriority(Notification.PRIORITY_MAX)
                 .setOngoing(true)
                 .setContentIntent(pendingIntent)
                 .extend(extender);
+
+        this.notificationMgr = NotificationManagerCompat.from(this.context);
     }
+
     public Context getContext() {
         return this.context;
         
@@ -85,25 +125,19 @@ public abstract class NotificationView {
     public abstract String makeLongText(String str);
     public void show(long elapsed) {
 
-        /*
-        this.notificationBuilder
-                .setContentTitle(Html.fromHtml(
-                        "<b>" + this.makeSummaryText(elapsed) + "</b>"));
-
-         */
-
         this.notificationBuilder
                 .setContentTitle(Html.fromHtml(
                         "<h4><b>" + this.makeSummaryText(elapsed) + "</b></h4>"))
                 .setContentText(Html.fromHtml(
                         "<h4><b>" + this.makeDetailedText() + "</b></h4>"));
 
-        NotificationManagerCompat.from(this.context)
-                .notify(NOTIFICATION_ID, this.notificationBuilder.build());
+        this.notificationMgr.notify(NOTIFICATION_ID, this.notificationBuilder.build());
 
     }
     public void dismiss() {
-        NotificationManagerCompat.from(this.context).cancel(NOTIFICATION_ID);
+        if (this.notificationMgr != null) {
+            this.notificationMgr.cancel(NOTIFICATION_ID);
+        }
     }
 
 }

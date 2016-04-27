@@ -12,6 +12,13 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
+
+        <activity
+            android:name=".main.notification.NotificationActivity"
+            android:exported="true"
+            android:allowEmbedded="true"
+            android:taskAffinity=""
+            android:theme="@android:style/Theme.DeviceDefault.Light" />
         <activity
             android:name=".WearGambarumeter"
             android:label="@string/app_name"

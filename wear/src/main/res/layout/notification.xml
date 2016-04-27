@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <net.kazhik.gambarumeterlib.AutoResizeTextView
+            android:id="@+id/notify_time"
+            android:text="00:00:00"
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center" />
+        <net.kazhik.gambarumeterlib.AutoResizeTextView
+            android:id="@+id/notify_distance"
+            android:text="42.195km"
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center" />
+    </LinearLayout>
+</LinearLayout>
