@@ -43,14 +43,14 @@ public abstract class NotificationView {
 //                .setDisplayIntent(pendingIntent)
                 .setContentAction(0)
                 .addAction(openMain)
-                .setHintHideIcon(true)
+//                .setHintHideIcon(true)
                 .setBackground(bmp);
 
         this.notificationBuilder = new NotificationCompat.Builder(context)
                 .setSmallIcon(R.drawable.ic_launcher)
                 .setOnlyAlertOnce(true)
                 .setPriority(NotificationCompat.PRIORITY_MAX)
-//                .setOngoing(true)
+                .setOngoing(true)
                 .setContentIntent(pendingIntent)
                 .extend(extender);
     }
@@ -84,7 +84,6 @@ public abstract class NotificationView {
     public abstract String makeShortText();
     public abstract String makeLongText(String str);
     public void show(long elapsed) {
-        Log.d(TAG, "show");
 
         /*
         this.notificationBuilder
@@ -92,19 +91,18 @@ public abstract class NotificationView {
                         "<b>" + this.makeSummaryText(elapsed) + "</b>"));
 
          */
+
         this.notificationBuilder
                 .setContentTitle(Html.fromHtml(
                         "<h4><b>" + this.makeSummaryText(elapsed) + "</b></h4>"))
                 .setContentText(Html.fromHtml(
                         "<h4><b>" + this.makeDetailedText() + "</b></h4>"));
 
-
         NotificationManagerCompat.from(this.context)
                 .notify(NOTIFICATION_ID, this.notificationBuilder.build());
 
     }
     public void dismiss() {
-        Log.d(TAG, "dismiss");
         NotificationManagerCompat.from(this.context).cancel(NOTIFICATION_ID);
     }
 
