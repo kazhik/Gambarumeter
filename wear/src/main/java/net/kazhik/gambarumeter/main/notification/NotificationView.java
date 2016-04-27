@@ -31,38 +31,7 @@ public abstract class NotificationView {
 
         this.context = context;
 
-        this.buildNotification2();
-
-    }
-
-    private void buildNotification2() {
-        Intent intent = new Intent(context, NotificationActivity.class);
-        int flag = PendingIntent.FLAG_UPDATE_CURRENT;
-        Bundle b = new Bundle();
-        b.putLong("time", 567);
-        PendingIntent pendingIntent =
-                PendingIntent.getActivity(context, 0, intent, flag, b);
-        Bitmap bmp = BitmapFactory.decodeResource(this.context.getResources(),
-                R.drawable.notification);
-        NotificationCompat.Action openMain
-                = new NotificationCompat.Action(R.drawable.empty, null, pendingIntent);
-
-        NotificationCompat.WearableExtender extender = new NotificationCompat.WearableExtender()
-                .setDisplayIntent(pendingIntent)
-                .setContentAction(0)
-                .addAction(openMain)
-//                .setHintHideIcon(true)
-                .setBackground(bmp);
-
-        this.notificationBuilder = new NotificationCompat.Builder(context)
-                .setSmallIcon(R.drawable.ic_launcher)
-                .setOnlyAlertOnce(true)
-                .setPriority(Notification.PRIORITY_MAX)
-                .setOngoing(true)
-//                .setContentIntent(pendingIntent)
-                .extend(extender);
-
-        this.notificationMgr = NotificationManagerCompat.from(this.context);
+        this.buildNotification();
 
     }
 
