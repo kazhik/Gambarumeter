@@ -3,54 +3,75 @@ package net.kazhik.gambarumeter.main.notification;
 import android.content.Context;
 import android.text.format.DateUtils;
 
+import net.kazhik.gambarumeter.R;
 import net.kazhik.gambarumeterlib.DistanceUtil;
 
 /**
  * Created by kazhik on 14/10/25.
  */
-public class LocationNotificationView extends NotificationView {
-    private float distance = -1.0f;
+public class LocationNotificationView {
+    private NotificationView notificationView = new NotificationView();
+
+    private int stepCount = 0;
+    private float distance = 0.0f;
     private long lapTime = 0;
     private DistanceUtil distanceUtil;
 
-    @Override
+
     public void initialize(Context context) {
-        super.initialize(context);
+        this.notificationView.initialize(context);
 
         this.distanceUtil = DistanceUtil.getInstance(context);
+
+        this.clear();
+    }
+    public void clear() {
+        this.stepCount = 0;
+
+        this.distance = 0.0f;
+        this.lapTime = 0;
     }
 
-    public void clear() {
-        super.clear();
-        this.distance = -1.0f;
-        this.lapTime = 0;
+    public void show(long elapsed) {
+        String contentTitle = DateUtils.formatElapsedTime(elapsed / 1000);
+
+        Context context = this.notificationView.getContext();
+        String contentText = "";
+        if (this.stepCount >= 0) {
+            contentText += this.stepCount + context.getString(R.string.steps);
+        }
+        if (this.distance > 0) {
+            if (!contentText.isEmpty()) {
+                contentText += " ";
+            }
+            contentText += this.distanceUtil.getDistanceAndUnitStr(this.distance);
+        }
+        if (this.lapTime > 0) {
+            if (!contentText.isEmpty()) {
+                contentText += " ";
+            }
+            contentText += DateUtils.formatElapsedTime(this.lapTime / 1000);
+            contentText += "/";
+            contentText += this.distanceUtil.getUnitStr();
+        }
+
+        this.notificationView.show(contentTitle, contentText);
+
+    }
+
+    public void dismiss() {
+        this.notificationView.dismiss();
+
+    }
+
+    public void updateStepCount(int stepCount) {
+        this.stepCount = stepCount;
     }
     public void updateDistance(float distance) {
         this.distance = distance;
     }
     public void updateLap(long laptime) {
         this.lapTime = laptime;
-        
-    }
-    public String makeShortText() {
-        String str = "";
-        if (this.distance > 0) {
-            str += " ";
-            str += this.distanceUtil.getDistanceAndUnitStr(this.distance);
-        }
-        return str;
-    }
-    public String makeLongText(String str) {
-        if (this.lapTime > 0) {
-            if (!str.isEmpty()) {
-                str += " ";
-            }
-            str += DateUtils.formatElapsedTime(this.lapTime / 1000);
-            str += "/";
-            str += this.distanceUtil.getUnitStr();
-        }
-        return str;
-
     }
 
 }
