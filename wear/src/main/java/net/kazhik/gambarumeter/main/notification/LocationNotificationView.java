@@ -33,9 +33,12 @@ public class LocationNotificationView {
     }
 
     public void show(long elapsed) {
+        Context context = this.notificationView.getContext();
+        if (context == null) {
+            return;
+        }
         String contentTitle = DateUtils.formatElapsedTime(elapsed / 1000);
 
-        Context context = this.notificationView.getContext();
         String contentText = "";
         if (this.stepCount >= 0) {
             contentText += this.stepCount + context.getString(R.string.steps);

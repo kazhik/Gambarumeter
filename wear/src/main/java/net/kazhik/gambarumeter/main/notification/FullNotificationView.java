@@ -2,6 +2,7 @@ package net.kazhik.gambarumeter.main.notification;
 
 import android.content.Context;
 import android.text.format.DateUtils;
+import android.util.Log;
 
 import net.kazhik.gambarumeter.R;
 import net.kazhik.gambarumeterlib.DistanceUtil;
@@ -17,6 +18,7 @@ public class FullNotificationView {
     private float distance = 0.0f;
     private long lapTime = 0;
     private DistanceUtil distanceUtil;
+    private static final String TAG = "FullNotificationView";
 
     public void initialize(Context context) {
         this.notificationView.initialize(context);
@@ -45,16 +47,26 @@ public class FullNotificationView {
     }
 
     public void show(long elapsed) {
+        Context context = this.notificationView.getContext();
+        if (context == null) {
+            Log.d(TAG, "No context");
+            return;
+        }
         String contentTitle = DateUtils.formatElapsedTime(elapsed / 1000);
 
-        Context context = this.notificationView.getContext();
         String contentText = "";
         if (this.stepCount >= 0) {
             contentText += this.stepCount + context.getString(R.string.steps);
         }
-        if (this.distance > 0) {
+        if (this.heartRate > 0) {
             if (!contentText.isEmpty()) {
                 contentText += " ";
+            }
+            contentText += this.heartRate + context.getString(R.string.bpm);
+        }
+        if (this.distance > 0) {
+            if (!contentText.isEmpty()) {
+                contentText += "<br />";
             }
             contentText += this.distanceUtil.getDistanceAndUnitStr(this.distance);
         }
@@ -65,12 +77,6 @@ public class FullNotificationView {
             contentText += DateUtils.formatElapsedTime(this.lapTime / 1000);
             contentText += "/";
             contentText += this.distanceUtil.getUnitStr();
-        }
-        if (this.heartRate > 0) {
-            if (!contentText.isEmpty()) {
-                contentText += " ";
-            }
-            contentText += this.heartRate + context.getString(R.string.bpm);
         }
 
         this.notificationView.show(contentTitle, contentText);

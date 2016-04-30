@@ -118,6 +118,8 @@ public class FullMainFragment extends MainFragment
 
         Activity activity = this.getActivity();
 
+        this.notificationView.initialize(activity);
+
         if (this.heartRateMonitor != null) {
             this.heartRateView.initialize((TextView) activity.findViewById(R.id.bpm));
             activity.findViewById(R.id.heart_rate).setVisibility(View.VISIBLE);
@@ -164,6 +166,7 @@ public class FullMainFragment extends MainFragment
         }
 
         super.stopWorkout();
+        this.notificationView.dismiss();
     }
     @Override
     protected DataMap putData(DataMap dataMap) {
@@ -309,6 +312,10 @@ public class FullMainFragment extends MainFragment
             this.heartRateMonitor =
                     ((HeartRateMonitor.HeartRateBinder)iBinder).getService();
             this.heartRateMonitor.init(this.getActivity(), sensorManager, this);
+        } else if (iBinder instanceof LocationMonitor.GeolocationBinder) {
+            this.locationMonitor =
+                    ((LocationMonitor.GeolocationBinder)iBinder).getService();
+            this.locationMonitor.init(this.getActivity(), this);
         }
         super.onServiceConnected(componentName, iBinder);
 
