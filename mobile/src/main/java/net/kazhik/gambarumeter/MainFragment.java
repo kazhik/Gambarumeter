@@ -276,11 +276,11 @@ public class MainFragment extends DrawerFragment {
         Map<String, String> drawerItem;
 
         drawerItem = makeDrawerItem(R.string.mobile_settings,
-                R.drawable.settings);
+                R.drawable.ic_settings);
         drawerItems.add(drawerItem);
 
         drawerItem = makeDrawerItem(R.string.wear_settings,
-                R.drawable.settings);
+                R.drawable.ic_settings);
         drawerItems.add(drawerItem);
 
         return drawerItems;

@@ -103,18 +103,19 @@ public class DetailFragment extends DrawerFragment {
 
         Map<String, String> drawerItem;
 
-        drawerItem = makeDrawerItem(R.string.chart, R.drawable.line_chart);
+        drawerItem = makeDrawerItem(R.string.history, R.drawable.ic_history);
         drawerItems.add(drawerItem);
 
-        drawerItem = makeDrawerItem(R.string.map, android.R.drawable.ic_menu_mapmode);
+        drawerItem = makeDrawerItem(R.string.chart, R.drawable.ic_show_chart);
         drawerItems.add(drawerItem);
 
-        drawerItem = makeDrawerItem(R.string.split_time,
-                android.R.drawable.ic_menu_recent_history);
+        drawerItem = makeDrawerItem(R.string.map, R.drawable.ic_map);
         drawerItems.add(drawerItem);
 
-        drawerItem = makeDrawerItem(R.string.export_file,
-                android.R.drawable.ic_menu_set_as);
+        drawerItem = makeDrawerItem(R.string.split_time, R.drawable.ic_schedule);
+        drawerItems.add(drawerItem);
+
+        drawerItem = makeDrawerItem(R.string.export_file, R.drawable.ic_transform);
         drawerItems.add(drawerItem);
 
         return drawerItems;
@@ -126,6 +127,9 @@ public class DetailFragment extends DrawerFragment {
     @Override
     public void onClickDrawerItem(int resId, long startTime) {
         switch (resId) {
+            case R.string.history:
+                this.goBack();
+                break;
             case R.string.map:
                 this.openMapView(startTime);
                 break;
@@ -139,6 +143,10 @@ public class DetailFragment extends DrawerFragment {
                 this.openSplitTimeView(startTime);
                 break;
         }
+
+    }
+    private void goBack() {
+        getFragmentManager().popBackStack();
 
     }
 

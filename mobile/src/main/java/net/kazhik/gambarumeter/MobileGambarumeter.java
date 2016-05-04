@@ -156,9 +156,18 @@ public class MobileGambarumeter extends AppCompatActivity
 
             /** Called when a drawer has settled in a completely open state. */
             public void onDrawerOpened(View drawerView) {
-                super.onDrawerOpened(drawerView);
-                setTitle(mDrawerTitle);
-                setDrawerItem();
+
+                Fragment fragment = getFragmentManager().findFragmentById(
+                        R.id.fragment_container);
+                if (fragment instanceof DrawerFragment) {
+                    super.onDrawerOpened(drawerView);
+                    setTitle(mDrawerTitle);
+                    setDrawerItem((DrawerFragment)fragment);
+                } else if (fragment instanceof SettingsFragment) {
+                    mDrawerLayout.closeDrawer(mDrawerList);
+                    getFragmentManager().popBackStack();
+                }
+
             }
             public void setTitle(CharSequence title) {
                 ActionBar actionBar = getSupportActionBar();
@@ -192,15 +201,9 @@ public class MobileGambarumeter extends AppCompatActivity
         mDrawerList.setAdapter(drawerAdapter);
 
     }
-    private void setDrawerItem() {
-        Fragment fragment = getFragmentManager().findFragmentById(
-                        R.id.fragment_container);
-        if (fragment instanceof DrawerFragment == false) {
-            //return;
-        }
+    private void setDrawerItem(DrawerFragment fragment) {
 
-        DrawerFragment f = (DrawerFragment)fragment;
-        List<Map<String, String>> drawerItems = f.makeDrawerItems();
+        List<Map<String, String>> drawerItems = fragment.makeDrawerItems();
 
         SimpleAdapter drawerAdapter = new SimpleAdapter (this.getBaseContext(),
                 drawerItems, R.layout.drawer_list_item,
