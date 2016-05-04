@@ -251,7 +251,6 @@ public class FullMainFragment extends MainFragment
         this.heartRateView.setCurrentRate(rate);
         this.getActivity().runOnUiThread(this.heartRateView);
 
-        Log.d(TAG, "new heart rate: " + (new Date(timestamp)).toString() + " / " + rate);
         this.notificationView.updateHeartRate(rate);
 
     }
@@ -319,6 +318,12 @@ public class FullMainFragment extends MainFragment
         }
         super.onServiceConnected(componentName, iBinder);
 
+    }
+    @Override
+    protected void storeCurrentValue(long timestamp) {
+        super.storeCurrentValue(timestamp);
+
+        this.heartRateMonitor.storeCurrentValue(timestamp);
     }
 
 
