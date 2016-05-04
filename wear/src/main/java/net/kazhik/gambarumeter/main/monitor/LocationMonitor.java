@@ -72,6 +72,8 @@ public class LocationMonitor extends Service
 
         this.locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
                 UPDATE_INTERVAL_MS, UPDATE_DISTANCE, this);
+        this.locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
+                UPDATE_INTERVAL_MS, UPDATE_DISTANCE, this);
         this.locationManager.addGpsStatusListener(this);
 
         this.distanceUtil = DistanceUtil.getInstance(context);
