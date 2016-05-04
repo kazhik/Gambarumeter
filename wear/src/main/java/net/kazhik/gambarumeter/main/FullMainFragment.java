@@ -175,7 +175,7 @@ public class FullMainFragment extends MainFragment
         dataMap = this.heartRateMonitor.putData(dataMap);
         dataMap = this.locationMonitor.putData(dataMap);
 
-        DataMap workoutDataMap = dataMap.getDataMap(DataStorage.TBL_WORKOUT);
+        DataMap workoutDataMap = new DataMap();
 
         workoutDataMap.putLong(DataStorage.COL_START_TIME,
                 this.stopwatch.getStartTime());

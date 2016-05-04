@@ -66,7 +66,7 @@ public class FullNotificationView {
         }
         if (this.distance > 0) {
             if (!contentText.isEmpty()) {
-                contentText += "<br />";
+                contentText += " ";
             }
             contentText += this.distanceUtil.getDistanceAndUnitStr(this.distance);
         }
