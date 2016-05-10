@@ -5,8 +5,8 @@ package net.kazhik.gambarumeterlib.entity;
  */
 public class LapTime extends SplitTimeStepCount {
     private long laptime;
-    public LapTime(long timestamp, float distance, long laptime, int stepCount) {
-        super(timestamp, distance, stepCount);
+    public LapTime(long timestamp, float distance, long laptime, int stepCount, int heartRate) {
+        super(timestamp, distance, stepCount, heartRate);
         this.laptime = laptime;
     }
 

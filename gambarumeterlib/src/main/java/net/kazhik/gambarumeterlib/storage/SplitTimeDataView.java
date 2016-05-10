@@ -79,7 +79,8 @@ public class SplitTimeDataView extends AbstractTable {
                 laptimes.add(new LapTime(split.getTimestamp(),
                         split.getDistance(),
                         currentLap,
-                        split.getStepCount() - prevStepCount));
+                        split.getStepCount() - prevStepCount,
+                        split.getHeartRate()));
             }
             prevTimestamp = split.getTimestamp();
             prevStepCount = split.getStepCount();
