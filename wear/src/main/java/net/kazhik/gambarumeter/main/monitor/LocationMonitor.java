@@ -84,8 +84,8 @@ public class LocationMonitor extends Service
         this.record.init(this.distanceUtil.lapDistance());
         this.record.addLap(System.currentTimeMillis());
     }
-    public void stop() {
-        this.record.addLap(System.currentTimeMillis());
+    public void stop(long stopTime) {
+        this.record.addLap(stopTime);
 
     }
     public float getDistance() {

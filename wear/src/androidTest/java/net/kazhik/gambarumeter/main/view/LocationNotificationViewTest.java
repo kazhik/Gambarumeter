@@ -21,8 +21,6 @@ public class LocationNotificationViewTest extends InstrumentationTestCase {
 
         notificationView.initialize(this.getInstrumentation().getTargetContext().getApplicationContext());
 
-        notificationView.setDistanceUnit("metre");
-
         notificationView.updateStepCount(445);
         notificationView.updateDistance(2300);
         notificationView.updateLap(10 * 60 * 1000);
@@ -51,8 +49,6 @@ public class LocationNotificationViewTest extends InstrumentationTestCase {
 
         notificationView.initialize(appContext);
 
-        notificationView.setDistanceUnit("metre");
-
         notificationView.updateStepCount(445);
         notificationView.updateDistance(2300);
         notificationView.updateLap(((4 * 60) + 30) * 1000);
@@ -65,8 +61,6 @@ public class LocationNotificationViewTest extends InstrumentationTestCase {
 
         assertEquals("445steps 04:30/km", text);
 
-
-        notificationView.setDistanceUnit("mile");
 
         notificationView.updateStepCount(446);
         notificationView.updateDistance(2334);

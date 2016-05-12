@@ -351,7 +351,7 @@ public class MobileGambarumeter extends AppCompatActivity
                 success = this.saveData(dataMap);
                 Log.d(TAG, "handleDataItem: " + dataPath + " saved=" + success);
                 break;
-            case "/resync":
+            case "/sync":
                 success = this.saveResyncData(dataMap);
                 Log.d(TAG, "handleDataItem: " + dataPath + " saved=" + success);
                 break;

@@ -18,7 +18,6 @@ import com.google.android.gms.wearable.DataMap;
 import net.kazhik.gambarumeter.R;
 import net.kazhik.gambarumeter.main.monitor.LocationMonitor;
 import net.kazhik.gambarumeter.main.monitor.LocationSensorValueListener;
-import net.kazhik.gambarumeter.main.notification.NotificationView;
 import net.kazhik.gambarumeter.main.view.DistanceView;
 import net.kazhik.gambarumeter.main.notification.LocationNotificationView;
 import net.kazhik.gambarumeterlib.storage.DataStorage;
@@ -126,14 +125,15 @@ public class GpsMainFragment extends MainFragment
         }
         super.startWorkout();
     }
-    protected void stopWorkout() {
+    protected long stopWorkout() {
+        long stopTime = super.stopWorkout();
 
         if (this.locationMonitor != null) {
-            this.locationMonitor.stop();
+            this.locationMonitor.stop(stopTime);
         }
-
-        super.stopWorkout();
         this.notificationView.dismiss();
+        return stopTime;
+
     }
     @Override
     protected DataMap putData(DataMap dataMap) {

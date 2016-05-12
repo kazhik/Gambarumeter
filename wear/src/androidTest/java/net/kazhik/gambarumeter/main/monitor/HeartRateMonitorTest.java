@@ -128,12 +128,6 @@ public class HeartRateMonitorTest extends InstrumentationTestCase {
         heartRateMonitor.init(context, sensorManager, new TestListener());
         heartRateMonitor.start();
 
-        Method onSensorEvent =
-                heartRateMonitor.getClass().getDeclaredMethod("onSensorEvent",
-                        long.class, float.class, int.class);
-        onSensorEvent.setAccessible(true);
-        Object[] parameters;
-
         List<SensorValue> dataList;
         LinkedBlockingQueue<SensorValue> queue;
         Field dataListField = heartRateMonitor.getClass().getDeclaredField("dataList");
@@ -141,20 +135,18 @@ public class HeartRateMonitorTest extends InstrumentationTestCase {
         Field queueField = heartRateMonitor.getClass().getDeclaredField("queue");
         queueField.setAccessible(true);
 
-
         long timestamp;
-        float sensorValue;
+        float[] sensorValue = new float[3];
         int accuracy;
         Calendar cal = Calendar.getInstance();
         
         // 1st
         cal.set(2015, 0, 17, 23, 22, 8);
         timestamp = cal.getTime().getTime() * 1000 * 1000;
-        sensorValue = 67;
+        sensorValue[0] = 67;
         accuracy = SensorManager.SENSOR_STATUS_ACCURACY_HIGH;
 
-        parameters = new Object[]{timestamp, sensorValue, accuracy};
-        onSensorEvent.invoke(heartRateMonitor, parameters);
+        heartRateMonitor.onSensorEvent(timestamp, sensorValue, accuracy);
 
         dataList = (List<SensorValue>)dataListField.get(heartRateMonitor);
         queue = (LinkedBlockingQueue<SensorValue>)queueField.get(heartRateMonitor);
@@ -165,10 +157,9 @@ public class HeartRateMonitorTest extends InstrumentationTestCase {
         // 2nd
         cal.set(2015, 0, 17, 23, 22, 9);
         timestamp = cal.getTime().getTime() * 1000 * 1000;
-        sensorValue = 65;
+        sensorValue[0] = 65;
 
-        parameters = new Object[]{timestamp, sensorValue, accuracy};
-        onSensorEvent.invoke(heartRateMonitor, parameters);
+        heartRateMonitor.onSensorEvent(timestamp, sensorValue, accuracy);
 
         dataList = (List<SensorValue>)dataListField.get(heartRateMonitor);
         queue = (LinkedBlockingQueue<SensorValue>)queueField.get(heartRateMonitor);
@@ -179,10 +170,9 @@ public class HeartRateMonitorTest extends InstrumentationTestCase {
         // 3rd
         cal.set(2015, 0, 17, 23, 22, 33);
         timestamp = cal.getTime().getTime() * 1000 * 1000;
-        sensorValue = 63;
+        sensorValue[0] = 63;
 
-        parameters = new Object[]{timestamp, sensorValue, accuracy};
-        onSensorEvent.invoke(heartRateMonitor, parameters);
+        heartRateMonitor.onSensorEvent(timestamp, sensorValue, accuracy);
 
         dataList = (List<SensorValue>)dataListField.get(heartRateMonitor);
         queue = (LinkedBlockingQueue<SensorValue>)queueField.get(heartRateMonitor);
@@ -190,35 +180,29 @@ public class HeartRateMonitorTest extends InstrumentationTestCase {
         assertEquals(0, dataList.size());
         assertEquals(3, queue.size());
 
-        // 4th: calculate average
-        cal.set(2015, 0, 17, 23, 23, 9);
-        timestamp = cal.getTime().getTime() * 1000 * 1000;
-        sensorValue = 65;
-
-        parameters = new Object[]{timestamp, sensorValue, accuracy};
-        onSensorEvent.invoke(heartRateMonitor, parameters);
-
-        dataList = (List<SensorValue>)dataListField.get(heartRateMonitor);
-        queue = (LinkedBlockingQueue<SensorValue>)queueField.get(heartRateMonitor);
-
-        assertEquals(1, dataList.size());
-        assertEquals(1, queue.size());
-        assertEquals(65f, dataList.get(0).getValue());
-
-        // 5th: sensorValue not changed
+        // 4th: sensorValue not changed
         cal.set(2015, 0, 17, 23, 23, 44);
         timestamp = cal.getTime().getTime() * 1000 * 1000;
-        sensorValue = 65;
+        sensorValue[0] = 63;
 
-        parameters = new Object[]{timestamp, sensorValue, accuracy};
-        onSensorEvent.invoke(heartRateMonitor, parameters);
+        heartRateMonitor.onSensorEvent(timestamp, sensorValue, accuracy);
+
+        dataList = (List<SensorValue>)dataListField.get(heartRateMonitor);
+        queue = (LinkedBlockingQueue<SensorValue>)queueField.get(heartRateMonitor);
+
+        assertEquals(0, dataList.size());
+        assertEquals(3, queue.size());
+
+        heartRateMonitor.storeCurrentValue(0);
 
         dataList = (List<SensorValue>)dataListField.get(heartRateMonitor);
         queue = (LinkedBlockingQueue<SensorValue>)queueField.get(heartRateMonitor);
 
         assertEquals(1, dataList.size());
-        assertEquals(1, queue.size());
+        assertEquals(0, queue.size());
 
+        SensorValue average = dataList.get(0);
+        assertEquals(65f, average.getValue());
 
     }
     

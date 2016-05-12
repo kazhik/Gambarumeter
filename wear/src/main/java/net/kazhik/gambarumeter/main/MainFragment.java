@@ -274,12 +274,13 @@ public abstract class MainFragment extends PagerFragment
                 TimeUnit.SECONDS.toMillis(60));
 
     }
-    protected void stopWorkout() {
-        this.stopwatch.stop();
+    protected long stopWorkout() {
+        long stopTime = this.stopwatch.stop();
         if (this.stepCountMonitor != null) {
             this.stepCountMonitor.stop();
         }
 
+        return stopTime;
     }
     protected abstract void saveResult();
 
@@ -352,7 +353,8 @@ public abstract class MainFragment extends PagerFragment
     public void onUserStop() {
         this.stopWorkout();
         this.saveResult();
-        this.sendNewDataToMobile();
+        long startTime = this.stopwatch.getStartTime();
+        this.sync(startTime);
         this.stopwatch.reset();
     }
     // UserInputManager.UserInputListener
@@ -438,7 +440,7 @@ public abstract class MainFragment extends PagerFragment
                 Wearable.DataApi.getDataItems(this.googleApiClient);
         results.setResultCallback(this);
 
-        this.resync();
+        this.sync();
 
     }
 
@@ -480,16 +482,16 @@ public abstract class MainFragment extends PagerFragment
         return dataMap;
     }
 
-    private void resync() {
+    private void sync() {
         List<Long> notSynced = this.getNotSynced();
         if (!notSynced.isEmpty()) {
-            this.resync(notSynced.get(0));
+            this.sync(notSynced.get(0));
         }
     }
 
-    private void resync(long startTime) {
+    private void sync(long startTime) {
         Context context = this.getActivity();
-        Log.d(TAG, "resync: " + TimeUtil.formatDateTime(context, startTime));
+        Log.d(TAG, "sync: " + TimeUtil.formatDateTime(context, startTime));
         DataStorage dataStorage = new DataStorage(context);
         DataMap dataMap = dataStorage.load(startTime);
         dataStorage.close();
@@ -499,9 +501,9 @@ public abstract class MainFragment extends PagerFragment
             Log.d(TAG, "Workout data doesn't exist: " + startTime);
             return;
         }
-        Log.d(TAG, "resync: " + workoutDataMap.toString());
+        Log.d(TAG, "sync: " + workoutDataMap.toString());
 
-        final PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/resync");
+        final PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/sync");
 
         // put data on datamap
         Asset asset = Asset.createFromBytes(dataMap.toByteArray());
@@ -510,12 +512,12 @@ public abstract class MainFragment extends PagerFragment
 
         byte[] byteArray = sendData.getAsset("data").getData();
         if (byteArray == null || byteArray.length == 0) {
-            Log.d(TAG, "resync: no asset: " + sendData.toString());
+            Log.d(TAG, "sync: no asset: " + sendData.toString());
             return;
         }
         byte[] assetdata = putDataMapReq.getDataMap().getAsset("data").getData();
         DataMap dMap = DataMap.fromByteArray(assetdata);
-        Log.d(TAG, "resync: send asset: " + dMap.toString());
+        Log.d(TAG, "sync: send asset: " + dMap.toString());
 
 //        sendData.putLong("updateTime", System.currentTimeMillis());
 

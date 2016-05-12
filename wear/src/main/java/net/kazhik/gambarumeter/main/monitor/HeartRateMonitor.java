@@ -7,6 +7,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Binder;
 import android.os.IBinder;
+import android.util.Log;
 
 import com.google.android.gms.wearable.DataMap;
 
@@ -84,7 +85,6 @@ public class HeartRateMonitor extends SensorService {
         if (average.getValue() != 0f) {
             this.dataList.add(average);
         }
-
     }
     public int getAverageHeartRate() {
         if (this.dataList.isEmpty()) {
@@ -104,12 +104,14 @@ public class HeartRateMonitor extends SensorService {
         }
         SensorValue sensor;
         int sumHeartRate = 0;
-        int size = this.queue.size();
+        int size = 0;
         long lastTimestamp = 0;
         while ((sensor = this.queue.poll()) != null) {
             lastTimestamp = sensor.getTimestamp();
             sumHeartRate += sensor.getValue();
+            size++;
         }
+        Log.d(TAG, "calculate average HR: size=" + size);
         average.setTimestamp(lastTimestamp);
         average.setValue(sumHeartRate / size);
 
@@ -120,6 +122,7 @@ public class HeartRateMonitor extends SensorService {
 
         SensorValue average = this.calculateAverageHeartRateInQueue();
         if (average.getValue() != 0f) {
+            Log.d(TAG, "storeCurrentValue: " + average.getValue());
             this.dataList.add(average);
         }
         return (int)average.getValue();

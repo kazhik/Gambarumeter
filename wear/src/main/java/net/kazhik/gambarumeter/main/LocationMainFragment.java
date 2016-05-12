@@ -125,14 +125,16 @@ public class LocationMainFragment extends MainFragment
         }
         super.startWorkout();
     }
-    protected void stopWorkout() {
+    protected long stopWorkout() {
+        long stopTime = super.stopWorkout();
 
         if (this.locationMonitor != null) {
-            this.locationMonitor.stop();
+            this.locationMonitor.stop(stopTime);
         }
 
-        super.stopWorkout();
         this.notificationView.dismiss();
+        
+        return stopTime;
     }
     @Override
     protected DataMap putData(DataMap dataMap) {

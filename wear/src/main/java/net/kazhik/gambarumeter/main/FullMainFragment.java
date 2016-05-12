@@ -28,8 +28,6 @@ import net.kazhik.gambarumeter.main.view.HeartRateView;
 import net.kazhik.gambarumeterlib.storage.DataStorage;
 import net.kazhik.gambarumeterlib.storage.WorkoutTable;
 
-import java.util.Date;
-
 /**
  * Created by kazhik on 16/01/21.
  */
@@ -155,18 +153,19 @@ public class FullMainFragment extends MainFragment
         }
         super.startWorkout();
     }
-    protected void stopWorkout() {
+    protected long stopWorkout() {
+        long stopTime = super.stopWorkout();
 
         if (this.heartRateMonitor != null) {
             this.heartRateMonitor.stop();
         }
 
         if (this.locationMonitor != null) {
-            this.locationMonitor.stop();
+            this.locationMonitor.stop(stopTime);
         }
 
-        super.stopWorkout();
         this.notificationView.dismiss();
+        return stopTime;
     }
     @Override
     protected DataMap putData(DataMap dataMap) {
