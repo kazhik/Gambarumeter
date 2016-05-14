@@ -22,18 +22,41 @@ public class SplitTimeDataView extends AbstractTable {
     }
 
     public List<SplitTimeStepCount> selectAll(long startTime) {
-        String query = "select a.timestamp, a.distance, " +
-                "(select step_count from gm_stepcount b " +
-                " where a.start_time = b.start_time " +
-                " and b.timestamp <= a.timestamp " +
-                " order by b.timestamp desc limit 1) as stepcount, " +
-                "(select heart_rate from gm_heartrate c " +
-                " where a.start_time = c.start_time " +
-                " and c.timestamp <= a.timestamp " +
-                " order by c.timestamp desc limit 1) as heartrate " +
-                "from gm_lap a " +
-                "where a.start_time = ? " +
-                "order by a.timestamp";
+        String query = "select\n" +
+                " a1.timestamp,\n" +
+                " a1.distance,\n" +
+                " b1.step_count, \n" +
+                " case \n" +
+                "  when c1.timestamp > a2.timestamp then c1.heart_rate\n" +
+                "  else null\n" +
+                " end as heart_rate\n" +
+                "from gm_lap a1\n" +
+                "left join gm_lap a2\n" +
+                " on a1.start_time = a2.start_time\n" +
+                "  and a2.timestamp = (\n" +
+                "   select a3.timestamp\n" +
+                "   from gm_lap a3\n" +
+                "   where a3.timestamp < a1.timestamp\n" +
+                "   order by a3.timestamp desc limit 1\n" +
+                "  )\n" +
+                "left join gm_stepcount b1\n" +
+                " on a1.start_time = b1.start_time\n" +
+                "  and b1.timestamp = (\n" +
+                "   select b2.timestamp\n" +
+                "   from gm_stepcount b2\n" +
+                "   where b2.timestamp <= a1.timestamp\n" +
+                "   order by b2.timestamp desc limit 1\n" +
+                "  )\n" +
+                "left join gm_heartrate c1\n" +
+                " on a1.start_time = c1.start_time\n" +
+                "  and c1.timestamp = (\n" +
+                "   select c2.timestamp\n" +
+                "   from gm_heartrate c2\n" +
+                "   where c2.timestamp <= a1.timestamp\n" +
+                "   order by c2.timestamp desc limit 1\n" +
+                "  )\n" +
+                "where a1.start_time = ?\n" +
+                "order by a1.timestamp\n";
 
         String[] selectionArgs = {this.formatDateMsec(startTime)};
 
