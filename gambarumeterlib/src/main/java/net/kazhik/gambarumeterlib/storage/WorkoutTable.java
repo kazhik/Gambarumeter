@@ -202,6 +202,12 @@ public class WorkoutTable extends AbstractTable {
         }
         return (deleted > 0);
     }
+    public boolean clean(long startTime) {
+        String where = "start_time <= ? and synced = 1";
+        String[] whereArgs = {this.formatDateMsec(startTime)};
+        int deleted = this.db.delete(TABLE_NAME, where, whereArgs);
+        return (deleted > 0);
+    }
     public boolean updateSynced(long startTime) {
         String where = "start_time = ?";
         String[] whereArgs = {this.formatDateMsec(startTime)};

@@ -283,6 +283,38 @@ public class DataStorage {
         return success;
 
     }
+    public void clean(long startTime) {
+        SQLiteDatabase db = this.open();
+        db.beginTransaction();
+        try {
+            WorkoutTable workoutTable = new WorkoutTable(this.context, db);
+            boolean deleted = workoutTable.clean(startTime);
+            if (!deleted) {
+                return;
+            }
+
+            HeartRateTable heartRateTable = new HeartRateTable(this.context, db);
+            heartRateTable.clean(startTime);
+
+            LocationTable locationTable = new LocationTable(this.context, db);
+            locationTable.clean(startTime);
+
+            SplitTable splitTable = new SplitTable(this.context, db);
+            splitTable.clean(startTime);
+
+            StepCountTable stepCountTable = new StepCountTable(this.context, db);
+            stepCountTable.clean(startTime);
+
+            db.setTransactionSuccessful();
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage(), e);
+        } finally {
+            db.endTransaction();
+        }
+
+        this.close();
+
+    }
     public void delete(long startTime) {
 
         SQLiteDatabase db = this.open();

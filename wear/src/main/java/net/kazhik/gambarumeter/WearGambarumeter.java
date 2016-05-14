@@ -1,6 +1,7 @@
 package net.kazhik.gambarumeter;
 
 import android.app.Activity;
+import android.content.Context;
 import android.database.SQLException;
 import android.os.Bundle;
 import android.os.Environment;
@@ -27,6 +28,7 @@ public class WearGambarumeter extends Activity {
         setContentView(R.layout.pager);
 
         this.initializeDatabase();
+        this.cleanDatabase();
 
         GridViewPager pager = (GridViewPager) findViewById(R.id.pager);
         PagerAdapter pagerAdapter = new PagerAdapter(this, this.getFragmentManager());
@@ -49,6 +51,14 @@ public class WearGambarumeter extends Activity {
         } catch (IOException e) {
             Log.e(TAG, e.getMessage(), e);
         }
+
+    }
+    private void cleanDatabase() {
+        // 30 days
+        long startTime = System.currentTimeMillis() - 30 * 24 * 60 * 60 * 1000;
+        DataStorage storage = new DataStorage(this);
+        storage.clean(startTime);
+        storage.close();
 
     }
     private void initializeDatabase() {
