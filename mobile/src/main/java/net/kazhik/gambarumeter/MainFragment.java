@@ -55,6 +55,7 @@ public class MainFragment extends DrawerFragment {
     private DistanceUtil distanceUtil;
 
     private static final int CONTEXTMENU_DELETE = 1001;
+    private static final int CONTEXTMENU_SELECT = 1002;
 
     private static final String TAG = "MainFragment";
 
@@ -141,6 +142,8 @@ public class MainFragment extends DrawerFragment {
         menu.setHeaderTitle(map.get("startTimeStr"));
         menu.add(Menu.NONE, CONTEXTMENU_DELETE, Menu.NONE,
                 R.string.delete);
+        menu.add(Menu.NONE, CONTEXTMENU_SELECT, Menu.NONE,
+                R.string.select);
 
     }
 
@@ -164,17 +167,28 @@ public class MainFragment extends DrawerFragment {
         }
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item
                 .getMenuInfo();
-        if (item.getItemId() == CONTEXTMENU_DELETE) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this.getActivity());
-            // Add the buttons
-            builder.setPositiveButton(android.R.string.ok,
-                    new ConfirmDeleteListener(info.position));
-            builder.setNegativeButton(android.R.string.cancel,
-                    new ConfirmDeleteListener(info.position));
-            builder.setTitle(R.string.confirm_delete);
-            AlertDialog dialog = builder.create();
-            dialog.show();
 
+        switch (item.getItemId()) {
+            case CONTEXTMENU_DELETE:
+                AlertDialog.Builder builder = new AlertDialog.Builder(this.getActivity());
+                // Add the buttons
+                builder.setPositiveButton(android.R.string.ok,
+                        new ConfirmDeleteListener(info.position));
+                builder.setNegativeButton(android.R.string.cancel,
+                        new ConfirmDeleteListener(info.position));
+                builder.setTitle(R.string.confirm_delete);
+                AlertDialog dialog = builder.create();
+                dialog.show();
+                break;
+            case CONTEXTMENU_SELECT:
+                HashMap<String, String> selected = this.mapList.get(info.position);
+                String startTime = selected.get("startTime");
+
+                Log.d(TAG, "selected startTime: " + startTime);
+
+                break;
+            default:
+                break;
         }
         return true;
     }

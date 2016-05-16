@@ -24,5 +24,6 @@
     <string name="pref_metre">メートル</string>
     <string name="pref_mile">マイル</string>
     <string name="history">履歴</string>
+    <string name="select">選択</string>
 
 </resources>

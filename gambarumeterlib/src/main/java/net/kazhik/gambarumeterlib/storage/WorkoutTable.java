@@ -26,7 +26,8 @@ public class WorkoutTable extends AbstractTable {
                     "step_count INTEGER," +
                     "heart_rate INTEGER," +
                     "distance REAL," +
-                    "synced INTEGER" +
+                    "synced INTEGER," +
+                    "deleted INTEGER DEFAULT(0)" +
                     ")";
     private static final String TAG = "WorkoutTable";
 
@@ -54,6 +55,7 @@ public class WorkoutTable extends AbstractTable {
         values.put("distance", distance);
         values.put("heart_rate", heartRate);
         values.put("synced", 0);
+        values.put("deleted", 0);
 
         return (int)this.db.insertOrThrow(TABLE_NAME, null, values);
 
@@ -64,8 +66,8 @@ public class WorkoutTable extends AbstractTable {
 
         String[] columns =
                 { "start_time" };
-        String selection = "synced == ? or synced is null";
-        String[] selectionArgs = {"0"};
+        String selection = "(synced = 0 or synced is null) and deleted = 0";
+        String[] selectionArgs = null;
         String sortOrder = "start_time desc";
         String limit = null;
 
@@ -99,7 +101,7 @@ public class WorkoutTable extends AbstractTable {
 
         String[] columns =
                 { "start_time" };
-        String selection = null;
+        String selection = "deleted = 0";
         String[] selectionArgs = null;
         String sortOrder = "start_time desc";
         String limit = null;
@@ -153,7 +155,7 @@ public class WorkoutTable extends AbstractTable {
 
         String[] columns =
                 { "start_time", "stop_time", "step_count", "distance", "heart_rate" };
-        String selection = "start_time = ?";
+        String selection = "start_time = ? and deleted = 0";
         String[] selectionArgs = {this.formatDateMsec(startTime)};
         if (startTime == 0) {
             selection = null;
@@ -195,11 +197,11 @@ public class WorkoutTable extends AbstractTable {
     public boolean delete(long startTime) {
         String where = "start_time = ?";
         String[] whereArgs = {this.formatDateMsec(startTime)};
-        int deleted = this.db.delete(TABLE_NAME, where, whereArgs);
-        if (deleted == 0) {
-            whereArgs[0] = this.formatDateSec(startTime);
-            deleted = this.db.delete(TABLE_NAME, where, whereArgs);
-        }
+
+        ContentValues values = new ContentValues();
+        values.put("deleted", 1);
+
+        int deleted = this.db.update(TABLE_NAME, values, where, whereArgs);
         return (deleted > 0);
     }
     public boolean clean(long startTime) {

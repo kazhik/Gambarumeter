@@ -82,7 +82,7 @@ public class DataStorage {
 
 
     public static final String DATABASE_NAME = "gambarumeter.sqlite";
-    public static final int DATABASE_VERSION = 9;
+    public static final int DATABASE_VERSION = 10;
 
     private static final String TAG = "DataStorage";
 
