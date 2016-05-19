@@ -22,41 +22,41 @@ public class SplitTimeDataView extends AbstractTable {
     }
 
     public List<SplitTimeStepCount> selectAll(long startTime) {
-        String query = "select\n" +
+        String query = "SELECT\n" +
                 " a1.timestamp,\n" +
                 " a1.distance,\n" +
                 " b1.step_count, \n" +
-                " case \n" +
-                "  when c1.timestamp > a2.timestamp then c1.heart_rate\n" +
-                "  else null\n" +
-                " end as heart_rate\n" +
-                "from gm_lap a1\n" +
-                "left join gm_lap a2\n" +
-                " on a1.start_time = a2.start_time\n" +
-                "  and a2.timestamp = (\n" +
-                "   select a3.timestamp\n" +
-                "   from gm_lap a3\n" +
-                "   where a3.timestamp < a1.timestamp\n" +
-                "   order by a3.timestamp desc limit 1\n" +
+                " CASE \n" +
+                "  WHEN c1.timestamp > a2.timestamp THEN c1.heart_rate\n" +
+                "  ELSE null\n" +
+                " END AS heart_rate\n" +
+                "FROM gm_lap a1\n" +
+                "LEFT JOIN gm_lap a2\n" +
+                " ON a1.start_time = a2.start_time\n" +
+                "  AND a2.timestamp = (\n" +
+                "   SELECT a3.timestamp\n" +
+                "   FROM gm_lap a3\n" +
+                "   WHERE a3.timestamp < a1.timestamp\n" +
+                "   ORDER BY a3.timestamp DESC LIMIT 1\n" +
                 "  )\n" +
-                "left join gm_stepcount b1\n" +
-                " on a1.start_time = b1.start_time\n" +
-                "  and b1.timestamp = (\n" +
-                "   select b2.timestamp\n" +
-                "   from gm_stepcount b2\n" +
-                "   where b2.timestamp <= a1.timestamp\n" +
-                "   order by b2.timestamp desc limit 1\n" +
+                "LEFT JOIN gm_stepcount b1\n" +
+                " ON a1.start_time = b1.start_time\n" +
+                "  AND b1.timestamp = (\n" +
+                "   SELECT b2.timestamp\n" +
+                "   FROM gm_stepcount b2\n" +
+                "   WHERE b2.timestamp <= a1.timestamp\n" +
+                "   ORDER BY b2.timestamp DESC LIMIT 1\n" +
                 "  )\n" +
-                "left join gm_heartrate c1\n" +
-                " on a1.start_time = c1.start_time\n" +
-                "  and c1.timestamp = (\n" +
-                "   select c2.timestamp\n" +
-                "   from gm_heartrate c2\n" +
-                "   where c2.timestamp <= a1.timestamp\n" +
-                "   order by c2.timestamp desc limit 1\n" +
+                "LEFT JOIN gm_heartrate c1\n" +
+                " ON a1.start_time = c1.start_time\n" +
+                "  AND c1.timestamp = (\n" +
+                "   SELECT c2.timestamp\n" +
+                "   FROM gm_heartrate c2\n" +
+                "   WHERE c2.timestamp <= a1.timestamp\n" +
+                "   ORDER BY c2.timestamp DESC LIMIT 1\n" +
                 "  )\n" +
-                "where a1.start_time = ?\n" +
-                "order by a1.timestamp\n";
+                "WHERE a1.start_time = ?\n" +
+                "ORDER BY a1.timestamp\n";
 
         String[] selectionArgs = {this.formatDateMsec(startTime)};
 

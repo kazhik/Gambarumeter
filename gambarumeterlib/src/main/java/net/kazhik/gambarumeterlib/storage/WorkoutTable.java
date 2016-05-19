@@ -155,11 +155,14 @@ public class WorkoutTable extends AbstractTable {
 
         String[] columns =
                 { "start_time", "stop_time", "step_count", "distance", "heart_rate" };
-        String selection = "start_time = ? and deleted = 0";
-        String[] selectionArgs = {this.formatDateMsec(startTime)};
+        String selection;
+        String[] selectionArgs;
         if (startTime == 0) {
-            selection = null;
-            selectionArgs = null;
+            selection = "deleted = ?";
+            selectionArgs = new String[]{"0"};
+        } else {
+            selection = "start_time = ? and deleted = ?";
+            selectionArgs = new String[]{this.formatDateMsec(startTime), "0"};
         }
         String sortOrder = "start_time desc";
         String limit = (max == 0)? null: Integer.toString(max);

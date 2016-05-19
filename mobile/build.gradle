@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 23
-    buildToolsVersion '23.0.1'
+    buildToolsVersion '23.0.3'
 
     defaultConfig {
         applicationId "net.kazhik.gambarumeter"
@@ -25,9 +25,10 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     wearApp project(':wear')
     compile project(':gambarumeterlib')
-    compile 'com.google.android.gms:play-services:8.3.0'
-    compile 'com.google.android.gms:play-services-ads:8.3.0'
-    compile 'com.google.android.gms:play-services-identity:8.3.0'
+    compile 'com.google.android.gms:play-services:9.0.0'
+    compile 'com.google.android.gms:play-services-ads:9.0.0'
+    compile 'com.google.android.gms:play-services-identity:9.0.0'
     compile 'com.github.PhilJay:MPAndroidChart:v2.1.0'
-    compile 'com.google.android.gms:play-services-gcm:8.3.0'
+    compile 'com.google.android.gms:play-services-gcm:9.0.0'
+    compile 'com.google.android.gms:play-services-auth:9.0.0'
 }
