@@ -143,29 +143,14 @@ public class WorkoutTable extends AbstractTable {
 
         return !workoutInfos.isEmpty();
     }
-    public List<WorkoutInfo> selectAll() {
-        return this.select(0, 0);
-    }
-    public List<WorkoutInfo> selectAll(int max) {
-        return this.select(0, max);
-    }
-    private List<WorkoutInfo> select(long startTime, int max) {
+    private List<WorkoutInfo> select(String selection, String[] selectionArgs,
+                                     String sortOrder, String limit) {
+
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
         qb.setTables(TABLE_NAME);
 
         String[] columns =
                 { "start_time", "stop_time", "step_count", "distance", "heart_rate" };
-        String selection;
-        String[] selectionArgs;
-        if (startTime == 0) {
-            selection = "deleted = ?";
-            selectionArgs = new String[]{"0"};
-        } else {
-            selection = "start_time = ? and deleted = ?";
-            selectionArgs = new String[]{this.formatDateMsec(startTime), "0"};
-        }
-        String sortOrder = "start_time desc";
-        String limit = (max == 0)? null: Integer.toString(max);
 
         Cursor cursor = qb.query(this.db, columns, selection, selectionArgs, null,
                 null, sortOrder, limit);
@@ -195,7 +180,74 @@ public class WorkoutTable extends AbstractTable {
         }
 
         return dataList;
+    }
+    public List<WorkoutInfo> selectAll() {
+        return this.select(0, 0);
+    }
+    public List<WorkoutInfo> selectAll(int max) {
+        return this.select(0, max);
+    }
+    public List<WorkoutInfo> selectMonth(int monthshift) {
+        String selection;
+        String[] selectionArgs;
+        selection = "start_time >= datetime('now', 'start of month', ?) " +
+                "AND start_time < datetime('now', 'start of month', ?)";
+        selectionArgs =
+                new String[]{String.valueOf(monthshift) + " months",
+                        String.valueOf(monthshift + 1) + " months"};
+        String sortOrder = "start_time desc";
+        String limit = null;
 
+        SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
+        qb.setTables(TABLE_NAME);
+
+        String[] columns =
+                { "start_time", "stop_time", "step_count", "distance", "heart_rate" };
+
+        Cursor cursor = qb.query(this.db, columns, selection, selectionArgs, null,
+                null, sortOrder, limit);
+
+        List<WorkoutInfo> dataList = new ArrayList<>();
+
+        if (cursor.getCount() == 0) {
+            return dataList;
+        }
+
+        try {
+            cursor.moveToFirst();
+            while (!cursor.isAfterLast()) {
+                WorkoutInfo workout = new WorkoutInfo(
+                        this.parseDate(cursor.getString(0)),
+                        this.parseDate(cursor.getString(1)),
+                        cursor.getInt(2),
+                        cursor.getFloat(3),
+                        cursor.getInt(4));
+                dataList.add(workout);
+                cursor.moveToNext();
+            }
+        } catch (ParseException e) {
+            Log.e(TAG, e.getMessage(), e);
+        } finally {
+            cursor.close();
+        }
+
+        return dataList;
+    }
+
+    private List<WorkoutInfo> select(long startTime, int max) {
+        String selection;
+        String[] selectionArgs;
+        if (startTime == 0) {
+            selection = "deleted = ?";
+            selectionArgs = new String[]{"0"};
+        } else {
+            selection = "start_time = ? and deleted = ?";
+            selectionArgs = new String[]{this.formatDateMsec(startTime), "0"};
+        }
+        String sortOrder = "start_time desc";
+        String limit = (max == 0)? null: Integer.toString(max);
+
+        return select(selection, selectionArgs, sortOrder, limit);
     }
     public boolean delete(long startTime) {
         String where = "start_time = ?";

@@ -4,9 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.text.format.DateUtils;
 import android.util.Log;
@@ -19,20 +17,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
-
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.wearable.DataApi;
-import com.google.android.gms.wearable.DataEvent;
-import com.google.android.gms.wearable.DataEventBuffer;
-import com.google.android.gms.wearable.DataItem;
-import com.google.android.gms.wearable.DataItemBuffer;
-import com.google.android.gms.wearable.DataMap;
-import com.google.android.gms.wearable.DataMapItem;
-import com.google.android.gms.wearable.PutDataMapRequest;
-import com.google.android.gms.wearable.Wearable;
 
 import net.kazhik.gambarumeterlib.DistanceUtil;
 import net.kazhik.gambarumeterlib.TimeUtil;
@@ -212,7 +196,7 @@ public class MainFragment extends DrawerFragment {
 
         WorkoutTable workoutTable = new WorkoutTable(activity);
         workoutTable.openReadonly();
-        List<WorkoutInfo> workoutList = workoutTable.selectAll();
+        List<WorkoutInfo> workoutList = workoutTable.selectMonth(0);
         workoutTable.close();
 
         Log.d(TAG, "WorkoutList size=" + workoutList.size());
