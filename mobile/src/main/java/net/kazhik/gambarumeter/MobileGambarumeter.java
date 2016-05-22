@@ -240,13 +240,6 @@ public class MobileGambarumeter extends AppCompatActivity
     }
 
     @Override
-    protected void onNewIntent(Intent intent) {
-        Log.d(TAG, "onNewIntent: " + intent);
-//        super.onNewIntent(intent);
-
-    }
-
-    @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         DrawerFragment f =
                 (DrawerFragment)this.getFragmentManager().findFragmentById(
