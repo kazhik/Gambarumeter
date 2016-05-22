@@ -5,6 +5,8 @@ import android.content.Context;
 import android.location.Location;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -66,6 +68,12 @@ public class DetailFragment extends DrawerFragment {
                 trackView.load(getLocations(context, startTime));
             }
         }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.detail_drawer, menu);
+        super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override

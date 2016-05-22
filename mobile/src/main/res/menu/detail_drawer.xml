@@ -1,7 +1,19 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".Gambarumeter" >
-    <item android:id="@+id/action_settings"
-        android:title="@string/action_settings"
-        android:icon="@drawable/ic_settings"/>
+    <item android:id="@+id/action_history"
+        android:title="@string/history"
+        android:icon="@drawable/ic_history"/>
+    <item android:id="@+id/action_chart"
+        android:title="@string/chart"
+        android:icon="@drawable/ic_show_chart"/>
+    <item android:id="@+id/action_map"
+        android:title="@string/map"
+        android:icon="@drawable/ic_map"/>
+    <item android:id="@+id/action_splittime"
+        android:title="@string/split_time"
+        android:icon="@drawable/ic_schedule"/>
+    <item android:id="@+id/action_transform"
+        android:title="@string/export_file"
+        android:icon="@drawable/ic_transform"/>
 </menu>
