@@ -9,6 +9,7 @@ import android.support.wearable.view.GridViewPager;
 import android.util.Log;
 
 import net.kazhik.gambarumeter.pager.PagerAdapter;
+import net.kazhik.gambarumeterlib.TimeUtil;
 import net.kazhik.gambarumeterlib.storage.DataStorage;
 import net.kazhik.gambarumeterlib.storage.HeartRateTable;
 import net.kazhik.gambarumeterlib.storage.LocationTable;
@@ -16,6 +17,7 @@ import net.kazhik.gambarumeterlib.storage.WorkoutTable;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Calendar;
 
 public class WearGambarumeter extends Activity {
 
@@ -54,10 +56,11 @@ public class WearGambarumeter extends Activity {
 
     }
     private void cleanDatabase() {
-        // 30 days
-        long startTime = System.currentTimeMillis() - 30 * 24 * 60 * 60 * 1000;
+        // Clean old data
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.MONTH, -1);
         DataStorage storage = new DataStorage(this);
-        storage.clean(startTime);
+        storage.clean(cal.getTimeInMillis());
         storage.close();
 
     }

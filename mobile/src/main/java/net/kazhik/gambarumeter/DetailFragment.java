@@ -1,12 +1,16 @@
 package net.kazhik.gambarumeter;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.content.Context;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.design.widget.NavigationView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -26,7 +30,8 @@ import java.util.Map;
 /**
  * Created by kazhik on 16/02/07.
  */
-public class DetailFragment extends DrawerFragment {
+public class DetailFragment extends Fragment implements NavigationView.OnNavigationItemSelectedListener {
+    private long startTime;
     private DetailView detailView;
     private static final String TAG = "DetailFragment";
 
@@ -47,6 +52,15 @@ public class DetailFragment extends DrawerFragment {
         this.detailView.setRootView(view);
         // http://stackoverflow.com/questions/13812988/android-maps-v2-mapview-inside-custom-fragment-npe
         this.detailView.onCreate(savedInstanceState);
+
+        NavigationView navigationView =
+                (NavigationView)this.getActivity().findViewById(R.id.navigation);
+
+        navigationView.getMenu().clear();
+        navigationView.inflateMenu(R.menu.detail_drawer);
+
+        navigationView.setNavigationItemSelectedListener(this);
+
         return view;
     }
 
@@ -58,22 +72,15 @@ public class DetailFragment extends DrawerFragment {
         this.detailView.setContext(context);
 
         if (this.detailView instanceof TrackView) {
-            long startTime = 0;
             Bundle b = getArguments();
             if (b != null) {
-                startTime = b.getLong("startTime");
-            }
-            if (startTime != 0) {
-                TrackView trackView = (TrackView)this.detailView;
-                trackView.load(getLocations(context, startTime));
+                this.startTime = b.getLong("startTime");
+                if (this.startTime != 0) {
+                    TrackView trackView = (TrackView)this.detailView;
+                    trackView.load(getLocations(context, this.startTime));
+                }
             }
         }
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.detail_drawer, menu);
-        super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
@@ -106,33 +113,7 @@ public class DetailFragment extends DrawerFragment {
         this.detailView.onLowMemory();
     }
 
-    public List<Map<String, String>> makeDrawerItems() {
-        List<Map<String, String>> drawerItems = new ArrayList<>();
-
-        Map<String, String> drawerItem;
-
-        drawerItem = makeDrawerItem(R.string.history, R.drawable.ic_history);
-        drawerItems.add(drawerItem);
-
-        drawerItem = makeDrawerItem(R.string.chart, R.drawable.ic_show_chart);
-        drawerItems.add(drawerItem);
-
-        drawerItem = makeDrawerItem(R.string.map, R.drawable.ic_map);
-        drawerItems.add(drawerItem);
-
-        drawerItem = makeDrawerItem(R.string.split_time, R.drawable.ic_schedule);
-        drawerItems.add(drawerItem);
-
-        drawerItem = makeDrawerItem(R.string.export_file, R.drawable.ic_transform);
-        drawerItems.add(drawerItem);
-
-        return drawerItems;
-    }
-    @Override
-    public void onClickDrawerItem(int resId) {
-
-    }
-    @Override
+//    @Override
     public void onClickDrawerItem(int resId, long startTime) {
         switch (resId) {
             case R.string.history:
@@ -258,4 +239,27 @@ public class DetailFragment extends DrawerFragment {
                 Toast.LENGTH_LONG).show();
     }
 
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        Log.d(TAG, "onNavigationItemSelected");
+        int resId = item.getItemId();
+        switch (resId) {
+            case R.string.history:
+                this.goBack();
+                break;
+            case R.string.map:
+                this.openMapView(this.startTime);
+                break;
+            case R.string.chart:
+                this.openChartView(this.startTime);
+                break;
+            case R.string.export_file:
+                this.exportFile(this.startTime);
+                break;
+            case R.string.split_time:
+                this.openSplitTimeView(this.startTime);
+                break;
+        }
+        return false;
+    }
 }

@@ -9,6 +9,8 @@ import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.NavigationView;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -48,10 +50,11 @@ import java.util.Map;
 
 
 public class MobileGambarumeter extends AppCompatActivity
-        implements AdapterView.OnItemClickListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, ResultCallback<DataItemBuffer>, DataApi.DataListener {
+        implements GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener,
+        ResultCallback<DataItemBuffer>, DataApi.DataListener {
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
-    private ListView mDrawerList;
     private CharSequence mDrawerTitle;
     private CharSequence mTitle;
     private GoogleApiClient mGoogleApiClient;
@@ -119,10 +122,15 @@ public class MobileGambarumeter extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         // Pass the event to ActionBarDrawerToggle, if it returns
         // true, then it has handled the app icon touch event
+        // Handle your other action bar items...
         if (mDrawerToggle.onOptionsItemSelected(item)) {
             return true;
         }
-        // Handle your other action bar items...
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                mDrawerLayout.openDrawer(GravityCompat.START);
+                return true;
+        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -139,7 +147,7 @@ public class MobileGambarumeter extends AppCompatActivity
     }
     private void initializeDrawer() {
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        mDrawerList = (ListView) findViewById(R.id.left_drawer);
+
         mDrawerToggle = new ActionBarDrawerToggle(
                 this,                  /* host Activity */
                 mDrawerLayout,         /* DrawerLayout object */
@@ -151,22 +159,11 @@ public class MobileGambarumeter extends AppCompatActivity
             public void onDrawerClosed(View view) {
                 super.onDrawerClosed(view);
                 setTitle(mTitle);
-                clearDrawerItem();
             }
 
             /** Called when a drawer has settled in a completely open state. */
             public void onDrawerOpened(View drawerView) {
 
-                Fragment fragment = getFragmentManager().findFragmentById(
-                        R.id.fragment_container);
-                if (fragment instanceof DrawerFragment) {
-                    super.onDrawerOpened(drawerView);
-                    setTitle(mDrawerTitle);
-                    setDrawerItem((DrawerFragment)fragment);
-                } else if (fragment instanceof SettingsFragment) {
-                    mDrawerLayout.closeDrawer(mDrawerList);
-                    getFragmentManager().popBackStack();
-                }
 
             }
             public void setTitle(CharSequence title) {
@@ -179,43 +176,15 @@ public class MobileGambarumeter extends AppCompatActivity
         };
 
         // Set the drawer toggle as the DrawerListener
-        mDrawerLayout.setDrawerListener(mDrawerToggle);
+        mDrawerLayout.addDrawerListener(mDrawerToggle);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);
+        ActionBar actionBar = getSupportActionBar();
 
-        // Set the list's click listener
-        mDrawerList.setOnItemClickListener(this);
-
-    }
-    private void clearDrawerItem() {
-        List<Map<String, String>> drawerItems = new ArrayList<>();
-
-        SimpleAdapter drawerAdapter = new SimpleAdapter (this.getBaseContext(),
-                drawerItems, R.layout.drawer_list_item,
-                new String[] {"text", "icon"},
-                new int[] {R.id.drawer_text, R.id.drawer_icon});
-
-
-        // Set the adapter for the list view
-        mDrawerList.setAdapter(drawerAdapter);
+//        actionBar.setHomeAsUpIndicator(R.drawable.ic_launcher);
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setHomeButtonEnabled(true);
 
     }
-    private void setDrawerItem(DrawerFragment fragment) {
-
-        List<Map<String, String>> drawerItems = fragment.makeDrawerItems();
-
-        SimpleAdapter drawerAdapter = new SimpleAdapter (this.getBaseContext(),
-                drawerItems, R.layout.drawer_list_item,
-                new String[] {"text", "icon"},
-                new int[] {R.id.drawer_text, R.id.drawer_icon});
-
-
-        // Set the adapter for the list view
-        mDrawerList.setAdapter(drawerAdapter);
-
-    }
-
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
@@ -229,37 +198,10 @@ public class MobileGambarumeter extends AppCompatActivity
     }
     @Override
     public void onBackPressed() {
-        if (mDrawerLayout.isDrawerOpen(mDrawerList)) {
-            mDrawerLayout.closeDrawer(mDrawerList);
-            return;
-        }
         this.getFragmentManager().popBackStack();
         if(this.getFragmentManager().getBackStackEntryCount() == 0) {
             super.onBackPressed();
         }
-    }
-
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        DrawerFragment f =
-                (DrawerFragment)this.getFragmentManager().findFragmentById(
-                        R.id.fragment_container);
-        Bundle args = f.getArguments();
-        long startTime = 0;
-        if (args != null) {
-            startTime = args.getLong("startTime");
-
-        }
-        Log.d(TAG, "startTime: " + startTime);
-
-
-        Map<String, String> clickedItem;
-        //noinspection unchecked
-        clickedItem = (Map<String, String>) mDrawerList.getItemAtPosition(position);
-        Integer resId = Integer.valueOf(clickedItem.get("id"));
-        f.onClickDrawerItem(resId, startTime);
-        mDrawerLayout.closeDrawer(mDrawerList);
-
     }
 
     @Override

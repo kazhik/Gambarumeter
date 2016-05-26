@@ -1,19 +1,30 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".Gambarumeter" >
-    <item android:id="@+id/action_history"
-        android:title="@string/history"
-        android:icon="@drawable/ic_history"/>
-    <item android:id="@+id/action_chart"
-        android:title="@string/chart"
-        android:icon="@drawable/ic_show_chart"/>
-    <item android:id="@+id/action_map"
-        android:title="@string/map"
-        android:icon="@drawable/ic_map"/>
-    <item android:id="@+id/action_splittime"
-        android:title="@string/split_time"
-        android:icon="@drawable/ic_schedule"/>
-    <item android:id="@+id/action_transform"
-        android:title="@string/export_file"
-        android:icon="@drawable/ic_transform"/>
+    <group
+        android:id="@+id/goto_main"
+        android:checkableBehavior="single">
+
+        <item android:id="@+id/action_history"
+            android:title="@string/history"
+            android:icon="@drawable/ic_history"/>
+    </group>
+    <group
+        android:id="@+id/change_view"
+        android:checkableBehavior="single">
+
+        <item android:id="@+id/action_chart"
+            android:title="@string/chart"
+            android:icon="@drawable/ic_show_chart"/>
+        <item android:id="@+id/action_map"
+            android:title="@string/map"
+            android:icon="@drawable/ic_map"/>
+        <item android:id="@+id/action_splittime"
+            android:title="@string/split_time"
+            android:icon="@drawable/ic_schedule"/>
+        <item android:id="@+id/action_transform"
+            android:title="@string/export_file"
+            android:icon="@drawable/ic_transform"/>
+    </group>
+
 </menu>
