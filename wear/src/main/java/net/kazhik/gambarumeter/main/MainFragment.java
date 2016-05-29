@@ -57,6 +57,8 @@ import net.kazhik.gambarumeterlib.storage.WorkoutTable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -87,17 +89,14 @@ public abstract class MainFragment extends PagerFragment
     private UserInputManager userInputManager;
     private Vibrator vibrator;
 
-    private Handler handler;
-    private HandlerThread saveDataThread = new HandlerThread("SaveDataThread");
     private Runnable saveDataRunnable = new Runnable() {
         @Override
         public void run() {
             storeCurrentValue(System.currentTimeMillis());
-            if (stopwatch.isRunning()) {
-                handler.postDelayed(saveDataRunnable, TimeUnit.SECONDS.toMillis(60));
-            }
         }
     };
+    private ScheduledExecutorService scheduler =
+            Executors.newSingleThreadScheduledExecutor();
 
     private GoogleApiClient googleApiClient;
 
@@ -124,9 +123,6 @@ public abstract class MainFragment extends PagerFragment
                 .build();
 
         this.vibrator = (Vibrator) activity.getSystemService(Context.VIBRATOR_SERVICE);
-
-        this.saveDataThread.start();
-        this.handler = new Handler(this.saveDataThread.getLooper());
 
     }
 
@@ -270,11 +266,12 @@ public abstract class MainFragment extends PagerFragment
 
         this.stopwatch.start();
 
-        this.handler.postDelayed(this.saveDataRunnable,
-                TimeUnit.SECONDS.toMillis(60));
+        this.scheduler.scheduleAtFixedRate(this.saveDataRunnable,0,
+                60, TimeUnit.SECONDS);
 
     }
     protected long stopWorkout() {
+        this.scheduler.shutdown();
         long stopTime = this.stopwatch.stop();
         if (this.stepCountMonitor != null) {
             this.stepCountMonitor.stop();
@@ -288,16 +285,6 @@ public abstract class MainFragment extends PagerFragment
         if (this.stepCountMonitor != null) {
             this.stepCountMonitor.saveResult(db, startTime);
         }
-    }
-    private void sendNewDataToMobile() {
-        PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/newdata");
-
-        // put data on datamap
-        DataMap dataMap = putData(putDataMapReq.getDataMap());
-        Log.d(TAG, "newData: " + dataMap.toString());
-
-        this.sendDataToMobile(putDataMapReq.asPutDataRequest());
-
     }
     private void sendDataToMobile(PutDataRequest putDataReq) {
         Log.d(TAG, "putDataItem:" + putDataReq.getUri().getPath());
@@ -372,11 +359,13 @@ public abstract class MainFragment extends PagerFragment
             return;
         }
         this.userInputManager.toggleVisibility(false);
+        this.vibrator.vibrate(1000);
+
         this.stopWorkout();
         this.saveResult();
-        this.sendNewDataToMobile();
+        long startTime = this.stopwatch.getStartTime();
+        this.sync(startTime);
         this.stopwatch.reset();
-        this.vibrator.vibrate(1000);
     }
     // SensorValueListener
     @Override

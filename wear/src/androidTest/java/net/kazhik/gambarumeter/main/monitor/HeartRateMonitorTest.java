@@ -46,7 +46,7 @@ public class HeartRateMonitorTest extends InstrumentationTestCase {
         }
 
     }
-
+/*
     public void testStoreHeartRate() throws Exception {
         HeartRateMonitor heartRateMonitor = new HeartRateMonitor();
 
@@ -117,7 +117,7 @@ public class HeartRateMonitorTest extends InstrumentationTestCase {
         assertEquals(65f, dataList.get(0).getValue());
         
     }
-
+*/
     public void testOnSensorEvent() throws Exception {
         HeartRateMonitor heartRateMonitor = new HeartRateMonitor();
 
@@ -193,7 +193,7 @@ public class HeartRateMonitorTest extends InstrumentationTestCase {
         assertEquals(0, dataList.size());
         assertEquals(3, queue.size());
 
-        heartRateMonitor.storeCurrentValue(0);
+        heartRateMonitor.stop();
 
         dataList = (List<SensorValue>)dataListField.get(heartRateMonitor);
         queue = (LinkedBlockingQueue<SensorValue>)queueField.get(heartRateMonitor);
@@ -204,6 +204,7 @@ public class HeartRateMonitorTest extends InstrumentationTestCase {
         SensorValue average = dataList.get(0);
         assertEquals(65f, average.getValue());
 
+        assertEquals(65, heartRateMonitor.getAverageHeartRate());
     }
     
 }
