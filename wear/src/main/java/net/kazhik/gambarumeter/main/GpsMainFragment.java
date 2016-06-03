@@ -8,6 +8,9 @@ import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
 import android.location.LocationManager;
 import android.os.IBinder;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -66,29 +69,38 @@ public class GpsMainFragment extends MainFragment
         Activity activity = this.getActivity();
         Context appContext = activity.getApplicationContext();
 
-        if (activity.getPackageManager().hasSystemFeature(PackageManager.FEATURE_LOCATION_GPS)) {
-
-            if (this.isGpsEnabled(appContext)) {
-                Intent intent = new Intent(activity, LocationMonitor.class);
-                boolean bound = appContext.bindService(intent, this, Context.BIND_AUTO_CREATE);
-                if (bound) {
-                    this.setBound();
-                }
-                this.locationMonitor = new LocationMonitor(); // temporary
-            } else {
-                Toast.makeText(appContext,
-                        R.string.gps_off,
-                        Toast.LENGTH_LONG)
-                        .show();
-            }
+        if (!this.isGpsEnabled(activity)) {
+            Toast.makeText(appContext,
+                    R.string.gps_off,
+                    Toast.LENGTH_LONG)
+                    .show();
+            return;
+        }
+        if (!this.isLocationEnabled(activity)) {
+            Toast.makeText(appContext,
+                    R.string.location_disabled,
+                    Toast.LENGTH_LONG)
+                    .show();
+            return;
 
         }
+        Intent intent = new Intent(activity, LocationMonitor.class);
+        boolean bound = appContext.bindService(intent, this, Context.BIND_AUTO_CREATE);
+        if (bound) {
+            this.setBound();
+        }
+        this.locationMonitor = new LocationMonitor(); // temporary
 
     }
-    private boolean isGpsEnabled(Context context) {
 
+    private boolean isLocationEnabled(Activity activity) {
+        int checkResult = ContextCompat.checkSelfPermission( activity,
+                android.Manifest.permission.ACCESS_FINE_LOCATION );
+        return ( checkResult == PackageManager.PERMISSION_GRANTED );
+    }
+    private boolean isGpsEnabled(Activity activity) {
         LocationManager lm =
-                (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+                (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
         return lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
     }
     protected void initializeUI() {

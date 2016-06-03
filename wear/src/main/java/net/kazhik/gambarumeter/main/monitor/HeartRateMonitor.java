@@ -113,7 +113,8 @@ public class HeartRateMonitor extends SensorService {
         }
         Log.d(TAG, "calculate average HR: size=" + size);
         average.setTimestamp(lastTimestamp);
-        average.setValue(sumHeartRate / size);
+        int averageValue = sumHeartRate / size;
+        average.setValue(averageValue);
 
         return average;
     }

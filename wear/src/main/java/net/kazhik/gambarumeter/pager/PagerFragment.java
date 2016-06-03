@@ -1,5 +1,6 @@
 package net.kazhik.gambarumeter.pager;
 
+
 import android.app.Fragment;
 
 /**

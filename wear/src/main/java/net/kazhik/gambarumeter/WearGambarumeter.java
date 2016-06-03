@@ -1,10 +1,14 @@
 package net.kazhik.gambarumeter;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.database.SQLException;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.wearable.view.GridViewPager;
 import android.util.Log;
 
@@ -36,23 +40,6 @@ public class WearGambarumeter extends Activity {
         PagerAdapter pagerAdapter = new PagerAdapter(this, this.getFragmentManager());
         pager.setOnPageChangeListener(pagerAdapter);
         pager.setAdapter(pagerAdapter);
-
-        //this.startLogWrite();
-
-    }
-    private void startLogWrite() {
-        if (!BuildConfig.DEBUG) {
-            return;
-        }
-        try {
-            File f = new File(Environment.getExternalStorageDirectory()
-                    + "/" + this.getString(R.string.app_name) + ".log");
-            f.createNewFile();
-            String cmd = "logcat -d -v time -f " + f.getAbsolutePath();
-            Runtime.getRuntime().exec(cmd);
-        } catch (IOException e) {
-            Log.e(TAG, e.getMessage(), e);
-        }
 
     }
     private void cleanDatabase() {

@@ -575,7 +575,7 @@ public abstract class MainFragment extends PagerFragment
         WorkoutTable workoutTable = new WorkoutTable(this.getActivity());
         workoutTable.openWritable();
         for (String startTimeStr: dataMap.keySet()) {
-            long startTime = Long.valueOf(startTimeStr);
+            long startTime = Long.parseLong(startTimeStr);
             if (dataMap.getBoolean(startTimeStr) == true) {
                 boolean ret = workoutTable.updateSynced(startTime);
                 Log.d(TAG, "updateSynced: " +
