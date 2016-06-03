@@ -20,13 +20,6 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.google.android.gms:play-services-wearable:9.0.1'
+    compile 'com.google.android.gms:play-services-wearable:9.0.2'
 }
 
-def excludePattern = 'com.google.android.gms.R'
-def excludePatternAntStyle = '**/' + excludePattern + '*'
-tasks.withType(FindBugs) {
-    classes = classes.filter {
-        !it.path.contains(excludePattern)
-    }
-}
