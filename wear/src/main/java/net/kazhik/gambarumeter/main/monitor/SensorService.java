@@ -5,9 +5,9 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Handler;
+import android.os.HandlerThread;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -20,11 +20,12 @@ public abstract class SensorService extends Service implements SensorEventListen
         @Override
         public void run() {
             storeCurrentValue(System.currentTimeMillis());
-        }
+            handler.postDelayed(saveDataRunnable, TimeUnit.SECONDS.toMillis(60));
+            }
     };
 
-    private ScheduledExecutorService scheduler =
-            Executors.newSingleThreadScheduledExecutor();
+    private Handler handler;
+    private HandlerThread saveDataThread = new HandlerThread("SaveDataThread");
 
     public boolean initialize(SensorManager sensorManager,
                            int sensorType) {
@@ -39,14 +40,10 @@ public abstract class SensorService extends Service implements SensorEventListen
                 this.sensor,
                 SensorManager.SENSOR_DELAY_NORMAL);
 
-        this.scheduler.scheduleAtFixedRate(this.saveDataRunnable,0,
-                60, TimeUnit.SECONDS);
-
         return true;
     }
 
     public void terminate() {
-        this.scheduler.shutdown();
 
         if (this.sensorManager == null) {
             return;
@@ -56,10 +53,17 @@ public abstract class SensorService extends Service implements SensorEventListen
     }
 
     public void start() {
-
+        this.saveDataThread.start();
+        this.handler = new Handler(this.saveDataThread.getLooper());
+        this.handler.postDelayed(this.saveDataRunnable,
+                TimeUnit.SECONDS.toMillis(60));
     }
     public void stop(long stopTime) {
+        this.saveDataThread.quit();
 
+    }
+    public boolean isStarted() {
+        return this.saveDataThread.isAlive();
     }
 
 

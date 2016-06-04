@@ -30,7 +30,6 @@ public class HeartRateMonitor extends SensorService {
     private LinkedBlockingQueue<SensorValue> queue = new LinkedBlockingQueue<>();
     private HeartRateBinder binder = new HeartRateBinder();
     private static final String TAG = "HeartRateMonitor";
-    private boolean started = false;
 
     public class HeartRateBinder extends Binder {
 
@@ -77,14 +76,16 @@ public class HeartRateMonitor extends SensorService {
 
     @Override
     public void start() {
+        super.start();
+
         this.dataList.clear();
 
-        this.started = true;
     }
 
     @Override
     public void stop(long stopTime) {
-        this.started = false;
+        super.stop(stopTime);
+
         SensorValue average = this.calculateAverageHeartRateInQueue();
         if (average.getValue() != 0f) {
             this.dataList.add(average);
@@ -147,7 +148,7 @@ public class HeartRateMonitor extends SensorService {
         long newTimestamp = System.currentTimeMillis();
         if (sensorValue[0] != this.currentValue.getValue()) {
             this.listener.onHeartRateChanged(newTimestamp, (int)sensorValue[0]);
-            if (this.started) {
+            if (this.isStarted()) {
                 this.queue.add(new SensorValue(newTimestamp, sensorValue[0], accuracy));
             }
         }

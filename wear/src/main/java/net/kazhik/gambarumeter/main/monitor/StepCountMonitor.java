@@ -31,7 +31,6 @@ public class StepCountMonitor extends SensorService {
     private Sensor stepCountSensor;
     private float initialValue = 0;
     private float prevValue = 0;
-    private boolean started = false;
     private SensorValue currentValue = new SensorValue(0, 0f);
     private List<SensorValue> dataList = new ArrayList<>();
     private StepCountBinder binder = new StepCountBinder();
@@ -60,6 +59,8 @@ public class StepCountMonitor extends SensorService {
 
     @Override
     public void start() {
+        super.start();
+
         this.initialValue = 0;
         this.prevValue = 0;
         this.dataList.clear();
@@ -67,11 +68,11 @@ public class StepCountMonitor extends SensorService {
                 this.stepCountSensor,
                 SensorManager.SENSOR_DELAY_NORMAL);
 
-        this.started = true;
     }
     @Override
     public void stop(long stopTime) {
-        this.started = false;
+        super.stop(stopTime);
+
         this.sensorManager.unregisterListener(this, this.stepCountSensor);
 
     }
@@ -129,7 +130,7 @@ public class StepCountMonitor extends SensorService {
 
         long newTimestamp = System.currentTimeMillis();
         float newValue = sensorValues[0];
-        if (!this.started) {
+        if (!this.isStarted()) {
             return;
         }
         if (this.initialValue == 0) {
