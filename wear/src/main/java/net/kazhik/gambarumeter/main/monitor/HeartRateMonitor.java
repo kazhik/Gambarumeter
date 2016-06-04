@@ -118,7 +118,9 @@ public class HeartRateMonitor extends SensorService {
 
         return average;
     }
-    public int storeCurrentValue(long timestamp) {
+
+    @Override
+    public void storeCurrentValue(long timestamp) {
         // raw data in queue, rate per minute in dataList
 
         SensorValue average = this.calculateAverageHeartRateInQueue();
@@ -126,7 +128,6 @@ public class HeartRateMonitor extends SensorService {
             Log.d(TAG, "storeCurrentValue: " + average.getValue());
             this.dataList.add(average);
         }
-        return (int)average.getValue();
     }
 
     @Override

@@ -11,8 +11,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
@@ -88,15 +86,6 @@ public abstract class MainFragment extends PagerFragment
 
     private UserInputManager userInputManager;
     private Vibrator vibrator;
-
-    private Runnable saveDataRunnable = new Runnable() {
-        @Override
-        public void run() {
-            storeCurrentValue(System.currentTimeMillis());
-        }
-    };
-    private ScheduledExecutorService scheduler =
-            Executors.newSingleThreadScheduledExecutor();
 
     private GoogleApiClient googleApiClient;
 
@@ -189,6 +178,9 @@ public abstract class MainFragment extends PagerFragment
         if (this.gyroscope != null) {
             this.gyroscope.terminate();
         }
+        if (this.stepCountMonitor != null) {
+            this.stepCountMonitor.stop();
+        }
         Activity activity = this.getActivity();
         if (this.isBound) {
             activity.getApplicationContext().unbindService(this);
@@ -212,28 +204,32 @@ public abstract class MainFragment extends PagerFragment
                 (SensorManager)activity.getSystemService(Activity.SENSOR_SERVICE);
 
         List<Sensor> sensorList = this.sensorManager.getSensorList(Sensor.TYPE_ALL);
+        Intent intent;
+        boolean bound = false;
         for (Sensor sensor: sensorList) {
+            intent = null;
             Log.i(TAG, "Sensor:" + sensor.getName() + "; " + sensor.getType());
             switch (sensor.getType()) {
                 case Sensor.TYPE_STEP_COUNTER:
+                    intent = new Intent(activity, StepCountMonitor.class);
                     this.stepCountMonitor = new StepCountMonitor();
-                    this.stepCountMonitor.init(activity, this.sensorManager, this);
                     break;
                 case Sensor.TYPE_GYROSCOPE:
-                    Intent intent = new Intent(activity, Gyroscope.class);
-                    boolean bound = this.getActivity().getApplicationContext().bindService(intent,
-                            this, Context.BIND_AUTO_CREATE);
+                    intent = new Intent(activity, Gyroscope.class);
                     this.gyroscope = new Gyroscope(); // temporary
-                    if (bound) {
-                        this.isBound = true;
-                    }
 
                     break;
                 default:
                     break;
             }
+            if (intent != null) {
+                bound = this.getActivity().getApplicationContext().bindService(intent,
+                        this, Context.BIND_AUTO_CREATE);
+                if (bound) {
+                    this.isBound = true;
+                }
+            }
         }
-
 
         this.stopwatch = new Stopwatch(1000L, this);
 
@@ -266,12 +262,8 @@ public abstract class MainFragment extends PagerFragment
 
         this.stopwatch.start();
 
-        this.scheduler.scheduleAtFixedRate(this.saveDataRunnable,0,
-                60, TimeUnit.SECONDS);
-
     }
     protected long stopWorkout() {
-        this.scheduler.shutdown();
         long stopTime = this.stopwatch.stop();
         if (this.stepCountMonitor != null) {
             this.stepCountMonitor.stop();
@@ -411,6 +403,10 @@ public abstract class MainFragment extends PagerFragment
                     ((Gyroscope.GyroBinder) iBinder).getService();
 
             this.gyroscope.initialize(this.sensorManager, this);
+        } else if (iBinder instanceof StepCountMonitor.StepCountBinder) {
+            this.stepCountMonitor =
+                    ((StepCountMonitor.StepCountBinder) iBinder).getService();
+            this.stepCountMonitor.init(this.getActivity(), this.sensorManager, this);
         }
 
     }
@@ -605,11 +601,6 @@ public abstract class MainFragment extends PagerFragment
             this.googleApiClient.disconnect();
         }
         super.onStop();
-    }
-
-    protected void storeCurrentValue(long timestamp) {
-        this.stepCountMonitor.storeCurrentValue(timestamp);
-
     }
 
     @Override

@@ -1,13 +1,13 @@
 package net.kazhik.gambarumeter.main.monitor;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.os.Handler;
-import android.os.HandlerThread;
+import android.os.Binder;
+import android.os.IBinder;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.google.android.gms.wearable.DataMap;
@@ -18,12 +18,11 @@ import net.kazhik.gambarumeterlib.storage.StepCountTable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by kazhik on 14/10/12.
  */
-public class StepCountMonitor implements SensorEventListener {
+public class StepCountMonitor extends SensorService {
     private Context context;
 
     private SensorManager sensorManager;
@@ -35,8 +34,14 @@ public class StepCountMonitor implements SensorEventListener {
     private boolean started = false;
     private SensorValue currentValue = new SensorValue(0, 0f);
     private List<SensorValue> dataList = new ArrayList<>();
+    private StepCountBinder binder = new StepCountBinder();
     private static final String TAG = "StepCountMonitor";
 
+    public class StepCountBinder extends Binder {
+        public StepCountMonitor getService() {
+            return StepCountMonitor.this;
+        }
+    }
     public void init(Context context,
                      SensorManager sensorManager,
 
@@ -65,7 +70,6 @@ public class StepCountMonitor implements SensorEventListener {
     public void stop() {
         this.started = false;
         this.sensorManager.unregisterListener(this, this.stepCountSensor);
-//        this.dataSaveThread.quitSafely();
 
     }
 
@@ -98,6 +102,8 @@ public class StepCountMonitor implements SensorEventListener {
         }
         return lastTimestamp;
     }
+
+    @Override
     public void storeCurrentValue(long timestamp) {
         if (this.currentValue.getValue() > this.prevValue ) {
             float steps = this.currentValue.getValue() - this.initialValue;
@@ -108,8 +114,8 @@ public class StepCountMonitor implements SensorEventListener {
     }
 
     @Override
-    public void onSensorChanged(SensorEvent sensorEvent) {
-        switch (sensorEvent.accuracy) {
+    protected void onSensorEvent(long timestamp, float[] sensorValues, int accuracy) {
+        switch (accuracy) {
             case SensorManager.SENSOR_STATUS_ACCURACY_HIGH:
             case SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM:
             case SensorManager.SENSOR_STATUS_ACCURACY_LOW:
@@ -119,7 +125,7 @@ public class StepCountMonitor implements SensorEventListener {
         }
 
         long newTimestamp = System.currentTimeMillis();
-        float newValue = sensorEvent.values[0];
+        float newValue = sensorValues[0];
         if (!this.started) {
             return;
         }
@@ -131,11 +137,13 @@ public class StepCountMonitor implements SensorEventListener {
             this.listener.onStepCountChanged(newTimestamp, (int)steps);
         }
         this.currentValue.setTimestamp(newTimestamp)
-            .setValue(newValue);
+                .setValue(newValue);
+
     }
 
+    @Nullable
     @Override
-    public void onAccuracyChanged(Sensor sensor, int i) {
-
+    public IBinder onBind(Intent intent) {
+        return this.binder;
     }
 }

@@ -1,8 +1,11 @@
 package net.kazhik.gambarumeter.main.monitor;
 
+import android.Manifest;
+import android.app.Activity;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
 import android.location.GpsStatus;
 import android.location.Location;
@@ -11,6 +14,8 @@ import android.location.LocationManager;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import com.google.android.gms.wearable.DataMap;
@@ -27,7 +32,7 @@ import java.util.List;
 
 /**
  * Sequence of GPS monitoring:
- * 
+ *
  * MainFragment#initializeSensor
  *   bindService ( creates LocationMonitor)
  * MainFragment#onServiceConnected
@@ -38,7 +43,7 @@ import java.util.List;
  */
 public class LocationMonitor extends Service
         implements LocationListener, GpsStatus.Listener {
-    
+
     private Context context;
 
     private GeolocationBinder binder = new GeolocationBinder();
@@ -63,6 +68,11 @@ public class LocationMonitor extends Service
         }
     }
 
+    private boolean isLocationEnabled(Context context) {
+        int checkResult = ContextCompat.checkSelfPermission( context,
+                android.Manifest.permission.ACCESS_FINE_LOCATION );
+        return ( checkResult == PackageManager.PERMISSION_GRANTED );
+    }
     public void init(Context context, LocationSensorValueListener listener) {
         this.context = context;
         this.listener = listener;
@@ -70,6 +80,11 @@ public class LocationMonitor extends Service
         this.locationManager =
                 (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
+        int checkResult = ContextCompat.checkSelfPermission( context,
+                android.Manifest.permission.ACCESS_FINE_LOCATION );
+        if ( checkResult != PackageManager.PERMISSION_GRANTED ) {
+            return;
+        }
         this.locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
                 UPDATE_INTERVAL_MS, UPDATE_DISTANCE, this);
         if (this.locationManager.getAllProviders().contains(LocationManager.NETWORK_PROVIDER)) {
@@ -80,27 +95,32 @@ public class LocationMonitor extends Service
 
         this.distanceUtil = DistanceUtil.getInstance(context);
     }
+
     public void start() {
         this.record.init(this.distanceUtil.lapDistance());
         this.record.addLap(System.currentTimeMillis());
     }
+
     public void stop(long stopTime) {
         this.record.addLap(stopTime);
 
     }
+
     public float getDistance() {
         return this.record.getDistance();
     }
+
     private List<Location> getLocationList() {
         return this.record.getLocationList();
     }
+
     private List<SplitTime> getSplits() {
         return this.record.getSplits();
     }
 
     public DataMap putData(DataMap dataMap) {
         ArrayList<DataMap> locationMapList = new ArrayList<>();
-        for (Location loc: this.getLocationList()) {
+        for (Location loc : this.getLocationList()) {
             DataMap locMap = new DataMap();
             locMap.putLong(DataStorage.COL_TIMESTAMP, loc.getTime());
             locMap.putDouble(DataStorage.COL_LATITUDE, loc.getLatitude());
@@ -114,7 +134,7 @@ public class LocationMonitor extends Service
         dataMap.putDataMapArrayList(DataStorage.TBL_LOCATION, locationMapList);
 
         ArrayList<DataMap> splitMapList = new ArrayList<>();
-        for (SplitTime split: this.getSplits()) {
+        for (SplitTime split : this.getSplits()) {
             DataMap splitMap = new DataMap();
             splitMap.putLong(DataStorage.COL_TIMESTAMP, split.getTimestamp());
             splitMap.putFloat(DataStorage.COL_DISTANCE, split.getDistance());
@@ -125,22 +145,29 @@ public class LocationMonitor extends Service
 
         return dataMap;
     }
+
     public void saveResult(SQLiteDatabase db, long startTime) {
         LocationTable locTable = new LocationTable(this.context, db);
-        for (Location loc: this.getLocationList()) {
+        for (Location loc : this.getLocationList()) {
             Log.d(TAG, "saveResult:" + loc.getTime());
             locTable.insert(startTime, loc);
         }
 
         SplitTable splitTable = new SplitTable(this.context, db);
-        for (SplitTime split: this.getSplits()) {
+        for (SplitTime split : this.getSplits()) {
             splitTable.insert(split.getTimestamp(), startTime, split.getDistance());
         }
 
     }
+
     public void terminate() {
         Log.d(TAG, "terminate: ");
         if (this.locationManager != null) {
+            int checkResult = ContextCompat.checkSelfPermission( this.context,
+                    android.Manifest.permission.ACCESS_FINE_LOCATION );
+            if ( checkResult != PackageManager.PERMISSION_GRANTED ) {
+                return;
+            }
             this.locationManager.removeUpdates(this);
             this.locationManager.removeGpsStatusListener(this);
         }
