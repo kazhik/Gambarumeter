@@ -131,6 +131,8 @@ public class DetailFragment extends Fragment implements NavigationView.OnNavigat
             case R.string.split_time:
                 this.openSplitTimeView(startTime);
                 break;
+            default:
+                break;
         }
 
     }
@@ -258,6 +260,8 @@ public class DetailFragment extends Fragment implements NavigationView.OnNavigat
                 break;
             case R.string.split_time:
                 this.openSplitTimeView(this.startTime);
+                break;
+            default:
                 break;
         }
         return false;

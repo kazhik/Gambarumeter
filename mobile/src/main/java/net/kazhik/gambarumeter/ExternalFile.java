@@ -144,6 +144,8 @@ public class ExternalFile {
                                 long currentTime = timeFormatter.parse(parser.getText()).getTime();
                                 loc.setTime(currentTime);
                                 break;
+                            default:
+                                break;
                         }
                         break;
 
@@ -444,7 +446,7 @@ public class ExternalFile {
             Log.e(TAG, e.getMessage(), e);
         }
     }
-    private class GpxMetaInfo {
+    private static class GpxMetaInfo {
         private String creator = "";
         private String name = "";
         private String description = "";
