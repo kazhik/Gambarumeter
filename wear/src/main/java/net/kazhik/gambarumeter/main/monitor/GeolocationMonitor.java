@@ -34,7 +34,7 @@ import java.util.List;
 
 /**
  * Sequence of GPS monitoring:
- * 
+ *
  * MainFragment#initializeSensor
  *   bindService ( creates GeolocationMonitor) 
  * MainFragment#onServiceConnected
@@ -50,7 +50,7 @@ public class GeolocationMonitor extends Service
         implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener, GpsStatus.Listener, ResultCallback<Status> {
-    
+
     private Context context;
     private GoogleApiClient googleApiClient;
 

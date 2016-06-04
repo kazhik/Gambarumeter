@@ -74,12 +74,16 @@ public class HeartRateMonitor extends SensorService {
 
         return dataMap;
     }
+
+    @Override
     public void start() {
         this.dataList.clear();
 
         this.started = true;
     }
-    public void stop() {
+
+    @Override
+    public void stop(long stopTime) {
         this.started = false;
         SensorValue average = this.calculateAverageHeartRateInQueue();
         if (average.getValue() != 0f) {

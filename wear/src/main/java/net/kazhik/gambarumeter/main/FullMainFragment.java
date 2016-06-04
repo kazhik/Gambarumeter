@@ -168,7 +168,7 @@ public class FullMainFragment extends MainFragment
         long stopTime = super.stopWorkout();
 
         if (this.heartRateMonitor != null) {
-            this.heartRateMonitor.stop();
+            this.heartRateMonitor.stop(stopTime);
         }
 
         if (this.locationMonitor != null) {

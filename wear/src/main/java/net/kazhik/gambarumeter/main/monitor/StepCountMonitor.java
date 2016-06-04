@@ -57,6 +57,8 @@ public class StepCountMonitor extends SensorService {
     public int getStepCount() {
         return (int)(this.currentValue.getValue() - this.initialValue);
     }
+
+    @Override
     public void start() {
         this.initialValue = 0;
         this.prevValue = 0;
@@ -67,7 +69,8 @@ public class StepCountMonitor extends SensorService {
 
         this.started = true;
     }
-    public void stop() {
+    @Override
+    public void stop(long stopTime) {
         this.started = false;
         this.sensorManager.unregisterListener(this, this.stepCountSensor);
 

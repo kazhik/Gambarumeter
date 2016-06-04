@@ -193,7 +193,7 @@ public class HeartRateMonitorTest extends InstrumentationTestCase {
         assertEquals(0, dataList.size());
         assertEquals(3, queue.size());
 
-        heartRateMonitor.stop();
+        heartRateMonitor.stop(0);
 
         dataList = (List<SensorValue>)dataListField.get(heartRateMonitor);
         queue = (LinkedBlockingQueue<SensorValue>)queueField.get(heartRateMonitor);

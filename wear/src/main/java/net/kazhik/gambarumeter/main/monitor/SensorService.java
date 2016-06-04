@@ -55,6 +55,14 @@ public abstract class SensorService extends Service implements SensorEventListen
 
     }
 
+    public void start() {
+
+    }
+    public void stop(long stopTime) {
+
+    }
+
+
     abstract protected void onSensorEvent(long timestamp, float[] sensorValues, int accuracy);
 
     public void storeCurrentValue(long timestamp) {

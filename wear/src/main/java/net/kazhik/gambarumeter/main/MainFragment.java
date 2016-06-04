@@ -171,7 +171,7 @@ public abstract class MainFragment extends PagerFragment
 
     @Override
     public void onDestroy() {
-        this.stopWorkout();
+        long stopTime = this.stopWorkout();
         if (this.googleApiClient != null) {
             this.googleApiClient.unregisterConnectionCallbacks(this);
         }
@@ -179,7 +179,7 @@ public abstract class MainFragment extends PagerFragment
             this.gyroscope.terminate();
         }
         if (this.stepCountMonitor != null) {
-            this.stepCountMonitor.stop();
+            this.stepCountMonitor.stop(stopTime);
         }
         Activity activity = this.getActivity();
         if (this.isBound) {
@@ -266,7 +266,7 @@ public abstract class MainFragment extends PagerFragment
     protected long stopWorkout() {
         long stopTime = this.stopwatch.stop();
         if (this.stepCountMonitor != null) {
-            this.stepCountMonitor.stop();
+            this.stepCountMonitor.stop(stopTime);
         }
 
         return stopTime;

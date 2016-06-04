@@ -107,7 +107,7 @@ public class HeartRateMainFragment extends MainFragment
         long stopTime = super.stopWorkout();
 
         if (this.heartRateMonitor != null) {
-            this.heartRateMonitor.stop();
+            this.heartRateMonitor.stop(stopTime);
         }
         this.notificationView.dismiss();
 
