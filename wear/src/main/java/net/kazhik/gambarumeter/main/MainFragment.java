@@ -179,7 +179,7 @@ public abstract class MainFragment extends PagerFragment
             this.gyroscope.terminate();
         }
         if (this.stepCountMonitor != null) {
-            this.stepCountMonitor.stop(stopTime);
+            this.stepCountMonitor.terminate();
         }
         Activity activity = this.getActivity();
         if (this.isBound) {
@@ -398,10 +398,8 @@ public abstract class MainFragment extends PagerFragment
         Log.d(TAG, "onServiceConnected: " + componentName.toString());
 
         if (iBinder instanceof Gyroscope.GyroBinder) {
-
             this.gyroscope =
                     ((Gyroscope.GyroBinder) iBinder).getService();
-
             this.gyroscope.initialize(this.sensorManager, this);
         } else if (iBinder instanceof StepCountMonitor.StepCountBinder) {
             this.stepCountMonitor =

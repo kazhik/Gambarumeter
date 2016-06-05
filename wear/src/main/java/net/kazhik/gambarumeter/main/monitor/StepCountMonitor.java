@@ -24,11 +24,8 @@ import java.util.List;
  */
 public class StepCountMonitor extends SensorService {
     private Context context;
-
-    private SensorManager sensorManager;
     private SensorValueListener listener;
 
-    private Sensor stepCountSensor;
     private float initialValue = 0;
     private float prevValue = 0;
     private SensorValue currentValue = new SensorValue(0, 0f);
@@ -43,16 +40,15 @@ public class StepCountMonitor extends SensorService {
     }
     public void init(Context context,
                      SensorManager sensorManager,
-
                      SensorValueListener listener) {
 
+        Log.d(TAG, "initialize");
         this.context = context;
-        this.sensorManager = sensorManager;
         this.listener = listener;
-        this.stepCountSensor =
-                this.sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
 
+        super.initialize(sensorManager, Sensor.TYPE_STEP_COUNTER);
     }
+
     public int getStepCount() {
         return (int)(this.currentValue.getValue() - this.initialValue);
     }
@@ -64,16 +60,11 @@ public class StepCountMonitor extends SensorService {
         this.initialValue = 0;
         this.prevValue = 0;
         this.dataList.clear();
-        this.sensorManager.registerListener(this,
-                this.stepCountSensor,
-                SensorManager.SENSOR_DELAY_NORMAL);
 
     }
     @Override
     public void stop(long stopTime) {
         super.stop(stopTime);
-
-        this.sensorManager.unregisterListener(this, this.stepCountSensor);
 
     }
 
@@ -129,6 +120,7 @@ public class StepCountMonitor extends SensorService {
         }
 
         long newTimestamp = System.currentTimeMillis();
+        Log.d(TAG, "onSensorChanged(0): " + newTimestamp);
         float newValue = sensorValues[0];
         if (!this.isStarted()) {
             return;

@@ -7,6 +7,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.util.Log;
 
 import java.util.concurrent.TimeUnit;
 
@@ -26,21 +27,23 @@ public abstract class SensorService extends Service implements SensorEventListen
 
     private Handler handler;
     private HandlerThread saveDataThread = new HandlerThread("SaveDataThread");
+    private static final String TAG = "SensorService";
 
     public boolean initialize(SensorManager sensorManager,
                            int sensorType) {
 
         this.sensor = sensorManager.getDefaultSensor(sensorType);
         if (this.sensor == null) {
+            Log.w(TAG, "Failed to get sensor");
             return false;
         }
         this.sensorManager = sensorManager;
 
-        this.sensorManager.registerListener(this,
+        boolean ret = this.sensorManager.registerListener(this,
                 this.sensor,
                 SensorManager.SENSOR_DELAY_NORMAL);
-
-        return true;
+        Log.d(TAG, "registerListener:" + this.sensor.getName() + " " + ret);
+        return ret;
     }
 
     public void terminate() {
@@ -75,6 +78,14 @@ public abstract class SensorService extends Service implements SensorEventListen
 
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
+        switch (this.sensor.getName()) {
+            case "Heart Rate Sensor":
+            case "Gyro Sensor":
+                break;
+            default:
+                Log.d(TAG, "onSensorChanged: " + this.sensor.getName());
+                break;
+        }
         this.onSensorEvent(sensorEvent.timestamp,
                 sensorEvent.values,
                 sensorEvent.accuracy);

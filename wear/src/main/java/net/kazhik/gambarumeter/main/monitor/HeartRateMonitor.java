@@ -42,6 +42,7 @@ public class HeartRateMonitor extends SensorService {
                      SensorManager sensorManager,
                      HeartRateSensorValueListener listener) {
 
+        Log.d(TAG, "initialize");
         this.context = context;
         this.listener = listener;
 
