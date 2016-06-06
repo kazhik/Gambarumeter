@@ -39,10 +39,6 @@ public abstract class SensorService extends Service implements SensorEventListen
         }
         this.sensorManager = sensorManager;
 
-        this.saveDataThread.start();
-        /*
-        return true;
-        */
         boolean ret = this.sensorManager.registerListener(this,
                 this.sensor,
                 SensorManager.SENSOR_DELAY_NORMAL);
@@ -55,20 +51,26 @@ public abstract class SensorService extends Service implements SensorEventListen
             return;
         }
         this.sensorManager.unregisterListener(this, this.sensor);
-        this.saveDataThread.quit();
 
     }
 
     public void start() {
+        if (!this.isStarted()) {
+            this.saveDataThread.start();
+        }
+
         this.handler = new Handler(this.saveDataThread.getLooper());
         this.handler.postDelayed(this.saveDataRunnable,
                 TimeUnit.SECONDS.toMillis(60));
     }
     public void stop(long stopTime) {
-
+        if (this.isStarted()) {
+            this.saveDataThread.quit();
+            this.saveDataThread = new HandlerThread("SaveDataThread");
+        }
     }
     public boolean isStarted() {
-        return this.saveDataThread.isAlive();
+        return (this.saveDataThread.getState() == Thread.State.RUNNABLE);
     }
 
 
