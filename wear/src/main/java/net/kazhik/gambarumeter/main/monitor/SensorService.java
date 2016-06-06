@@ -26,7 +26,7 @@ public abstract class SensorService extends Service implements SensorEventListen
     };
 
     private Handler handler;
-    private HandlerThread saveDataThread = new HandlerThread("SaveDataThread");
+    private HandlerThread saveDataThread = null;
     private static final String TAG = "SensorService";
 
     public boolean initialize(SensorManager sensorManager,
@@ -56,6 +56,7 @@ public abstract class SensorService extends Service implements SensorEventListen
 
     public void start() {
         if (!this.isStarted()) {
+            this.saveDataThread = new HandlerThread("SaveDataThread");
             this.saveDataThread.start();
         }
 
@@ -66,11 +67,12 @@ public abstract class SensorService extends Service implements SensorEventListen
     public void stop(long stopTime) {
         if (this.isStarted()) {
             this.saveDataThread.quit();
-            this.saveDataThread = new HandlerThread("SaveDataThread");
+            this.saveDataThread = null;
         }
     }
     public boolean isStarted() {
-        return (this.saveDataThread.getState() == Thread.State.RUNNABLE);
+        return (this.saveDataThread != null &&
+                this.saveDataThread.getState() == Thread.State.RUNNABLE);
     }
 
 
