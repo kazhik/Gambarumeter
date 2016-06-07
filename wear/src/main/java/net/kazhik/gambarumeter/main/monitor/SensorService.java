@@ -84,14 +84,6 @@ public abstract class SensorService extends Service implements SensorEventListen
 
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
-        switch (this.sensor.getName()) {
-            case "Heart Rate Sensor":
-            case "Gyro Sensor":
-                break;
-            default:
-                Log.d(TAG, "onSensorChanged: " + this.sensor.getName());
-                break;
-        }
         this.onSensorEvent(sensorEvent.timestamp,
                 sensorEvent.values,
                 sensorEvent.accuracy);
