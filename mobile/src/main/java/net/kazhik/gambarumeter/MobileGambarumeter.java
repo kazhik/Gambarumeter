@@ -9,19 +9,16 @@ import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.design.widget.NavigationView;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ListView;
-import android.widget.SimpleAdapter;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -46,17 +43,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 
 public class MobileGambarumeter extends AppCompatActivity
         implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        ResultCallback<DataItemBuffer>, DataApi.DataListener {
+        ResultCallback<DataItemBuffer>, DataApi.DataListener, android.app.FragmentManager.OnBackStackChangedListener {
     private DrawerLayout mDrawerLayout;
-    private ActionBarDrawerToggle mDrawerToggle;
-    private CharSequence mDrawerTitle;
-    private CharSequence mTitle;
+    public ActionBarDrawerToggle mDrawerToggle;
     private GoogleApiClient mGoogleApiClient;
     private static final String TAG = "MobileGambarumeter";
 
@@ -77,7 +71,6 @@ public class MobileGambarumeter extends AppCompatActivity
                     .commit();
 
         }
-        mTitle = mDrawerTitle = getTitle();
         this.initializeDatabase();
         this.initializeDrawer();
 
@@ -95,44 +88,11 @@ public class MobileGambarumeter extends AppCompatActivity
 
 
     }
+
     private void importTcxFile(String filepath) {
         ExternalFile externalFile = new ExternalFile();
         externalFile.importTcxFile(this, filepath);
 
-    }
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-//        getMenuInflater().inflate(R.menu.gambarumeter, menu);
-        return true;
-    }
-/*
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        return id == R.id.action_settings || super.onOptionsItemSelected(item);
-    }
-    */
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Pass the event to ActionBarDrawerToggle, if it returns
-        // true, then it has handled the app icon touch event
-        // Handle your other action bar items...
-        if (mDrawerToggle.onOptionsItemSelected(item)) {
-            return true;
-        }
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                mDrawerLayout.openDrawer(GravityCompat.START);
-                return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
     private void initializeDatabase() {
@@ -146,44 +106,37 @@ public class MobileGambarumeter extends AppCompatActivity
         }
     }
     private void initializeDrawer() {
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-
         mDrawerToggle = new ActionBarDrawerToggle(
-                this,                  /* host Activity */
-                mDrawerLayout,         /* DrawerLayout object */
-                R.string.drawer_open,  /* "open drawer" description */
-                R.string.drawer_close  /* "close drawer" description */
-        ) {
-
-            /** Called when a drawer has settled in a completely closed state. */
-            public void onDrawerClosed(View view) {
-                super.onDrawerClosed(view);
-                setTitle(mTitle);
-            }
-
-            /** Called when a drawer has settled in a completely open state. */
-            public void onDrawerOpened(View drawerView) {
-
-
-            }
-            public void setTitle(CharSequence title) {
-                ActionBar actionBar = getSupportActionBar();
-                if (actionBar == null) {
-                    return;
-                }
-                actionBar.setTitle(title);
-            }
+                this,
+                mDrawerLayout,
+                toolbar,
+                R.string.drawer_open,
+                R.string.drawer_close){
         };
 
-        // Set the drawer toggle as the DrawerListener
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Fragment f = getFragmentManager().findFragmentById(R.id.fragment_container);
+                if (f instanceof SettingsFragment) {
+                    onBackPressed();
+                    return;
+                }
+                if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
+                    mDrawerLayout.closeDrawer(GravityCompat.START);
+                } else {
+                    mDrawerLayout.openDrawer(GravityCompat.START);
+                }
+            }
+        });
+
+        //Setting the actionbarToggle to drawer layout
         mDrawerLayout.addDrawerListener(mDrawerToggle);
 
-        ActionBar actionBar = getSupportActionBar();
-
-//        actionBar.setHomeAsUpIndicator(R.drawable.ic_launcher);
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setHomeButtonEnabled(true);
-
+        getFragmentManager().addOnBackStackChangedListener(this);
     }
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
@@ -198,9 +151,13 @@ public class MobileGambarumeter extends AppCompatActivity
     }
     @Override
     public void onBackPressed() {
-        this.getFragmentManager().popBackStack();
-        if(this.getFragmentManager().getBackStackEntryCount() == 0) {
-            super.onBackPressed();
+        if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
+            mDrawerLayout.closeDrawer(GravityCompat.START);
+        } else {
+            this.getFragmentManager().popBackStack();
+            if(this.getFragmentManager().getBackStackEntryCount() == 0) {
+                super.onBackPressed();
+            }
         }
     }
 
@@ -411,5 +368,28 @@ public class MobileGambarumeter extends AppCompatActivity
                         deleteDataItemsResult.getStatus().isSuccess());
             }
         });
+    }
+
+    @Override
+    public void onBackStackChanged() {
+        boolean showHomeAsUp = false;
+        Fragment f = getFragmentManager().findFragmentById(R.id.fragment_container);
+        if (f instanceof SettingsFragment) {
+            Log.d(TAG, "SettingsFragment");
+            showHomeAsUp = true;
+        } else if (f instanceof DetailFragment) {
+            Log.d(TAG, "DetailFragment");
+        } else if (f instanceof MainFragment) {
+            Log.d(TAG, "MainFragment");
+        }
+        getSupportActionBar().setDisplayHomeAsUpEnabled(showHomeAsUp);
+        if (showHomeAsUp) {
+            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+        } else {
+            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+            mDrawerToggle.syncState();
+//            mDrawerToggle.setDrawerIndicatorEnabled(true);
+        }
+
     }
 }

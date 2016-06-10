@@ -8,6 +8,8 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.AppCompatActivity;
 import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -34,7 +36,7 @@ import java.util.Map;
 /**
  * Created by kazhik on 15/10/14.
  */
-public class MainFragment extends Fragment {
+public class MainFragment extends Fragment implements NavigationView.OnNavigationItemSelectedListener {
 
     private SimpleAdapter listAdapter;
     private ArrayList<HashMap<String, String>> mapList = new ArrayList<>();
@@ -65,19 +67,7 @@ public class MainFragment extends Fragment {
 
         navigationView.getMenu().clear();
         navigationView.inflateMenu(R.menu.main_drawer);
-        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(MenuItem item) {
-                Log.d(TAG, "onNavigationItemSelected");
-                return false;
-            }
-        });
-        navigationView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(TAG, "onClick");
-            }
-        });
+        navigationView.setNavigationItemSelectedListener(this);
 
         return inflater.inflate(R.layout.main_fragment, container, false);
     }
@@ -133,14 +123,6 @@ public class MainFragment extends Fragment {
             }
         });
         registerForContextMenu(lv);
-
-        NavigationView navigationView = (NavigationView)activity.findViewById(R.id.navigation);
-        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(MenuItem item) {
-                return false;
-            }
-        });
 
     }
 
@@ -281,5 +263,27 @@ public class MainFragment extends Fragment {
         this.listAdapter.notifyDataSetChanged();
     }
 
+    private void openSettings() {
 
+        getFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, new SettingsFragment())
+                .addToBackStack(null)
+                .commit();
+
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        DrawerLayout drawerLayout =
+                (DrawerLayout) this.getActivity().findViewById(R.id.drawer_layout);
+        drawerLayout.closeDrawers();
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                this.openSettings();
+                break;
+            default:
+                break;
+        }
+        return false;
+    }
 }

@@ -6,10 +6,9 @@ import android.content.Context;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
+import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,14 +22,13 @@ import net.kazhik.gambarumeterlib.entity.SplitTimeStepCount;
 import net.kazhik.gambarumeterlib.storage.LocationTable;
 import net.kazhik.gambarumeterlib.storage.SplitTimeDataView;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by kazhik on 16/02/07.
  */
-public class DetailFragment extends Fragment implements NavigationView.OnNavigationItemSelectedListener {
+public class DetailFragment extends Fragment
+        implements NavigationView.OnNavigationItemSelectedListener {
     private long startTime;
     private DetailView detailView;
     private static final String TAG = "DetailFragment";
@@ -113,29 +111,6 @@ public class DetailFragment extends Fragment implements NavigationView.OnNavigat
         this.detailView.onLowMemory();
     }
 
-//    @Override
-    public void onClickDrawerItem(int resId, long startTime) {
-        switch (resId) {
-            case R.string.history:
-                this.goBack();
-                break;
-            case R.string.map:
-                this.openMapView(startTime);
-                break;
-            case R.string.chart:
-                this.openChartView(startTime);
-                break;
-            case R.string.export_file:
-                this.exportFile(startTime);
-                break;
-            case R.string.split_time:
-                this.openSplitTimeView(startTime);
-                break;
-            default:
-                break;
-        }
-
-    }
     private void goBack() {
         getFragmentManager().popBackStack();
 
@@ -244,21 +219,23 @@ public class DetailFragment extends Fragment implements NavigationView.OnNavigat
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         Log.d(TAG, "onNavigationItemSelected");
-        int resId = item.getItemId();
-        switch (resId) {
-            case R.string.history:
+        DrawerLayout drawerLayout =
+                (DrawerLayout) this.getActivity().findViewById(R.id.drawer_layout);
+        drawerLayout.closeDrawers();
+        switch (item.getItemId()) {
+            case R.id.action_history:
                 this.goBack();
                 break;
-            case R.string.map:
+            case R.id.action_map:
                 this.openMapView(this.startTime);
                 break;
-            case R.string.chart:
+            case R.id.action_chart:
                 this.openChartView(this.startTime);
                 break;
-            case R.string.export_file:
+            case R.id.action_transform:
                 this.exportFile(this.startTime);
                 break;
-            case R.string.split_time:
+            case R.id.action_splittime:
                 this.openSplitTimeView(this.startTime);
                 break;
             default:

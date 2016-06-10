@@ -5,10 +5,24 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
     <!-- The main content view -->
-    <FrameLayout
-        android:id="@+id/fragment_container"
+    <LinearLayout
+        android:layout_height="match_parent"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:orientation="vertical"
+        >
+        <include
+            android:id="@+id/toolbar"
+            layout="@layout/tool_bar"
+            />
+        <FrameLayout
+            android:id="@+id/fragment_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+        </FrameLayout>
+
+    </LinearLayout>
+
     <!-- The navigation drawer -->
 
     <android.support.design.widget.NavigationView
