@@ -6,14 +6,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Vibrator;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.wearable.view.DismissOverlayView;
 import android.util.Log;
@@ -58,9 +56,9 @@ public abstract class MainFragment extends PagerFragment
     private SplitTimeView splitTimeView = new SplitTimeView();
     private StepCountView stepCountView = new StepCountView();
 
-    private MobileConnector mobileConnector = new MobileConnector();
     private UserInputManager userInputManager;
     private Vibrator vibrator;
+    private MobileConnector mobileConnector = new MobileConnector();
 
     private static final String TAG = "MainFragment";
 
@@ -74,7 +72,7 @@ public abstract class MainFragment extends PagerFragment
 
         Activity activity = this.getActivity();
 
-        this.mobileConnector.initialize(this.getActivity());
+        this.mobileConnector.initialize(activity);
 
         this.vibrator = (Vibrator) activity.getSystemService(Context.VIBRATOR_SERVICE);
 

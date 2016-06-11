@@ -53,8 +53,6 @@ public class MobileGambarumeter extends AppCompatActivity
         if (dataUri != null) {
             this.importTcxFile(dataUri.getPath());
         }
-
-        this.mWearConnector.initialize(this);
     }
 
     private void importTcxFile(String filepath) {

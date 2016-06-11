@@ -12,6 +12,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.wearable.view.GridViewPager;
 import android.util.Log;
 
+import net.kazhik.gambarumeter.main.MobileConnector;
 import net.kazhik.gambarumeter.pager.PagerAdapter;
 import net.kazhik.gambarumeterlib.TimeUtil;
 import net.kazhik.gambarumeterlib.storage.DataStorage;
@@ -42,6 +43,7 @@ public class WearGambarumeter extends Activity {
         pager.setAdapter(pagerAdapter);
 
     }
+
     private void cleanDatabase() {
         // Clean old data
         Calendar cal = Calendar.getInstance();
