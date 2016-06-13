@@ -166,7 +166,7 @@ public abstract class MainFragment extends PagerFragment
 
         List<Sensor> sensorList = this.sensorManager.getSensorList(Sensor.TYPE_ALL);
         Intent intent;
-        boolean bound = false;
+        boolean bound;
         for (Sensor sensor: sensorList) {
             intent = null;
             Log.i(TAG, "Sensor:" + sensor.getName() + "; " + sensor.getType());

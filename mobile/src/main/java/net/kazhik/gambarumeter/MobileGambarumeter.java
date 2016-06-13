@@ -47,6 +47,7 @@ public class MobileGambarumeter extends AppCompatActivity
         }
         this.initializeDatabase();
         this.initializeDrawer();
+        this.mWearConnector.initialize(this);
 
         Intent intent = getIntent();
         Uri dataUri = intent.getData();

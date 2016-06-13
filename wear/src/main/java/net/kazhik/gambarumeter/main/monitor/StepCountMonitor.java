@@ -120,7 +120,6 @@ public class StepCountMonitor extends SensorService {
         }
 
         long newTimestamp = System.currentTimeMillis();
-        Log.d(TAG, "onSensorChanged(0): " + newTimestamp);
         float newValue = sensorValues[0];
         if (!this.isStarted()) {
             return;
@@ -129,7 +128,6 @@ public class StepCountMonitor extends SensorService {
             this.initialValue = newValue;
         } else if (newValue != this.currentValue.getValue()) {
             float steps = newValue - this.initialValue;
-            Log.d(TAG, "onSensorChanged: " + newTimestamp);
             this.listener.onStepCountChanged(newTimestamp, (int)steps);
         }
         this.currentValue.setTimestamp(newTimestamp)
