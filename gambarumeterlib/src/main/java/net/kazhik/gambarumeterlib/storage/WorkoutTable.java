@@ -191,10 +191,12 @@ public class WorkoutTable extends AbstractTable {
         String selection;
         String[] selectionArgs;
         selection = "start_time >= datetime('now', 'start of month', ?) " +
-                "AND start_time < datetime('now', 'start of month', ?)";
+                "AND start_time < datetime('now', 'start of month', ?) " +
+                "AND deleted = ? ";
         selectionArgs =
                 new String[]{String.valueOf(monthshift) + " months",
-                        String.valueOf(monthshift + 1) + " months"};
+                        String.valueOf(monthshift + 1) + " months",
+                        "0"};
         String sortOrder = "start_time desc";
         String limit = null;
 
