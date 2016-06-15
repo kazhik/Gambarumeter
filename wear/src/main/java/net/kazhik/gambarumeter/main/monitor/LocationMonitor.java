@@ -148,7 +148,6 @@ public class LocationMonitor extends Service
     public void saveResult(SQLiteDatabase db, long startTime) {
         LocationTable locTable = new LocationTable(this.context, db);
         for (Location loc : this.getLocationList()) {
-            Log.d(TAG, "saveResult:" + loc.getTime());
             locTable.insert(startTime, loc);
         }
 
