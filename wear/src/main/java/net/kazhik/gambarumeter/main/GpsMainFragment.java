@@ -67,17 +67,16 @@ public class GpsMainFragment extends MainFragment
         super.initializeSensor();
         
         Activity activity = this.getActivity();
-        Context appContext = activity.getApplicationContext();
 
         if (!this.isGpsEnabled(activity)) {
-            Toast.makeText(appContext,
+            Toast.makeText(activity,
                     R.string.gps_off,
                     Toast.LENGTH_LONG)
                     .show();
             return;
         }
         if (!this.isLocationEnabled(activity)) {
-            Toast.makeText(appContext,
+            Toast.makeText(activity,
                     R.string.location_disabled,
                     Toast.LENGTH_LONG)
                     .show();
@@ -85,7 +84,7 @@ public class GpsMainFragment extends MainFragment
 
         }
         Intent intent = new Intent(activity, LocationMonitor.class);
-        boolean bound = appContext.bindService(intent, this, Context.BIND_AUTO_CREATE);
+        boolean bound = activity.bindService(intent, this, Context.BIND_AUTO_CREATE);
         if (bound) {
             this.setBound();
         }

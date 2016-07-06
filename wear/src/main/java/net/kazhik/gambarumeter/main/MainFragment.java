@@ -144,7 +144,7 @@ public abstract class MainFragment extends PagerFragment
         }
         Activity activity = this.getActivity();
         if (this.isBound) {
-            activity.getApplicationContext().unbindService(this);
+            activity.unbindService(this);
 
         }
         activity.unregisterReceiver(this.batteryLevelReceiver);
@@ -184,7 +184,7 @@ public abstract class MainFragment extends PagerFragment
                     break;
             }
             if (intent != null) {
-                bound = this.getActivity().getApplicationContext().bindService(intent,
+                bound = this.getActivity().bindService(intent,
                         this, Context.BIND_AUTO_CREATE);
                 if (bound) {
                     this.isBound = true;

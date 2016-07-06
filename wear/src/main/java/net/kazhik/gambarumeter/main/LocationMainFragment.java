@@ -64,19 +64,18 @@ public class LocationMainFragment extends MainFragment
         super.initializeSensor();
         
         Activity activity = this.getActivity();
-        Context appContext = activity.getApplicationContext();
 
         if (activity.getPackageManager().hasSystemFeature(PackageManager.FEATURE_LOCATION_GPS)) {
 
-            if (this.isGpsEnabled(appContext)) {
+            if (this.isGpsEnabled(activity)) {
                 Intent intent = new Intent(activity, GeolocationMonitor.class);
-                boolean bound = appContext.bindService(intent, this, Context.BIND_AUTO_CREATE);
+                boolean bound = activity.bindService(intent, this, Context.BIND_AUTO_CREATE);
                 if (bound) {
                     this.setBound();
                 }
                 this.locationMonitor = new GeolocationMonitor(); // temporary
             } else {
-                Toast.makeText(appContext,
+                Toast.makeText(activity,
                         R.string.gps_off,
                         Toast.LENGTH_LONG)
                         .show();

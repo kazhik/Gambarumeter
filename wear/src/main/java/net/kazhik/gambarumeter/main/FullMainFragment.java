@@ -73,7 +73,6 @@ public class FullMainFragment extends MainFragment
         super.initializeSensor();
 
         Activity activity = this.getActivity();
-        Context appContext = activity.getApplicationContext();
 
         this.sensorManager =
                 (SensorManager)activity.getSystemService(Activity.SENSOR_SERVICE);
@@ -81,7 +80,7 @@ public class FullMainFragment extends MainFragment
         Sensor sensor = this.sensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
         if (sensor != null) {
             Intent intent = new Intent(activity, HeartRateMonitor.class);
-            boolean bound = appContext.bindService(intent, this, Context.BIND_AUTO_CREATE);
+            boolean bound = activity.bindService(intent, this, Context.BIND_AUTO_CREATE);
             if (bound) {
                 this.setBound();
             }
@@ -89,14 +88,14 @@ public class FullMainFragment extends MainFragment
         }
 
         if (!this.isGpsEnabled(activity)) {
-            Toast.makeText(appContext,
+            Toast.makeText(activity,
                     R.string.gps_off,
                     Toast.LENGTH_LONG)
                     .show();
             return;
         }
         if (!this.isLocationEnabled(activity)) {
-            Toast.makeText(appContext,
+            Toast.makeText(activity,
                     R.string.location_disabled,
                     Toast.LENGTH_LONG)
                     .show();
@@ -104,7 +103,7 @@ public class FullMainFragment extends MainFragment
 
         }
         Intent intent = new Intent(activity, LocationMonitor.class);
-        boolean bound = appContext.bindService(intent, this, Context.BIND_AUTO_CREATE);
+        boolean bound = activity.bindService(intent, this, Context.BIND_AUTO_CREATE);
         if (bound) {
             this.setBound();
         }
