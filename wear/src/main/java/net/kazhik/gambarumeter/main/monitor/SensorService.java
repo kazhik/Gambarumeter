@@ -1,6 +1,7 @@
 package net.kazhik.gambarumeter.main.monitor;
 
 import android.app.Service;
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -48,6 +49,7 @@ public abstract class SensorService extends Service implements SensorEventListen
             return;
         }
 
+        this.stopSelf();
     }
 
     public void start() {
@@ -101,4 +103,8 @@ public abstract class SensorService extends Service implements SensorEventListen
 
     }
 
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        return START_NOT_STICKY;
+    }
 }

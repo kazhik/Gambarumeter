@@ -10,6 +10,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.location.LocationManager;
 import android.os.IBinder;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
@@ -59,6 +60,7 @@ public class FullMainFragment extends MainFragment
     }
     @Override
     public void onDestroy() {
+        Activity activity = this.getActivity();
         if (this.heartRateMonitor != null) {
             this.heartRateMonitor.terminate();
         }
@@ -80,6 +82,7 @@ public class FullMainFragment extends MainFragment
         Sensor sensor = this.sensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
         if (sensor != null) {
             Intent intent = new Intent(activity, HeartRateMonitor.class);
+            activity.startService(intent);
             boolean bound = activity.bindService(intent, this, Context.BIND_AUTO_CREATE);
             if (bound) {
                 this.setBound();

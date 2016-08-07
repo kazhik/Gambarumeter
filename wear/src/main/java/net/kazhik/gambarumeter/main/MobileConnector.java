@@ -42,6 +42,7 @@ public class MobileConnector
     private static final String TAG = "MobileConnector";
 
     public void initialize(Context context) {
+        Log.d(TAG, "initialize");
 
         this.googleApiClient = new GoogleApiClient.Builder(context)
                 .addConnectionCallbacks(this)
@@ -58,9 +59,17 @@ public class MobileConnector
 
     }
     public void connect() {
+        Log.d(TAG, "connect");
+        if (!googleApiClient.isConnected()) {
+            googleApiClient.connect();
+        }
 
     }
     public void disconnect() {
+        if (googleApiClient != null && googleApiClient.isConnected()) {
+            Wearable.DataApi.removeListener(googleApiClient, this);
+            googleApiClient.disconnect();
+        }
 
     }
 
