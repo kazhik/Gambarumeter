@@ -19,8 +19,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.Toast;
 
 import net.kazhik.gambarumeterlib.DistanceUtil;
 import net.kazhik.gambarumeterlib.TimeUtil;
@@ -77,11 +79,29 @@ public class MainFragment extends Fragment implements NavigationView.OnNavigatio
 
         this.initializeUI();
 
-        this.loadList();
+        this.loadList(0);
     }
+    private int idxMonth = 0;
 
     private void initializeUI() {
         Activity activity = this.getActivity();
+
+        Button leftButton = (Button) activity.findViewById(R.id.left_arrow);
+        leftButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "onClick left button");
+                loadList(-1);
+            }
+        });
+        Button rightButton = (Button) activity.findViewById(R.id.right_arrow);
+        rightButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "onClick right button");
+                loadList(1);
+            }
+        });
 
         ListView lv = (ListView) activity.findViewById(R.id.history);
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -203,15 +223,24 @@ public class MainFragment extends Fragment implements NavigationView.OnNavigatio
 
     }
 
-    private void loadList() {
+    private void loadList(int index) {
         Activity activity = this.getActivity();
 
         WorkoutTable workoutTable = new WorkoutTable(activity);
         workoutTable.openReadonly();
-        List<WorkoutInfo> workoutList = workoutTable.selectMonth(0);
+
+        List<WorkoutInfo> workoutList = workoutTable.selectMonth(this.idxMonth + index);
         workoutTable.close();
 
         Log.d(TAG, "WorkoutList size=" + workoutList.size());
+        if (workoutList.isEmpty()) {
+            Toast.makeText(activity, R.string.nodata,
+                    Toast.LENGTH_LONG).show();
+
+            return;
+        }
+        this.idxMonth += index;
+
         this.mapList.clear();
         for (WorkoutInfo workout: workoutList) {
 

@@ -58,7 +58,7 @@ public class ChartView implements DetailView {
     }
     public void load(List<SplitTimeStepCount> splits) {
         if (splits.isEmpty()) {
-            Toast.makeText(this.context, context.getString(R.string.nodata),
+            Toast.makeText(this.context, R.string.nodata,
                     Toast.LENGTH_LONG).show();
             return;
         }

@@ -174,7 +174,7 @@ public class DetailFragment extends Fragment
 
         List<SplitTimeStepCount> splits = this.getSplits(context, startTime);
         if (splits.isEmpty()) {
-            Toast.makeText(context, context.getString(R.string.nodata),
+            Toast.makeText(context, R.string.nodata,
                     Toast.LENGTH_LONG).show();
             return;
         }
@@ -193,7 +193,7 @@ public class DetailFragment extends Fragment
 
         List<SplitTimeStepCount> splits = this.getSplits(activity, startTime);
         if (splits.isEmpty()) {
-            Toast.makeText(activity, activity.getString(R.string.nodata),
+            Toast.makeText(activity, R.string.nodata,
                     Toast.LENGTH_LONG).show();
             return;
         }
