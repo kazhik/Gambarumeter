@@ -65,11 +65,6 @@ public class LocationMonitor extends Service
         }
     }
 
-    private boolean isLocationEnabled(Context context) {
-        int checkResult = ContextCompat.checkSelfPermission( context,
-                android.Manifest.permission.ACCESS_FINE_LOCATION );
-        return ( checkResult == PackageManager.PERMISSION_GRANTED );
-    }
     public void init(Context context, LocationSensorValueListener listener) {
         this.context = context;
         this.listener = listener;

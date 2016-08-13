@@ -1,8 +1,10 @@
 package net.kazhik.gambarumeter.main.monitor;
 
+import android.Manifest;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
 import android.location.GpsStatus;
 import android.location.Location;
@@ -10,6 +12,7 @@ import android.location.LocationManager;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -89,12 +92,18 @@ public class GeolocationMonitor extends Service
 
         this.googleApiClient.connect();
 
+        int checkResult = ContextCompat.checkSelfPermission( this.context,
+                Manifest.permission.ACCESS_FINE_LOCATION );
+        if ( checkResult != PackageManager.PERMISSION_GRANTED ) {
+            return;
+        }
         this.locationManager =
                 (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         this.locationManager.addGpsStatusListener(this);
 
         this.distanceUtil = DistanceUtil.getInstance(context);
     }
+
     public void start() {
         if (this.googleApiClient == null) {
             return;
@@ -105,23 +114,27 @@ public class GeolocationMonitor extends Service
         this.record.init(this.distanceUtil.lapDistance());
         this.record.addLap(System.currentTimeMillis());
     }
+
     public void stop(long stopTime) {
         this.record.addLap(stopTime);
 
     }
+
     public float getDistance() {
         return this.record.getDistance();
     }
+
     private List<Location> getLocationList() {
         return this.record.getLocationList();
     }
+
     private List<SplitTime> getSplits() {
         return this.record.getSplits();
     }
 
     public DataMap putData(DataMap dataMap) {
         ArrayList<DataMap> locationMapList = new ArrayList<>();
-        for (Location loc: this.getLocationList()) {
+        for (Location loc : this.getLocationList()) {
             DataMap locMap = new DataMap();
             locMap.putLong(DataStorage.COL_TIMESTAMP, loc.getTime());
             locMap.putDouble(DataStorage.COL_LATITUDE, loc.getLatitude());
@@ -135,7 +148,7 @@ public class GeolocationMonitor extends Service
         dataMap.putDataMapArrayList(DataStorage.TBL_LOCATION, locationMapList);
 
         ArrayList<DataMap> splitMapList = new ArrayList<>();
-        for (SplitTime split: this.getSplits()) {
+        for (SplitTime split : this.getSplits()) {
             DataMap splitMap = new DataMap();
             splitMap.putLong(DataStorage.COL_TIMESTAMP, split.getTimestamp());
             splitMap.putFloat(DataStorage.COL_DISTANCE, split.getDistance());
@@ -146,19 +159,21 @@ public class GeolocationMonitor extends Service
 
         return dataMap;
     }
+
     public void saveResult(SQLiteDatabase db, long startTime) {
         LocationTable locTable = new LocationTable(this.context, db);
-        for (Location loc: this.getLocationList()) {
+        for (Location loc : this.getLocationList()) {
             Log.d(TAG, "saveResult:" + loc.getTime());
             locTable.insert(startTime, loc);
         }
 
         SplitTable splitTable = new SplitTable(this.context, db);
-        for (SplitTime split: this.getSplits()) {
+        for (SplitTime split : this.getSplits()) {
             splitTable.insert(split.getTimestamp(), startTime, split.getDistance());
         }
 
     }
+
     public void terminate() {
         Log.d(TAG, "terminate: " + this.googleApiClient);
         if (this.googleApiClient == null) {
@@ -169,6 +184,7 @@ public class GeolocationMonitor extends Service
                     .removeLocationUpdates(this.googleApiClient, this);
         }
         this.googleApiClient.disconnect();
+
         this.locationManager.removeGpsStatusListener(this);
     }
 
@@ -181,6 +197,12 @@ public class GeolocationMonitor extends Service
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
                 .setInterval(UPDATE_INTERVAL_MS)
                 .setFastestInterval(FASTEST_INTERVAL_MS);
+
+        int checkResult = ContextCompat.checkSelfPermission( this.context,
+                android.Manifest.permission.ACCESS_FINE_LOCATION );
+        if ( checkResult != PackageManager.PERMISSION_GRANTED ) {
+            return;
+        }
 
         LocationServices.FusedLocationApi
                 .requestLocationUpdates(this.googleApiClient, locationRequest, this)
