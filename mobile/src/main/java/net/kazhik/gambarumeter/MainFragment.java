@@ -132,7 +132,7 @@ public class MainFragment extends Fragment implements NavigationView.OnNavigatio
 
                 DetailFragment detailFragment = new DetailFragment();
                 Bundle param = new Bundle();
-                param.putLong("startTime", Long.valueOf(map.get("startTime")));
+                param.putLong("startTime", Long.parseLong(map.get("startTime")));
                 detailFragment.setArguments(param);
                 getFragmentManager().beginTransaction()
                         .replace(R.id.fragment_container, detailFragment)

@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringWriter;
+import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -261,7 +262,7 @@ public class ExternalFile {
         try {
 //            StringWriter writer = new StringWriter();
             tcxFile = new FileOutputStream(tcxFilePath);
-            stWriter = new OutputStreamWriter(tcxFile);
+            stWriter = new OutputStreamWriter(tcxFile, "UTF-8");
             serializer.setOutput(stWriter);
             serializer.setFeature("http://xmlpull.org/v1/doc/features.html#indent-output",
                     true);
@@ -381,7 +382,7 @@ public class ExternalFile {
         OutputStreamWriter stWriter = null;
         try {
             gpxFile = new FileOutputStream(filename);
-            stWriter = new OutputStreamWriter(gpxFile);
+            stWriter = new OutputStreamWriter(gpxFile, "UTF-8");
             stWriter
                     .write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
                             + "<gpx\n"
