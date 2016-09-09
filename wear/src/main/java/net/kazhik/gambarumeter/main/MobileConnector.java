@@ -129,7 +129,7 @@ public class MobileConnector
     // GoogleApiClient.OnConnectionFailedListener
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
-        Log.d(TAG, "onConnectionFailed");
+        Log.d(TAG, "onConnectionFailed:" + connectionResult.toString());
 
     }
 
