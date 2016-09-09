@@ -8,6 +8,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.PowerManager;
 import android.util.Log;
 
 import java.util.concurrent.TimeUnit;
@@ -25,7 +26,7 @@ public abstract class SensorService extends Service implements SensorEventListen
             handler.postDelayed(saveDataRunnable, TimeUnit.SECONDS.toMillis(60));
             }
     };
-
+    private PowerManager.WakeLock wakeLock;
     private Handler handler;
     private HandlerThread saveDataThread = null;
     private static final String TAG = "SensorService";
@@ -38,12 +39,20 @@ public abstract class SensorService extends Service implements SensorEventListen
             Log.w(TAG, "Failed to get sensor");
             return false;
         }
+        PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
+        this.wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
+                "MyWakelockTag");
+        this.wakeLock.acquire();
+
         this.sensorManager = sensorManager;
 
         return true;
     }
 
     public void terminate() {
+        if (this.wakeLock != null) {
+            this.wakeLock.release();
+        }
 
         if (this.sensorManager == null) {
             return;
@@ -105,6 +114,6 @@ public abstract class SensorService extends Service implements SensorEventListen
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        return START_NOT_STICKY;
+        return START_STICKY;
     }
 }
