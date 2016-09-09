@@ -2,13 +2,19 @@ package net.kazhik.gambarumeter.main.monitor;
 
 import android.app.Activity;
 import android.content.Context;
+import android.hardware.Sensor;
 import android.hardware.SensorManager;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.SmallTest;
+import android.support.test.runner.AndroidJUnit4;
 import android.test.InstrumentationTestCase;
 
 import net.kazhik.gambarumeterlib.entity.SensorValue;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -16,6 +22,9 @@ import java.util.concurrent.LinkedBlockingQueue;
 /**
  * Created by kazhik on 15/01/16.
  */
+
+@RunWith(AndroidJUnit4.class)
+@SmallTest
 public class HeartRateMonitorTest extends InstrumentationTestCase {
     class TestListener implements HeartRateSensorValueListener {
 
@@ -118,12 +127,19 @@ public class HeartRateMonitorTest extends InstrumentationTestCase {
         
     }
 */
+    @Test
     public void testOnSensorEvent() throws Exception {
         HeartRateMonitor heartRateMonitor = new HeartRateMonitor();
 
-        Context context = getInstrumentation().getContext();
+        Context context = InstrumentationRegistry.getTargetContext();
         SensorManager sensorManager =
                 (SensorManager)context.getSystemService(Activity.SENSOR_SERVICE);
+
+        assertNotNull(sensorManager);
+
+        if (sensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE) == null) {
+            return;
+        }
 
         heartRateMonitor.init(context, sensorManager, new TestListener());
         heartRateMonitor.start();

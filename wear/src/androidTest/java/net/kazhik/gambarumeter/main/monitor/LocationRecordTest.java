@@ -1,14 +1,22 @@
 package net.kazhik.gambarumeter.main.monitor;
 
 import android.location.Location;
+import android.support.test.filters.SmallTest;
+import android.support.test.runner.AndroidJUnit4;
 import android.test.InstrumentationTestCase;
 
 import net.kazhik.gambarumeterlib.LocationRecord;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 /**
  * Created by kazhik on 14/12/02.
  */
+@RunWith(AndroidJUnit4.class)
+@SmallTest
 public class LocationRecordTest extends InstrumentationTestCase {
+    @Test
     public void test() throws Exception {
 
         LocationRecord locRecord = new LocationRecord();

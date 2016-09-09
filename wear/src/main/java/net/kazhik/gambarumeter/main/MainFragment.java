@@ -10,6 +10,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.Vibrator;
 import android.support.annotation.Nullable;
@@ -221,6 +222,8 @@ public abstract class MainFragment extends PagerFragment
         this.splitTimeView.setTime(0)
                 .refresh();
 
+        this.gyroscope.start();
+
         this.stopwatch.start();
 
     }
@@ -229,6 +232,7 @@ public abstract class MainFragment extends PagerFragment
         if (this.stepCountMonitor != null) {
             this.stepCountMonitor.stop(stopTime);
         }
+        this.gyroscope.stop(stopTime);
 
         return stopTime;
     }
@@ -246,6 +250,20 @@ public abstract class MainFragment extends PagerFragment
         return dataMap;
 
     }
+    private void stop() {
+
+        this.stopWorkout();
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                saveResult();
+                long startTime = stopwatch.getStartTime();
+                mobileConnector.sync(startTime);
+                stopwatch.reset();
+            }
+        });
+
+    }
 
     // UserInputManager.UserInputListener
     @Override
@@ -256,11 +274,7 @@ public abstract class MainFragment extends PagerFragment
     // UserInputManager.UserInputListener
     @Override
     public void onUserStop() {
-        this.stopWorkout();
-        this.saveResult();
-        long startTime = this.stopwatch.getStartTime();
-        this.mobileConnector.sync(startTime);
-        this.stopwatch.reset();
+        this.stop();
     }
     // UserInputManager.UserInputListener
     @Override
@@ -279,11 +293,7 @@ public abstract class MainFragment extends PagerFragment
         this.userInputManager.toggleVisibility(false);
         this.vibrator.vibrate(1000);
 
-        this.stopWorkout();
-        this.saveResult();
-        long startTime = this.stopwatch.getStartTime();
-        this.mobileConnector.sync(startTime);
-        this.stopwatch.reset();
+        this.stop();
     }
     // SensorValueListener
     @Override

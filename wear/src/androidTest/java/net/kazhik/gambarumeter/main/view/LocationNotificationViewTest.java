@@ -2,9 +2,15 @@ package net.kazhik.gambarumeter.main.view;
 
 import android.content.Context;
 import android.content.res.Configuration;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.SmallTest;
+import android.support.test.runner.AndroidJUnit4;
 import android.test.InstrumentationTestCase;
 
 import net.kazhik.gambarumeter.main.notification.LocationNotificationView;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.lang.reflect.Method;
 import java.util.Locale;
@@ -12,14 +18,18 @@ import java.util.Locale;
 /**
  * Created by kazhik on 15/01/10.
  */
+@RunWith(AndroidJUnit4.class)
+@SmallTest
 public class LocationNotificationViewTest extends InstrumentationTestCase {
 
+    /*
+    @Test
     public void testMakeSummaryText() throws Exception {
 
         LocationNotificationView notificationView = new LocationNotificationView();
 
 
-        notificationView.initialize(this.getInstrumentation().getTargetContext().getApplicationContext());
+        notificationView.initialize(InstrumentationRegistry.getTargetContext().getApplicationContext());
 
         notificationView.updateStepCount(445);
         notificationView.updateDistance(2300);
@@ -37,8 +47,9 @@ public class LocationNotificationViewTest extends InstrumentationTestCase {
 
     }
 
+    @Test
     public void testMakeDetailedText() throws Exception {
-        Context appContext = this.getInstrumentation().getTargetContext().getApplicationContext();
+        Context appContext = InstrumentationRegistry.getTargetContext().getApplicationContext();
         Configuration config = appContext.getResources().getConfiguration();
         config.setLocale(Locale.US);
         appContext.getResources().updateConfiguration(config,
@@ -71,5 +82,5 @@ public class LocationNotificationViewTest extends InstrumentationTestCase {
         assertEquals("446steps 04:35/mi", text);
 
     }
-
+    */
 }
