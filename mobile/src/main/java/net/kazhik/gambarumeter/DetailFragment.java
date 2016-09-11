@@ -2,6 +2,7 @@ package net.kazhik.gambarumeter;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.app.FragmentManager;
 import android.content.Context;
 import android.location.Location;
 import android.os.Bundle;
@@ -29,15 +30,37 @@ import java.util.List;
  */
 public class DetailFragment extends Fragment
         implements NavigationView.OnNavigationItemSelectedListener {
-    private long startTime;
+    private long startTime = 0;
     private DetailView detailView;
+    private static final int TYPE_MAP = 1;
+    private static final int TYPE_CHART = 2;
+    private static final int TYPE_SPLITTIME = 3;
     private static final String TAG = "DetailFragment";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        this.detailView = new TrackView();
+        int type = TYPE_MAP;
+        Bundle b = getArguments();
+        if (b != null) {
+            type = b.getInt("type", TYPE_MAP);
+            this.startTime = b.getLong("startTime", 0);
+        }
+        switch (type) {
+            case TYPE_CHART:
+                this.detailView = new ChartView();
+                break;
+            case TYPE_SPLITTIME:
+                this.detailView = new SplitTimeView();
+                break;
+            case TYPE_MAP:
+            default:
+                this.detailView = new TrackView();
+                break;
+
+        }
+
 
     }
 
@@ -45,7 +68,14 @@ public class DetailFragment extends Fragment
     public View onCreateView(LayoutInflater inflater,
                              ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.track_view, container, false);
+        View view;
+        if (this.detailView instanceof ChartView) {
+            view = inflater.inflate(R.layout.chart_view, container, false);
+        } else if (this.detailView instanceof SplitTimeView) {
+            view = inflater.inflate(R.layout.splittime_view, container, false);
+        } else {
+            view = inflater.inflate(R.layout.track_view, container, false);
+        }
 
         this.detailView.setRootView(view);
         // http://stackoverflow.com/questions/13812988/android-maps-v2-mapview-inside-custom-fragment-npe
@@ -70,14 +100,22 @@ public class DetailFragment extends Fragment
         this.detailView.setContext(context);
 
         if (this.detailView instanceof TrackView) {
-            Bundle b = getArguments();
-            if (b != null) {
-                this.startTime = b.getLong("startTime");
-                if (this.startTime != 0) {
-                    TrackView trackView = (TrackView)this.detailView;
-                    trackView.load(getLocations(context, this.startTime));
-                }
+            TrackView trackView = (TrackView)this.detailView;
+            trackView.load(getLocations(context, this.startTime));
+        } else if (this.detailView instanceof ChartView ||
+                this.detailView instanceof SplitTimeView) {
+            List<SplitTimeStepCount> splits = this.getSplits(context, startTime);
+            if (splits.isEmpty()) {
+                Toast.makeText(context, R.string.nodata,
+                        Toast.LENGTH_LONG).show();
+                return;
             }
+            if (this.detailView instanceof ChartView) {
+                ((ChartView)this.detailView).load(splits);
+            } else {
+                ((SplitTimeView)this.detailView).load(splits);
+            }
+
         }
     }
 
@@ -112,7 +150,11 @@ public class DetailFragment extends Fragment
     }
 
     private void goBack() {
-        getFragmentManager().popBackStack();
+        FragmentManager fmgr = getFragmentManager();
+
+        for (int i = 0; i < fmgr.getBackStackEntryCount(); i++) {
+            fmgr.popBackStack();
+        }
 
     }
 
@@ -126,26 +168,17 @@ public class DetailFragment extends Fragment
         container.removeAllViews();
         return activity.getLayoutInflater().inflate(resId, container);
     }
-    private void openMapView(long startTime) {
-
+    private void openDetailView(int type, long startTime) {
         DetailFragment detailFragment = new DetailFragment();
         Bundle param = new Bundle();
         param.putLong("startTime", startTime);
+        param.putInt("type", type);
         detailFragment.setArguments(param);
         getFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, detailFragment)
                 .addToBackStack(null)
                 .commit();
 
-        /* This code doesn't work
-        Context context = getActivity();
-        View view = this.replaceView(R.layout.track_view);
-
-        TrackView trackView = new TrackView();
-        trackView.initialize(context, view);
-
-        this.detailView = trackView;
-        */
     }
     private List<Location> getLocations(Context context, long startTime) {
         LocationTable locTable = new LocationTable(context);
@@ -163,43 +196,6 @@ public class DetailFragment extends Fragment
         splitTimeDataView.close();
 
         return splits;
-    }
-    private void openChartView(long startTime) {
-        View view = this.replaceView(R.layout.chart_view);
-        Context context = getActivity();
-
-        ChartView chartView = new ChartView();
-        chartView.setContext(context);
-        chartView.setRootView(view);
-
-        List<SplitTimeStepCount> splits = this.getSplits(context, startTime);
-        if (splits.isEmpty()) {
-            Toast.makeText(context, R.string.nodata,
-                    Toast.LENGTH_LONG).show();
-            return;
-        }
-        chartView.load(splits);
-
-        this.detailView = chartView;
-
-    }
-    private void openSplitTimeView(long startTime) {
-        Context activity = getActivity();
-        View view = this.replaceView(R.layout.splittime_view);
-
-        SplitTimeView splitTimeView = new SplitTimeView();
-        splitTimeView.setContext(activity);
-        splitTimeView.setRootView(view);
-
-        List<SplitTimeStepCount> splits = this.getSplits(activity, startTime);
-        if (splits.isEmpty()) {
-            Toast.makeText(activity, R.string.nodata,
-                    Toast.LENGTH_LONG).show();
-            return;
-        }
-        splitTimeView.load(splits);
-        this.detailView = new SplitTimeView();
-
     }
     private void exportFile(long startTime) {
         if (startTime == 0) {
@@ -227,16 +223,16 @@ public class DetailFragment extends Fragment
                 this.goBack();
                 break;
             case R.id.action_map:
-                this.openMapView(this.startTime);
+                this.openDetailView(TYPE_MAP, this.startTime);
                 break;
             case R.id.action_chart:
-                this.openChartView(this.startTime);
+                this.openDetailView(TYPE_CHART, this.startTime);
+                break;
+            case R.id.action_splittime:
+                this.openDetailView(TYPE_SPLITTIME, this.startTime);
                 break;
             case R.id.action_transform:
                 this.exportFile(this.startTime);
-                break;
-            case R.id.action_splittime:
-                this.openSplitTimeView(this.startTime);
                 break;
             default:
                 break;
