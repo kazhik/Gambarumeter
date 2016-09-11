@@ -2,7 +2,6 @@ package net.kazhik.gambarumeterlib;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -14,12 +13,15 @@ public class DistanceUtil implements SharedPreferences.OnSharedPreferenceChangeL
     private Context context;
     private String distanceUnitPref;
     private String distanceUnitStr;
+    private static final Object lock = new Object();
     private static final String TAG = "DistanceUtil";
 
     public static DistanceUtil getInstance(Context context) {
-        if (distanceUtil == null) {
-            distanceUtil = new DistanceUtil();
-            distanceUtil.initialize(context);
+        synchronized (lock) {
+            if (distanceUtil == null) {
+                distanceUtil = new DistanceUtil();
+                distanceUtil.initialize(context);
+            }
         }
         return distanceUtil;
     }

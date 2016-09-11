@@ -60,7 +60,6 @@ public class FullMainFragment extends MainFragment
     }
     @Override
     public void onDestroy() {
-        Activity activity = this.getActivity();
         if (this.heartRateMonitor != null) {
             this.heartRateMonitor.terminate();
         }

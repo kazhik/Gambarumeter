@@ -135,7 +135,7 @@ public abstract class MainFragment extends PagerFragment
 
     @Override
     public void onDestroy() {
-        long stopTime = this.stopWorkout();
+        this.stopWorkout();
         this.mobileConnector.terminate();
         if (this.gyroscope != null) {
             this.gyroscope.terminate();
