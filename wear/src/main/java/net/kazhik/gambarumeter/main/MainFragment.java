@@ -61,6 +61,8 @@ public abstract class MainFragment extends PagerFragment
     private Vibrator vibrator;
     private MobileConnector mobileConnector = new MobileConnector();
 
+    private int connectedService = 0;
+
     private static final String TAG = "MainFragment";
 
     @Override
@@ -91,7 +93,6 @@ public abstract class MainFragment extends PagerFragment
 
         this.initializeUI();
 
-        this.voiceAction(savedInstanceState);
     }
 
     @Override
@@ -103,26 +104,20 @@ public abstract class MainFragment extends PagerFragment
 //        Log.d(TAG, "onSaveInstanceState: " + outState.getLong("start_time"));
     }
 
-    private void voiceAction(Bundle savedInstanceState) {
+    private void voiceAction() {
         String actionStatus =
                 this.getActivity().getIntent().getStringExtra("actionStatus");
         if (actionStatus == null) {
             return;
         }
-
         if (actionStatus.equals("ActiveActionStatus")) {
-            this.startWorkout();
+            if (!this.stopwatch.isRunning()) {
+                this.startWorkout();
+            }
         } else if (actionStatus.equals("CompletedActionStatus")) {
-            if (savedInstanceState == null) {
-                Log.d(TAG, "savedInstanceState is null");
-                return;
+            if (this.stopwatch.isRunning()) {
+                this.stopWorkout();
             }
-            if (savedInstanceState.getLong("start_time") == 0) {
-                Log.d(TAG, "Not started:");
-                return;
-            }
-            Log.d(TAG, "workout stop");
-            this.stopWorkout();
         }
 
     }
@@ -337,18 +332,27 @@ public abstract class MainFragment extends PagerFragment
             this.gyroscope =
                     ((Gyroscope.GyroBinder) iBinder).getService();
             this.gyroscope.initialize(this.sensorManager, this);
+            this.connectedService++;
         } else if (iBinder instanceof StepCountMonitor.StepCountBinder) {
             this.stepCountMonitor =
                     ((StepCountMonitor.StepCountBinder) iBinder).getService();
             this.stepCountMonitor.init(this.getActivity(), this.sensorManager, this);
+            this.connectedService++;
         }
 
+        if (isServiceReady()) {
+            this.voiceAction();
+        }
     }
     // ServiceConnection
     @Override
     public void onServiceDisconnected(ComponentName componentName) {
         Log.d(TAG, "onServiceDisconnected: " + componentName.toString());
 
+    }
+
+    protected boolean isServiceReady() {
+        return (this.connectedService == 2);
     }
 
     private void initialize() {

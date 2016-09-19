@@ -38,6 +38,8 @@ public class GpsMainFragment extends MainFragment
 
     private LocationNotificationView notificationView = new LocationNotificationView();
 
+    private int connectedService = 0;
+
     private static final String TAG = "GpsMainFragment";
 
     @Override
@@ -264,16 +266,19 @@ public class GpsMainFragment extends MainFragment
     // ServiceConnection
     @Override
     public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-        Log.d(TAG, "onServiceConnected: " + componentName.toString());
-        super.onServiceConnected(componentName, iBinder);
 
         if (iBinder instanceof LocationMonitor.GeolocationBinder) {
             this.locationMonitor =
                     ((LocationMonitor.GeolocationBinder)iBinder).getService();
             this.locationMonitor.init(this.getActivity(), this);
+            this.connectedService++;
         }
+        super.onServiceConnected(componentName, iBinder);
 
     }
 
+    protected boolean isServiceReady() {
+        return (super.isServiceReady() && this.connectedService == 1);
+    }
 
 }

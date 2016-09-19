@@ -37,6 +37,8 @@ public class HeartRateMainFragment extends MainFragment
 
     private HeartRateNotificationView notificationView = new HeartRateNotificationView();
 
+    private int connectedService = 0;
+
     private static final String TAG = "HeartRateMainFragment";
 
 
@@ -204,16 +206,18 @@ public class HeartRateMainFragment extends MainFragment
     // ServiceConnection
     @Override
     public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-        Log.d(TAG, "onServiceConnected: " + componentName.toString());
-
         if (iBinder instanceof HeartRateMonitor.HeartRateBinder) {
             this.heartRateMonitor =
                     ((HeartRateMonitor.HeartRateBinder)iBinder).getService();
             this.heartRateMonitor.init(this.getActivity(), sensorManager, this);
+            this.connectedService++;
         }
         super.onServiceConnected(componentName, iBinder);
 
     }
 
+    protected boolean isServiceReady() {
+        return (super.isServiceReady() && this.connectedService == 1);
+    }
 
 }

@@ -44,6 +44,9 @@ public class FullMainFragment extends MainFragment
     private LocationMonitor locationMonitor;
 
     private FullNotificationView notificationView = new FullNotificationView();
+
+    private int connectedService = 0;
+
     private static final String TAG = "FullMainFragment";
 
     @Override
@@ -316,20 +319,23 @@ public class FullMainFragment extends MainFragment
     // ServiceConnection
     @Override
     public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-        Log.d(TAG, "onServiceConnected: " + componentName.toString());
-
         if (iBinder instanceof HeartRateMonitor.HeartRateBinder) {
             this.heartRateMonitor =
                     ((HeartRateMonitor.HeartRateBinder)iBinder).getService();
             this.heartRateMonitor.init(this.getActivity(), sensorManager, this);
+            this.connectedService++;
         } else if (iBinder instanceof LocationMonitor.GeolocationBinder) {
             this.locationMonitor =
                     ((LocationMonitor.GeolocationBinder)iBinder).getService();
             this.locationMonitor.init(this.getActivity(), this);
+            this.connectedService++;
         }
         super.onServiceConnected(componentName, iBinder);
 
     }
 
+    protected boolean isServiceReady() {
+        return (super.isServiceReady() && this.connectedService == 2);
+    }
 
 }
