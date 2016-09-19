@@ -6,7 +6,7 @@ import android.util.Log;
  * Created by kazhik on 15/12/06.
  */
 public class WristRotationDetector {
-    private float threshold = 10.0f;
+    private float threshold = 15.0f;
     private int interval = 1000;
     private int rotateCount = 0;
     private long prevTimestamp = 0;
