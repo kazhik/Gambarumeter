@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="action_about">このアプリについて</string>
     <string name="steps">歩</string>
     <string name="action_settings">設定</string>
     <string name="delete">削除</string>

@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
@@ -157,8 +158,11 @@ public class MainFragment extends Fragment implements NavigationView.OnNavigatio
         menu.setHeaderTitle(map.get("startTimeStr"));
         menu.add(Menu.NONE, CONTEXTMENU_DELETE, Menu.NONE,
                 R.string.delete);
+        /*
         menu.add(Menu.NONE, CONTEXTMENU_SELECT, Menu.NONE,
                 R.string.select);
+        */
+
 
     }
 
@@ -300,6 +304,13 @@ public class MainFragment extends Fragment implements NavigationView.OnNavigatio
 
     }
 
+    private void showAboutDialog()
+    {
+        AboutDialog aboutDialog = AboutDialog.newInstance();
+        aboutDialog.show(getFragmentManager(), "dialog");
+
+    }
+
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         DrawerLayout drawerLayout =
@@ -308,6 +319,9 @@ public class MainFragment extends Fragment implements NavigationView.OnNavigatio
         switch (item.getItemId()) {
             case R.id.action_settings:
                 this.openSettings();
+                break;
+            case R.id.action_about:
+                this.showAboutDialog();
                 break;
             default:
                 break;

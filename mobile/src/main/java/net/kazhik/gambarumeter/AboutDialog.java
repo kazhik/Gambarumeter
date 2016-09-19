@@ -39,7 +39,7 @@ public class AboutDialog extends DialogFragment {
 		aboutText.append("\n\n");
 		aboutText.append("Version: " + pkgInfo.versionName);
 		aboutText.append("\n");
-		aboutText.append("Website: github.com/kazhik/Textalk");
+		aboutText.append("Website: kazhik.github.io/Gambarumeter/");
 		final SpannableString sstr = new SpannableString(aboutText.toString());
 		Linkify.addLinks(sstr, Linkify.ALL);
 
