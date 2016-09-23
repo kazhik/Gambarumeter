@@ -1,108 +1,78 @@
 <!DOCTYPE html>
-<html>
+<html lang="en-us">
   <head>
-    <meta charset='utf-8'>
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
-
-    <link rel="stylesheet" type="text/css" href="stylesheets/gambarumeter.css" media="screen">
-    <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-
+    <meta charset="UTF-8">
     <title>Gambarumeter by kazhik</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
   </head>
-
   <body>
-    <header>
-      <div class="inner">
-        <h1>Gambarumeter</h1>
-        <h2>Android Wear app that tracks your workout</h2>
-        <a href="https://github.com/kazhik/Gambarumeter" class="button"><small>View project on</small> GitHub</a>
-      </div>
-      <div class="language-block">
-        <span class="language"><a href="index-ja.html">日本語</a></span>
-        <span class="language">English</span>
-      </div>
-    </header>
+    <section class="page-header">
+      <h1 class="project-name">Gambarumeter</h1>
+      <h2 class="project-tagline">Heart rate monitor and pedometer for Android Wear devices</h2>
+      <a href="https://github.com/kazhik/Gambarumeter" class="btn">View on GitHub</a>
+      <a href="https://github.com/kazhik/Gambarumeter/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/kazhik/Gambarumeter/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
 
-    <div id="content-wrapper">
-      <div class="inner clearfix">
-        <section id="main-content">
+    <section class="main-content">
+      <h1>
+<a id="gambarumeter" class="anchor" href="#gambarumeter" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Gambarumeter</h1>
 
-          <p>Gambarumeter is an Android Wear application that tracks your heart rates, running distance and stepcount.</p>
-          
-          <p>Heart rate and step count on Moto 360, distance and step count on Sony Smartwatch 3.</p>
-          
-          <p>Smartphones with Android 4.3 or newer is required to install this app.<br />
-          But this app works standalone. It's not necessary to carry smartphones.</p>
-          
-          <h2>Usage</h2>
-          
-          <h3>Main view</h3>
-          
-          <img src="screenshots/moto-main-en.png" style="float: right">
-          <p>Main view is shown when launched.</p>
-          
-          <p>If you tap the button or double-tap somewhere on the screen, the app starts tracking.<br />
-          The app stops tracking if you tap or double-tap.</p>
-          
-          <p>You have to turn on GPS system setting.<br />
-          Distance is shown "-.--" at first. It turns to "0.00" when the device acquired satellite signals.</p>
-          
-          <h3 style="clear: both">History view</h3>
-          
-          <img src="screenshots/moto-history-en.png" style="float: left">
-          <img src="screenshots/moto-detail-en.png" style="float: right; clear:both">
-          <p>Your can view your workout history by swiping left.</p>
-          
-          <p>History view has view mode and edit mode.<br />
-          On view mode, tap a list item to see the detail of it.<br />
-          On edit mode, tap a list item to delete it.<br />
-          Mode changes by tapping &quot;View mode&quot; or &quot;Edit mode&quot;</p>
-          
-          <h3 style="clear: both">Setting view</h3>
-          
-          <p>Setting view is shown when you swipe left on history view.</p>
-          
-          <h3>Notification</h3>
-          
-          <img src="screenshots/moto-notification.png" style="float: left">
-          <p>Ongoing notification appears on the watch face while working out. Tap it to see main view.</p>
-          
-          <h3 style="clear: both">Voice action</h3>
-          
-          <p>Voice commands are available if the device is connected with smartphones.</p>
-          
-          <p>&quot;Start running&quot; or &quot;Start workout&quot; to start the app.<br />
-          Don't say &quot;Stop running&quot; or &quot;Stop workout&quot;. Your workout data will be cleared.</p>
-        
-        </section>
+<p>Gambarumeterは、心拍数、距離、歩数を計測するアプリケーションです。
+Android Wear搭載のスマートウォッチで動作します。</p>
 
-        <aside id="sidebar">
-          <a href="https://play.google.com/store/apps/details?id=net.kazhik.gambarumeter">
-            <img alt="Get it on Google Play"
-                 src="https://developer.android.com/images/brand/en_generic_rgb_wo_60.png" />
-          </a>          
-          <a href="https://github.com/kazhik/Gambarumeter/zipball/master" class="button">
-            <small>Download</small>
-            .zip file
-          </a>
-          <a href="https://github.com/kazhik/Gambarumeter/tarball/master" class="button">
-            <small>Download</small>
-            .tar.gz file
-          </a>
+<p>モトローラのMoto 360の場合、心拍数と歩数を計測します。
+ソニーのSmartWatch3 SWR50の場合、距離と歩数を計測します。</p>
 
-          <p class="repo-owner"><a href="https://github.com/kazhik/Gambarumeter">Gambarumeter</a> is maintained by <a href="https://github.com/kazhik">kazhik</a>.</p>
+<p>インストールにはAndroid 4.3以上を搭載したスマートフォンが必要です。
+アプリケーションの動作時にはスマートフォンは必要ありません。 このアプリケーションは単独で動作します。</p>
 
-          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
-        </aside>
-      </div>
-    </div>
+<h2>
+<a id="使い方" class="anchor" href="#%E4%BD%BF%E3%81%84%E6%96%B9" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>使い方</h2>
+
+<h3>
+<a id="メイン画面" class="anchor" href="#%E3%83%A1%E3%82%A4%E3%83%B3%E7%94%BB%E9%9D%A2" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>メイン画面</h3>
+
+<p>起動するとメイン画面が表示されます。
+ボタンをタップ、または画面上のどこかをダブルタップすると計測を開始します。
+同じボタンをタップ、または画面上のどこかをダブルタップすると計測を終了します。</p>
+
+<p>距離を計測できるスマートウォッチの場合、システム設定画面で「位置情報」をONにして起動してください。
+最初は距離表示が「-.--km」になっています。最初の位置情報を実際に受け取ると「0.00km」に変わり、距離の計測ができるようになります。</p>
+
+<h3>
+<a id="履歴画面" class="anchor" href="#%E5%B1%A5%E6%AD%B4%E7%94%BB%E9%9D%A2" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>履歴画面</h3>
+
+<p>右にスワイプすると過去の記録が表示されます。
+「閲覧モード」では、特定の行をタップするとその記録の詳細が表示されます。
+「編集モード」では、特定の行をタップするとその記録を削除できます。削除の前に確認ダイアログが表示されます。</p>
+
+<h3>
+<a id="設定画面" class="anchor" href="#%E8%A8%AD%E5%AE%9A%E7%94%BB%E9%9D%A2" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>設定画面</h3>
+
+<p>距離を計測できるスマートウォッチの場合、記録画面で右にスワイプすると設定画面が表示されます。</p>
+
+<h3>
+<a id="通知" class="anchor" href="#%E9%80%9A%E7%9F%A5" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>通知</h3>
+
+<p>計測中は画面下部に通知が表示されます。通知をタップするとメイン画面が表示されます。</p>
+
+<h3>
+<a id="音声コマンド" class="anchor" href="#%E9%9F%B3%E5%A3%B0%E3%82%B3%E3%83%9E%E3%83%B3%E3%83%89" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>音声コマンド</h3>
+
+<p>スマートフォンに接続した状態の場合、音声でアプリケーションを開始できます。「ランニング開始」または「ワークアウト開始」でアプリケーションが起動して計測を開始します。ただし「ランニング終了」「ワークアウト開始」は使えません。計測中の記録が消えてしまうのでご注意ください。</p>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/kazhik/Gambarumeter">Gambarumeter</a> is maintained by <a href="https://github.com/kazhik">kazhik</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
 
   
   </body>
