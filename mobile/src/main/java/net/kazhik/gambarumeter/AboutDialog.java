@@ -40,6 +40,13 @@ public class AboutDialog extends DialogFragment {
 		aboutText.append("Version: " + pkgInfo.versionName);
 		aboutText.append("\n");
 		aboutText.append("Website: kazhik.github.io/Gambarumeter/");
+		aboutText.append("\n");
+		aboutText.append("\n");
+		aboutText.append("Built using:");
+		aboutText.append("\n");
+		aboutText.append("https://github.com/PhilJay/MPAndroidChart");
+		aboutText.append(" ");
+		aboutText.append("Licensed under the Apache License, Version 2.0");
 		final SpannableString sstr = new SpannableString(aboutText.toString());
 		Linkify.addLinks(sstr, Linkify.ALL);
 
