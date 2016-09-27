@@ -1,50 +1,47 @@
-Gambarumeterは、心拍数、距離、歩数を計測するアプリケーションです。  
-Android Wear搭載のスマートウォッチで動作します。
+Gambarumeter is an Android application that tracks your heart rates, running distance and stepcount.
+Smartphones with Android 4.3 or newer and smartwatch with Android Wear are required to install this app.
+This app works standalone. It's not necessary to carry smartphones.
 
-モトローラのMoto 360の場合、心拍数と歩数を計測します。  
-ソニーのSmartWatch3 SWR50の場合、距離と歩数を計測します。
+## Smartwatch
 
-インストールにはAndroid 4.3以上を搭載したスマートフォンが必要です。
+### Main view
 
-アプリケーションの動作時にはスマートフォンは必要ありません。  
-このアプリケーションは単独で動作します。
+![Main view](screenshots/watch-main.png)
+Main view is shown when launched.
 
-## 使い方
+If you tap the button at the bottom of the screen or double-tap somewhere on the screen, the app starts tracking your activity.
+The app stops tracking if you tap the same button or double-tap somewhere.
 
-### メイン画面
+You have to turn on sensors before launching this app.
+Go to *Settings -> Permissions -> Gambarumeter*.
 
-起動するとメイン画面が表示されます。
+Distance is shown "-.--" at first. It turns to "0.00" when the device acquired satellite signals.
 
-ボタンをタップ、または画面上のどこかをダブルタップすると計測を開始します。  
-同じボタンをタップ、または画面上のどこかをダブルタップすると計測を終了します。 
+Long press somewhere on the screen if you want to terminate this app.
+![Detail view](screenshots/watch-quit.png)
 
-距離を計測できるスマートウォッチの場合、システム設定画面で「位置情報」をONにして起動してください。  
-最初は距離表示が「-.--km」になっています。最初の位置情報を実際に受け取ると「0.00km」に変わり、距離の計測ができるようになります。
+### History view
 
-### 履歴画面
+![History view](screenshots/watch-history-view.png)
+You can view your workout history by swiping left.
 
-右にスワイプすると過去の記録が表示されます。
-
-「閲覧モード」では、特定の行をタップするとその記録の詳細が表示されます。  
-「編集モード」では、特定の行をタップするとその記録を削除できます。削除の前に確認ダイアログが表示されます。  
-「閲覧モード」をタップすると編集モード、「編集モード」をタップすると閲覧モードに切り替わります。
-
-
-### 設定画面
-
-距離を計測できるスマートウォッチの場合、記録画面で右にスワイプすると設定画面が表示されます。
+History view has view mode and edit mode.
+In view mode, tap a list item to see the detail of it.
+![Detail view](screenshots/watch-detail.png)
+In edit mode, tap a list item to delete it.
+![History view](screenshots/watch-history-edit.png)
+Mode is changed by tapping "View mode" or "Edit mode".
 
 
-### 通知
+### Notification
 
-計測中は画面下部に通知が表示されます。通知をタップするとメイン画面が表示されます。
+Ongoing notification appears on the watch face. Tap it to open main view.
 
 
-### 音声コマンド
+### Voice command
 
-スマートフォンに接続した状態の場合、音声でアプリケーションを開始できます。
+Voice commands are available if your smartwatch is connected with your smartphone.
 
-「ランニング開始」または「ワークアウト開始」でアプリケーションが起動して計測を開始します。  
-「ランニング終了」「ワークアウト開始」は使えません。計測中の記録が消えてしまうのでご注意ください。
-
+"Start running" or "Start workout" to start the app.
+Don't say "Stop running" or "Stop workout". Your workout data will be cleared.
 
