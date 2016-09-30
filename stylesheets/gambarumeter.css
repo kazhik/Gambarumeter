@@ -1,9 +1,8 @@
-header .language-block {
-  width: 940px;
+.language-block {
   margin: 0px auto;
   text-align: right;
 }
-header .language {
+.language {
   display: inline-block;
   width: auto;
   height: auto;
@@ -17,4 +16,8 @@ header .language {
   margin-right: 10px;
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
+}
+img {
+    display: block;
+    margin: 0 auto;
 }
