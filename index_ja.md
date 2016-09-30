@@ -14,12 +14,15 @@ title: Gambarumeter
         {% endfor %}
 </div>
 
-- [Watch](#Watch)
-- [Phone](#Phone)
-
 Gambarumeterは、心拍数、距離、歩数を計測するアプリケーションです。
 Android Wear搭載のスマートウォッチおよびAndroid 4.3以上を搭載したスマートフォンが必要です。
 アプリケーションの動作時にはスマートフォンは必要ありません。単独で動作します。
+
+## 目次
+
+- [スマートウォッチ](#Watch)
+- [スマートフォン](#Phone)
+
 
 ## スマートウォッチ<a name="Watch"></a>
 
@@ -64,9 +67,9 @@ Android Wear搭載のスマートウォッチおよびAndroid 4.3以上を搭載
 「ランニング開始」または「ワークアウト開始」でアプリケーションが起動して計測を開始します。
 「ランニング終了」「ワークアウト開始」は使えません。計測中の記録が消えてしまうのでご注意ください。
 
-## Phone<a name="Phone"></a>
+## スマートフォン<a name="Phone"></a>
 
-### History view
+### メイン画面
 ![History view](screenshots/phone-history.png)
 
 メイン画面には過去の記録が表示されます。
@@ -75,7 +78,7 @@ Android Wear搭載のスマートウォッチおよびAndroid 4.3以上を搭載
 
 ![Drawer/Main](screenshots/phone-drawer-main.png)
 
-### Detail view
+### 詳細画面
 
 詳細画面では、マップ、グラフ、スプリットタイムを見ることができます。
 ドロワーメニューを開いて切り替えてください。

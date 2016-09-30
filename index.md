@@ -20,7 +20,7 @@ Smartphones with Android 4.3 or newer and smartwatch with Android Wear are requi
 
 This app works standalone. It's not necessary to carry smartphones.
 
-## Contents:
+## Contents
 
 - [Watch](#Watch)
 - [Phone](#Phone)
@@ -74,7 +74,7 @@ Don't say "Stop running" or "Stop workout". Your workout data will be cleared.
 
 ## Phone<a name="Phone"></a>
 
-### History view
+### Main view
 ![History view](screenshots/phone-history.png)
 Main view of the smartphone app shows your workout history.
 
