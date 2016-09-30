@@ -9,7 +9,7 @@ title: Gambarumeter
         {% assign pages=site.pages | where:"ref", page.ref | sort: 'lang' %}
         {% for page in pages %}
           <span class="language">
-            <a href="{{ page.url }}" class="{{ page.lang }}">{{ page.lang }}</a>
+            <a href="{{ site.baseurl }}{{ page.url }}" class="{{ page.lang }}">{{ page.lang }}</a>
           </span>
         {% endfor %}
 </div>
