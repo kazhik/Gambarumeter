@@ -27,17 +27,4 @@ public class FullHistoryFragment extends LocationHistoryFragment {
 
     }
 
-    protected void deleteRecord(Context context, long startTime) {
-        Log.d(TAG, "deleteRecord: " + startTime);
-
-        super.deleteRecord(context, startTime);
-
-        HeartRateTable heartRateTable = new HeartRateTable(context);
-        heartRateTable.open(false);
-        heartRateTable.delete(startTime);
-        heartRateTable.close();
-
-    }
-
-
 }

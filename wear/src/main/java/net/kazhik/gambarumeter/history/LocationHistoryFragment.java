@@ -27,19 +27,4 @@ public class LocationHistoryFragment extends HistoryFragment {
 
     }
 
-
-    protected void deleteRecord(Context context, long startTime) {
-        Log.d(TAG, "deleteRecord: " + startTime);
-
-        super.deleteRecord(context, startTime);
-        
-        LocationTable locationTable = new LocationTable(context);
-        locationTable.open(false);
-        locationTable.delete(startTime);
-        locationTable.close();
-
-    }
-
-
-
 }

@@ -14,6 +14,7 @@ import android.widget.TextView;
 import net.kazhik.gambarumeter.R;
 import net.kazhik.gambarumeterlib.entity.WorkoutInfo;
 import net.kazhik.gambarumeter.pager.PagerFragment;
+import net.kazhik.gambarumeterlib.storage.DataStorage;
 import net.kazhik.gambarumeterlib.storage.SplitTable;
 import net.kazhik.gambarumeterlib.storage.StepCountTable;
 import net.kazhik.gambarumeterlib.storage.WorkoutTable;
@@ -105,34 +106,16 @@ public abstract class HistoryFragment extends PagerFragment
         modeText.setText(msgId);
     }
     
-    protected void deleteRecord(Context context, long startTime) {
-        Log.d(TAG, "deleteRecord: " + startTime);
-
-        WorkoutTable workoutTable = new WorkoutTable(context);
-        workoutTable.open(false);
-        workoutTable.delete(startTime);
-        workoutTable.close();
-
-        StepCountTable stepCountTable = new StepCountTable(context);
-        stepCountTable.open(false);
-        stepCountTable.delete(startTime);
-        stepCountTable.close();
-
-        SplitTable splitTable = new SplitTable(context);
-        splitTable.open(false);
-        splitTable.delete(startTime);
-        splitTable.close();
-        
-    }
-    
     @Override
     public void onClick(DialogInterface dialog, int which) {
         if (which == DialogInterface.BUTTON_POSITIVE) {
             Log.d(TAG, "Delete: " + this.startTime);
 
             Context context = this.getActivity();
-            
-            this.deleteRecord(context, this.startTime);
+
+            DataStorage storage = new DataStorage(context);
+            storage.delete(startTime);
+            storage.close();
 
             this.refreshView();
         } else if (which == DialogInterface.BUTTON_NEGATIVE) {
