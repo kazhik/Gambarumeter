@@ -18,8 +18,8 @@ import com.google.android.gms.wearable.DataMap;
 import net.kazhik.gambarumeter.R;
 import net.kazhik.gambarumeter.main.monitor.GeolocationMonitor;
 import net.kazhik.gambarumeter.main.monitor.LocationSensorValueListener;
+import net.kazhik.gambarumeter.main.notification.NotificationController;
 import net.kazhik.gambarumeter.main.view.DistanceView;
-import net.kazhik.gambarumeter.main.notification.LocationNotificationView;
 import net.kazhik.gambarumeterlib.storage.DataStorage;
 import net.kazhik.gambarumeterlib.storage.WorkoutTable;
 
@@ -32,8 +32,6 @@ public class LocationMainFragment extends MainFragment
     private GeolocationMonitor locationMonitor;
 
     private DistanceView distanceView = new DistanceView();
-
-    private LocationNotificationView notificationView = new LocationNotificationView();
 
     private int connectedService = 0;
 
@@ -202,18 +200,6 @@ public class LocationMainFragment extends MainFragment
         storage.close();
 
     }
-
-    @Override
-    protected void updateStepCount(int stepCount) {
-        this.notificationView.updateStepCount(stepCount);
-
-    }
-    @Override
-    protected void showNotification(long elapsed) {
-        this.notificationView.show(elapsed);
-
-    }
-
 
     // LocationSensorValueListener
     @Override

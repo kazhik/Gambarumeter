@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.text.Html;
@@ -65,11 +66,21 @@ public class NotificationView {
         
     }
     public void show(String contentTitle, String contentText) {
-        this.notificationBuilder
-                .setContentTitle(Html.fromHtml(
-                        "<h4><b>" + contentTitle + "</b></h4>"))
-                .setContentText(Html.fromHtml(
-                        "<h4><b>" + contentText + "</b></h4>"));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            this.notificationBuilder
+                    .setContentTitle(Html.fromHtml(
+                            "<h4><b>" + contentTitle + "</b></h4>",
+                            Html.FROM_HTML_MODE_LEGACY))
+                    .setContentText(Html.fromHtml(
+                            "<h4><b>" + contentText + "</b></h4>",
+                            Html.FROM_HTML_MODE_LEGACY));
+        } else {
+            this.notificationBuilder
+                    .setContentTitle(Html.fromHtml(
+                            "<h4><b>" + contentTitle + "</b></h4>"))
+                    .setContentText(Html.fromHtml(
+                            "<h4><b>" + contentText + "</b></h4>"));
+        }
 
         this.notificationMgr.notify(NOTIFICATION_ID, this.notificationBuilder.build());
     }

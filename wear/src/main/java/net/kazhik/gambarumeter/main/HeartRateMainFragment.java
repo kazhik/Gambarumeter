@@ -17,7 +17,7 @@ import com.google.android.gms.wearable.DataMap;
 import net.kazhik.gambarumeter.R;
 import net.kazhik.gambarumeter.main.monitor.HeartRateMonitor;
 import net.kazhik.gambarumeter.main.monitor.HeartRateSensorValueListener;
-import net.kazhik.gambarumeter.main.notification.HeartRateNotificationView;
+import net.kazhik.gambarumeter.main.notification.NotificationController;
 import net.kazhik.gambarumeter.main.view.HeartRateView;
 import net.kazhik.gambarumeterlib.storage.DataStorage;
 import net.kazhik.gambarumeterlib.storage.WorkoutTable;
@@ -34,8 +34,6 @@ public class HeartRateMainFragment extends MainFragment
     private HeartRateMonitor heartRateMonitor;
 
     private HeartRateView heartRateView = new HeartRateView();
-
-    private HeartRateNotificationView notificationView = new HeartRateNotificationView();
 
     private int connectedService = 0;
 
@@ -176,16 +174,6 @@ public class HeartRateMainFragment extends MainFragment
         }
 
         storage.close();
-
-    }
-    @Override
-    protected void updateStepCount(int stepCount) {
-        this.notificationView.updateStepCount(stepCount);
-
-    }
-    @Override
-    protected void showNotification(long elapsed) {
-        this.notificationView.show(elapsed);
 
     }
 

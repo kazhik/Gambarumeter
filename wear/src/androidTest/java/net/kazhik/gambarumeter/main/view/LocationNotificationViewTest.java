@@ -1,19 +1,10 @@
 package net.kazhik.gambarumeter.main.view;
 
-import android.content.Context;
-import android.content.res.Configuration;
-import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.InstrumentationTestCase;
 
-import net.kazhik.gambarumeter.main.notification.LocationNotificationView;
-
-import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import java.lang.reflect.Method;
-import java.util.Locale;
 
 /**
  * Created by kazhik on 15/01/10.

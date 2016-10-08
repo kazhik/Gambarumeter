@@ -10,7 +10,6 @@ import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.location.LocationManager;
 import android.os.IBinder;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
@@ -24,7 +23,7 @@ import net.kazhik.gambarumeter.main.monitor.HeartRateMonitor;
 import net.kazhik.gambarumeter.main.monitor.HeartRateSensorValueListener;
 import net.kazhik.gambarumeter.main.monitor.LocationMonitor;
 import net.kazhik.gambarumeter.main.monitor.LocationSensorValueListener;
-import net.kazhik.gambarumeter.main.notification.FullNotificationView;
+import net.kazhik.gambarumeter.main.notification.NotificationController;
 import net.kazhik.gambarumeter.main.view.DistanceView;
 import net.kazhik.gambarumeter.main.view.HeartRateView;
 import net.kazhik.gambarumeterlib.storage.DataStorage;
@@ -42,8 +41,6 @@ public class FullMainFragment extends MainFragment
 
     private DistanceView distanceView = new DistanceView();
     private LocationMonitor locationMonitor;
-
-    private FullNotificationView notificationView = new FullNotificationView();
 
     private int connectedService = 0;
 
@@ -266,16 +263,6 @@ public class FullMainFragment extends MainFragment
         this.getActivity().runOnUiThread(this.heartRateView);
 
         this.notificationView.updateHeartRate(rate);
-
-    }
-    @Override
-    protected void updateStepCount(int stepCount) {
-        this.notificationView.updateStepCount(stepCount);
-
-    }
-    @Override
-    protected void showNotification(long elapsed) {
-        this.notificationView.show(elapsed);
 
     }
 

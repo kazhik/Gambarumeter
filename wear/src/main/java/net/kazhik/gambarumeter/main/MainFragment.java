@@ -31,6 +31,7 @@ import net.kazhik.gambarumeter.main.monitor.Gyroscope;
 import net.kazhik.gambarumeter.main.monitor.SensorValueListener;
 import net.kazhik.gambarumeter.main.monitor.StepCountMonitor;
 import net.kazhik.gambarumeter.main.monitor.Stopwatch;
+import net.kazhik.gambarumeter.main.notification.NotificationController;
 import net.kazhik.gambarumeter.main.view.SplitTimeView;
 import net.kazhik.gambarumeter.main.view.StepCountView;
 import net.kazhik.gambarumeter.pager.PagerFragment;
@@ -60,6 +61,8 @@ public abstract class MainFragment extends PagerFragment
     private UserInputManager userInputManager;
     private Vibrator vibrator;
     private MobileConnector mobileConnector = new MobileConnector();
+
+    protected NotificationController notificationView = new NotificationController();
 
     private int connectedService = 0;
 
@@ -299,9 +302,8 @@ public abstract class MainFragment extends PagerFragment
         this.stepCountView.setStepCount(stepCount);
         this.getActivity().runOnUiThread(this.stepCountView);
 
-        this.updateStepCount(stepCount);
+        this.notificationView.updateStepCount(stepCount);
     }
-    protected abstract void updateStepCount(int stepCount);
 
     // SensorValueListener
     @Override
@@ -319,9 +321,8 @@ public abstract class MainFragment extends PagerFragment
         this.splitTimeView.setTime(elapsed);
         this.getActivity().runOnUiThread(this.splitTimeView);
 
-        this.showNotification(elapsed);
+        this.notificationView.show(elapsed);
     }
-    protected abstract void showNotification(long elapsed);
 
     // ServiceConnection
     @Override
