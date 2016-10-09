@@ -32,32 +32,21 @@ public class LocationDetailAdapter extends WearableListView.Adapter {
 
     }
 
-    // Provide a reference to the type of views you're using
-    public static class ItemViewHolder extends WearableListView.ViewHolder {
-        private TextView distanceText;
-        private TextView lapTimeText;
-        private TextView stepCountText;
-        public ItemViewHolder(View itemView) {
-            super(itemView);
-            // find the text view within the custom item's layout
-            this.distanceText = (TextView) itemView.findViewById(R.id.distance);
-            this.lapTimeText = (TextView) itemView.findViewById(R.id.laptime);
-            this.stepCountText = (TextView) itemView.findViewById(R.id.stepcount_value);
-        }
-    }
-
     // Create new views for list items
     // (invoked by the WearableListView's layout manager)
     @Override
     public WearableListView.ViewHolder onCreateViewHolder(ViewGroup parent,
                                                           int viewType) {
 
-        // Inflate our custom layout for list items
-        int layoutId = this.getLayoutId();
-        return new ItemViewHolder(this.inflater.inflate(layoutId, parent, false));
+        return new ItemViewHolder(this.getItemView(parent, R.layout.location_item));
     }
-    protected int getLayoutId() {
-        return R.layout.location_item;
+    protected LapTime getDataSet(int position) {
+        return this.dataSet.get(position);
+    }
+    public View getItemView(ViewGroup parent, int layoutId) {
+        // Inflate our custom layout for list items
+        return this.inflater.inflate(layoutId, parent, false);
+
     }
 
     // Replace the contents of a list item
@@ -68,20 +57,17 @@ public class LocationDetailAdapter extends WearableListView.Adapter {
                                  int position) {
         // retrieve the text view
         ItemViewHolder itemHolder = (ItemViewHolder) holder;
-        TextView distanceText = itemHolder.distanceText;
-        TextView lapTimeText = itemHolder.lapTimeText;
-        TextView stepCountText = itemHolder.stepCountText;
 
         // replace text contents
-        LapTime lapInfo = this.dataSet.get(position);
+        LapTime lapInfo = this.getDataSet(position);
         String distanceStr =
                 this.distanceUtil.getDistanceAndUnitStr(lapInfo.getDistance());
-        distanceText.setText(distanceStr);
+        itemHolder.setDistance(distanceStr);
 
         long laptime = lapInfo.getLaptime();
-        lapTimeText.setText(TimeUtil.formatSec(laptime));
+        itemHolder.setLapTime(TimeUtil.formatSec(laptime));
 
-        stepCountText.setText(String.valueOf(lapInfo.getStepCount()));
+        itemHolder.setStepCount(String.valueOf(lapInfo.getStepCount()));
 
         // replace list item's metadata
         holder.itemView.setTag(position);

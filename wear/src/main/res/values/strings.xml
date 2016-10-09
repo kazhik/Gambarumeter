@@ -35,8 +35,8 @@
 
     <string name="detail_distance" translatable="false">1.01km</string>
     <string name="detail_laptime" translatable="false">4:55</string>
-    <string name="detail_stepcount" translatable="false">980</string>
+    <string name="detail_stepcount" translatable="false">1080</string>
     <string name="detail_timestamp" translatable="false">1:56:54</string>
-    <string name="detail_heartrate" translatable="false">76</string>
+    <string name="detail_heartrate" translatable="false">176</string>
 
 </resources>
