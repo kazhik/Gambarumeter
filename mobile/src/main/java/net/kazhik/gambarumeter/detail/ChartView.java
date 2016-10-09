@@ -7,10 +7,14 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
-import com.github.mikephil.charting.utils.ValueFormatter;
+import com.github.mikephil.charting.formatter.ValueFormatter;
+import com.github.mikephil.charting.formatter.YAxisValueFormatter;
+import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
+import com.github.mikephil.charting.utils.ViewPortHandler;
 
 import net.kazhik.gambarumeter.R;
 import net.kazhik.gambarumeterlib.DistanceUtil;
@@ -27,23 +31,23 @@ public class ChartView implements DetailView {
     private Context context;
 
     private static final String TAG = "ChartView";
-    private static final ValueFormatter valueFormatter = new ValueFormatter() {
-        @Override
-        public String getFormattedValue(float value) {
-            return String.valueOf((int)value);
-        }
-    };
-    private static final ValueFormatter laptimeFormatter = new ValueFormatter() {
-        @Override
-        public String getFormattedValue(float value) {
+    private class LapTimeFormatter implements YAxisValueFormatter, ValueFormatter {
+        private String formatTime(float sec) {
             // convert seconds -> min:sec
-
-            String laptimeStr = String.format("%d:%02d",
-                    (int)value / 60, (int)value % 60);
-
-            return laptimeStr;
+            return String.format("%d:%02d",
+                    (int)sec / 60, (int)sec % 60);
         }
-    };
+        @Override
+        public String getFormattedValue(float value, YAxis yAxis) {
+            return this.formatTime(value);
+        }
+
+        @Override
+        public String getFormattedValue(float value, Entry entry, int dataSetIndex, ViewPortHandler viewPortHandler) {
+            return this.formatTime(value);
+        }
+
+    }
     @Override
     public void setContext(Context context) {
         this.context = context;
@@ -52,8 +56,13 @@ public class ChartView implements DetailView {
     public void setRootView(View root) {
         this.chart = (LineChart)root.findViewById(R.id.chart);
         this.chart.setDescription(null);
-        this.chart.getAxisLeft().setValueFormatter(laptimeFormatter);
-        this.chart.getAxisRight().setValueFormatter(valueFormatter);
+        this.chart.getAxisLeft().setValueFormatter(new LapTimeFormatter());
+        this.chart.getAxisRight().setValueFormatter(new YAxisValueFormatter() {
+            @Override
+            public String getFormattedValue(float value, YAxis yAxis) {
+                return String.valueOf((int)value);
+            }
+        });
 
     }
     public void load(List<SplitTimeStepCount> splits) {
@@ -66,7 +75,6 @@ public class ChartView implements DetailView {
         ArrayList<String> xVals = new ArrayList<>();
         ArrayList<Entry> yHeartRate = new ArrayList<>();
         ArrayList<Entry> ySteps = new ArrayList<>();
-        ArrayList<Entry> yDistance = new ArrayList<>();
         ArrayList<Entry> yLap = new ArrayList<>();
 
         DistanceUtil distanceUtil = DistanceUtil.getInstance(this.context);
@@ -86,14 +94,6 @@ public class ChartView implements DetailView {
 
             prevStepCount = data.getStepCount();
             prevTimestamp = data.getTimestamp();
-            /*
-            xVals.add(DateUtils.formatDateTime(context,
-                    data.getTimestamp() - prevTimestamp,
-                    DateUtils.FORMAT_SHOW_TIME));
-            if (data.getDistance() > 0) {
-                yDistance.add(new Entry(data.getDistance(), x));
-            }
-            */
         }
 
         LineDataSet hrSet = this.getDefaultLineDataSet(yHeartRate,
@@ -103,14 +103,13 @@ public class ChartView implements DetailView {
         LineDataSet lapSet = this.getDefaultLineDataSet(yLap,
                 this.context.getString(R.string.lap),
                 Color.GREEN);
-        lapSet.setValueFormatter(laptimeFormatter);
+        lapSet.setValueFormatter(new LapTimeFormatter());
 
         LineDataSet stepSet = this.getDefaultLineDataSet(ySteps,
                 this.context.getString(R.string.stepLabel),
                 Color.BLUE);
 
-//        set1.enableDashedLine(10f, 5f, 0f);
-        ArrayList<LineDataSet> dataSets = new ArrayList<>();
+        List<ILineDataSet> dataSets = new ArrayList<>();
         dataSets.add(hrSet);
         dataSets.add(stepSet);
         dataSets.add(lapSet);
@@ -127,7 +126,7 @@ public class ChartView implements DetailView {
                                               int color) {
         LineDataSet lineDataSet = new LineDataSet(yVal, label);
         lineDataSet.setLineWidth(1f);
-        lineDataSet.setCircleSize(3f);
+        lineDataSet.setCircleRadius(3f);
         lineDataSet.setDrawCircleHole(false);
         lineDataSet.setValueTextSize(9f);
         lineDataSet.setFillAlpha(65);

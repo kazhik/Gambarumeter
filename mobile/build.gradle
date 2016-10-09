@@ -2,14 +2,14 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 24
-    buildToolsVersion '23.0.3'
+    buildToolsVersion '24.0.3'
 
     defaultConfig {
         applicationId "net.kazhik.gambarumeter"
         minSdkVersion 21
         targetSdkVersion 24
-        versionCode 5
-        versionName "0.4"
+        versionCode 6
+        versionName "0.6"
     }
     buildTypes {
         release {
@@ -33,5 +33,5 @@ dependencies {
     compile 'com.android.support:design:24.2.1'
     compile 'com.google.android.gms:play-services-maps:9.6.1'
     compile 'com.google.android.gms:play-services-identity:9.6.1'
-    compile 'com.github.PhilJay:MPAndroidChart:v2.1.0'
+    compile 'com.github.PhilJay:MPAndroidChart:v2.2.5'
 }
