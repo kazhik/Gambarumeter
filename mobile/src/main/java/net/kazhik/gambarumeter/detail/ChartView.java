@@ -22,6 +22,7 @@ import net.kazhik.gambarumeterlib.entity.SplitTimeStepCount;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by kazhik on 16/02/07.
@@ -34,7 +35,7 @@ public class ChartView implements DetailView {
     private class LapTimeFormatter implements YAxisValueFormatter, ValueFormatter {
         private String formatTime(float sec) {
             // convert seconds -> min:sec
-            return String.format("%d:%02d",
+            return String.format(Locale.getDefault(), "%d:%02d",
                     (int)sec / 60, (int)sec % 60);
         }
         @Override
