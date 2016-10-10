@@ -5,8 +5,8 @@ import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.res.Resources;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
@@ -312,7 +312,7 @@ public class MainFragment extends Fragment implements NavigationView.OnNavigatio
     }
 
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         DrawerLayout drawerLayout =
                 (DrawerLayout) this.getActivity().findViewById(R.id.drawer_layout);
         drawerLayout.closeDrawers();

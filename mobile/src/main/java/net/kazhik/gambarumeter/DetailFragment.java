@@ -1,11 +1,11 @@
 package net.kazhik.gambarumeter;
 
-import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
@@ -158,16 +158,6 @@ public class DetailFragment extends Fragment
 
     }
 
-    private View replaceView(int resId) {
-        //this.detailView.onDestroy();
-
-        Activity activity = this.getActivity();
-        ViewGroup container =
-                (ViewGroup)activity.findViewById(R.id.fragment_container);
-
-        container.removeAllViews();
-        return activity.getLayoutInflater().inflate(resId, container);
-    }
     private void openDetailView(int type, long startTime) {
         DetailFragment detailFragment = new DetailFragment();
         Bundle param = new Bundle();
@@ -213,7 +203,7 @@ public class DetailFragment extends Fragment
     }
 
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         Log.d(TAG, "onNavigationItemSelected");
         DrawerLayout drawerLayout =
                 (DrawerLayout) this.getActivity().findViewById(R.id.drawer_layout);
