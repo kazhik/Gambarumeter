@@ -134,28 +134,6 @@ public class LocationMainFragment extends MainFragment
         
         return stopTime;
     }
-    @Override
-    protected DataMap putData(DataMap dataMap) {
-        dataMap = super.putData(dataMap);
-
-        dataMap = this.locationMonitor.putData(dataMap);
-
-        DataMap workoutDataMap = new DataMap();
-
-        workoutDataMap.putLong(DataStorage.COL_START_TIME,
-                this.stopwatch.getStartTime());
-        workoutDataMap.putLong(DataStorage.COL_STOP_TIME,
-                this.stopwatch.getStopTime());
-        workoutDataMap.putInt(DataStorage.COL_STEP_COUNT,
-                this.stepCountMonitor.getStepCount());
-        workoutDataMap.putInt(DataStorage.COL_HEART_RATE, 0);
-        workoutDataMap.putFloat(DataStorage.COL_DISTANCE,
-                this.locationMonitor.getDistance());
-        dataMap.putDataMap(DataStorage.TBL_WORKOUT, workoutDataMap);
-
-        return dataMap;
-
-    }
 
     protected void saveResult() {
         Context context = this.getActivity();

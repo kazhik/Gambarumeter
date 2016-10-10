@@ -242,12 +242,6 @@ public abstract class MainFragment extends PagerFragment
         }
     }
 
-    protected DataMap putData(DataMap dataMap) {
-        this.stepCountMonitor.putDataMap(dataMap);
-
-        return dataMap;
-
-    }
     private void stop() {
 
         this.stopWorkout();

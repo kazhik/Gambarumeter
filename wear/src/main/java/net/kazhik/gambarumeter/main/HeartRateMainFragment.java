@@ -112,28 +112,6 @@ public class HeartRateMainFragment extends MainFragment
         return stopTime;
     }
 
-    @Override
-    protected DataMap putData(DataMap dataMap) {
-        dataMap = super.putData(dataMap);
-
-        dataMap = this.heartRateMonitor.putData(dataMap);
-
-        DataMap workoutDataMap = new DataMap();
-        workoutDataMap.putLong(DataStorage.COL_START_TIME,
-                this.stopwatch.getStartTime());
-        workoutDataMap.putLong(DataStorage.COL_STOP_TIME,
-                this.stopwatch.getStopTime());
-        workoutDataMap.putInt(DataStorage.COL_STEP_COUNT,
-                this.stepCountMonitor.getStepCount());
-        workoutDataMap.putInt(DataStorage.COL_HEART_RATE,
-                this.heartRateMonitor.getAverageHeartRate());
-        workoutDataMap.putFloat(DataStorage.COL_DISTANCE, 0);
-        dataMap.putDataMap(DataStorage.TBL_WORKOUT, workoutDataMap);
-
-        return dataMap;
-
-    }
-
     protected void saveResult() {
         Context context = this.getActivity();
 
