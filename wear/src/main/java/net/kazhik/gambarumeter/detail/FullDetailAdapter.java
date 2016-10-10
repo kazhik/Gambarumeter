@@ -2,14 +2,9 @@ package net.kazhik.gambarumeter.detail;
 
 import android.content.Context;
 import android.support.wearable.view.WearableListView;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import net.kazhik.gambarumeter.R;
-import net.kazhik.gambarumeterlib.DistanceUtil;
-import net.kazhik.gambarumeterlib.TimeUtil;
 import net.kazhik.gambarumeterlib.entity.LapTime;
 
 import java.util.List;
