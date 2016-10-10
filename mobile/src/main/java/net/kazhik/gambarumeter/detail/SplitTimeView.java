@@ -21,7 +21,6 @@ import java.util.List;
 public class SplitTimeView implements DetailView {
     private Context context;
     private View root;
-    private SimpleAdapter listAdapter;
 
     private List<HashMap<String, String>> mapList = new ArrayList<>();
     private static final String TAG = "SplitTimeView";
@@ -64,7 +63,7 @@ public class SplitTimeView implements DetailView {
 
             this.mapList.add(map);
         }
-        this.listAdapter = new SimpleAdapter(this.context,
+        SimpleAdapter listAdapter = new SimpleAdapter(this.context,
                 this.mapList,
                 R.layout.splittime_item,
                 new String[] { "distance", "laptime", "stepcount", "heartrate" },
@@ -72,9 +71,9 @@ public class SplitTimeView implements DetailView {
                         R.id.stepcount_value, R.id.heartrate_value }
         );
         ListView lv = (ListView)this.root.findViewById(R.id.splittime_list);
-        lv.setAdapter(this.listAdapter);
+        lv.setAdapter(listAdapter);
         lv.setSelection(0);
-        this.listAdapter.notifyDataSetChanged();
+        listAdapter.notifyDataSetChanged();
 
     }
 

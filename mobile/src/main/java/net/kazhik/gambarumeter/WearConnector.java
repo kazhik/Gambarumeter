@@ -3,6 +3,7 @@ package net.kazhik.gambarumeter;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -88,7 +89,7 @@ public class WearConnector
 
     // GoogleApiClient.OnConnectionFailedListener
     @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
     }
 
@@ -106,7 +107,7 @@ public class WearConnector
 
     // ResultCallback<DataItemBuffer>
     @Override
-    public void onResult(DataItemBuffer dataItems) {
+    public void onResult(@NonNull DataItemBuffer dataItems) {
         Log.d(TAG, "onResult");
         for (DataItem dataItem : dataItems) {
             this.handleDataItem(dataItem);
@@ -154,7 +155,7 @@ public class WearConnector
         Log.d(TAG, "putDataItem: " + putDataMapReq.getUri().getPath());
         pendingResult.setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
             @Override
-            public void onResult(DataApi.DataItemResult dataItemResult) {
+            public void onResult(@NonNull DataApi.DataItemResult dataItemResult) {
                 Log.d(TAG, "putDataItem done: " +
                         dataItemResult.getDataItem().getUri().getPath() +
                         " isSuccess=" +
@@ -174,7 +175,7 @@ public class WearConnector
 
         pendingResult.setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
             @Override
-            public void onResult(DataApi.DataItemResult dataItemResult) {
+            public void onResult(@NonNull DataApi.DataItemResult dataItemResult) {
                 Log.d(TAG, "putDataItem done: " + dataItemResult.getDataItem().getUri());
             }
         });
@@ -208,7 +209,7 @@ public class WearConnector
                         mGoogleApiClient, resyncAsset).await().getInputStream();
                 mGoogleApiClient.disconnect();
 
-                ByteArrayOutputStream buffer = null;
+                ByteArrayOutputStream buffer;
                 try {
                     buffer = new ByteArrayOutputStream();
 
@@ -226,7 +227,6 @@ public class WearConnector
 
                 } catch (IOException e) {
                     Log.e(TAG, e.getMessage(), e);
-                } finally {
                 }
 
             }
@@ -244,7 +244,7 @@ public class WearConnector
                 Wearable.DataApi.deleteDataItems(this.mGoogleApiClient, putDataMapReq.getUri());
         result.setResultCallback(new ResultCallback<DataApi.DeleteDataItemsResult>() {
             @Override
-            public void onResult(DataApi.DeleteDataItemsResult deleteDataItemsResult) {
+            public void onResult(@NonNull DataApi.DeleteDataItemsResult deleteDataItemsResult) {
                 Log.d(TAG, "deleteDataItems: success=" +
                         deleteDataItemsResult.getStatus().isSuccess());
             }

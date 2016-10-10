@@ -23,7 +23,6 @@ import net.kazhik.gambarumeter.main.monitor.HeartRateMonitor;
 import net.kazhik.gambarumeter.main.monitor.HeartRateSensorValueListener;
 import net.kazhik.gambarumeter.main.monitor.LocationMonitor;
 import net.kazhik.gambarumeter.main.monitor.LocationSensorValueListener;
-import net.kazhik.gambarumeter.main.notification.NotificationController;
 import net.kazhik.gambarumeter.main.view.DistanceView;
 import net.kazhik.gambarumeter.main.view.HeartRateView;
 import net.kazhik.gambarumeterlib.storage.DataStorage;

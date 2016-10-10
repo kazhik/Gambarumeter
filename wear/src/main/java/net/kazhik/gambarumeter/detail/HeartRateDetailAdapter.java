@@ -13,6 +13,7 @@ import net.kazhik.gambarumeterlib.entity.HeartRateDetail;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by kazhik on 14/11/10.
@@ -79,7 +80,7 @@ public class HeartRateDetailAdapter extends WearableListView.Adapter {
         Calendar cal = Calendar.getInstance();
         cal.setTime(new Date(timestamp));
 
-        return String.format("%02d:%02d",
+        return String.format(Locale.getDefault(), "%02d:%02d",
                 cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE));
     }
 

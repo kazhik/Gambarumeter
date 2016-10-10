@@ -17,7 +17,6 @@ import com.google.android.gms.wearable.DataMap;
 import net.kazhik.gambarumeter.R;
 import net.kazhik.gambarumeter.main.monitor.HeartRateMonitor;
 import net.kazhik.gambarumeter.main.monitor.HeartRateSensorValueListener;
-import net.kazhik.gambarumeter.main.notification.NotificationController;
 import net.kazhik.gambarumeter.main.view.HeartRateView;
 import net.kazhik.gambarumeterlib.storage.DataStorage;
 import net.kazhik.gambarumeterlib.storage.WorkoutTable;

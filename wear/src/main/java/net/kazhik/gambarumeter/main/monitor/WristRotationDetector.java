@@ -57,12 +57,9 @@ class WristRotationDetector {
             this.prevTimestamp = timestamp;
             this.prevValue = maxValue;
 
-        // Opposite move
+        // 2nd event, not opposite move
         } else if (Math.abs(maxValue + this.prevValue)
-                != Math.abs(maxValue) + Math.abs(this.prevValue)) {
-
-        // 2nd
-        } else {
+                == Math.abs(maxValue) + Math.abs(this.prevValue)) {
             Log.d(TAG, "onSensorEvent:" +
                     newValues[0] + "/" +
                     newValues[1] + "/" +

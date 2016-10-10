@@ -19,7 +19,6 @@ import com.google.android.gms.wearable.DataMap;
 import net.kazhik.gambarumeter.R;
 import net.kazhik.gambarumeter.main.monitor.LocationMonitor;
 import net.kazhik.gambarumeter.main.monitor.LocationSensorValueListener;
-import net.kazhik.gambarumeter.main.notification.NotificationController;
 import net.kazhik.gambarumeter.main.view.DistanceView;
 import net.kazhik.gambarumeterlib.storage.DataStorage;
 import net.kazhik.gambarumeterlib.storage.WorkoutTable;

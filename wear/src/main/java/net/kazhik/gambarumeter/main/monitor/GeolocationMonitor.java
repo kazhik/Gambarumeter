@@ -12,6 +12,7 @@ import android.location.LocationManager;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
@@ -219,7 +220,7 @@ public class GeolocationMonitor extends Service
 
     // ResultCallback
     @Override
-    public void onResult(Status status) {
+    public void onResult(@NonNull Status status) {
         if (status.isSuccess()) {
             Log.d(TAG, "Successfully requested location updates");
         } else {
@@ -249,7 +250,7 @@ public class GeolocationMonitor extends Service
 
     // GoogleApiClient.OnConnectionFailedListener
     @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         Log.e(TAG, "connection failed: " + connectionResult.getErrorCode());
 
     }
