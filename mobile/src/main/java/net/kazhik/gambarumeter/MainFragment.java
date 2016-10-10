@@ -33,6 +33,7 @@ import net.kazhik.gambarumeterlib.storage.WorkoutTable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -41,7 +42,7 @@ import java.util.Map;
 public class MainFragment extends Fragment implements NavigationView.OnNavigationItemSelectedListener {
 
     private SimpleAdapter listAdapter;
-    private ArrayList<HashMap<String, String>> mapList = new ArrayList<>();
+    private List<HashMap<String, String>> mapList = new ArrayList<>();
     private DistanceUtil distanceUtil;
 
     private static final int CONTEXTMENU_DELETE = 1001;
@@ -117,18 +118,6 @@ public class MainFragment extends Fragment implements NavigationView.OnNavigatio
 
                 Log.d(TAG, "startTime: " + map.get("startTime")
                         + ":" + map.get("startTimeStr"));
-
-                /*
-                ChartFragment chartFragment = new ChartFragment();
-                Bundle chartParam = new Bundle();
-                chartParam.putLong("startTime", Long.valueOf(map.get("startTime")));
-                chartFragment.setArguments(chartParam);
-
-                getFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container, chartFragment)
-                        .addToBackStack(null)
-                        .commit();
-                */
 
                 DetailFragment detailFragment = new DetailFragment();
                 Bundle param = new Bundle();
@@ -269,8 +258,8 @@ public class MainFragment extends Fragment implements NavigationView.OnNavigatio
             if (distance > 0.0f) {
                 resultStr += "/" + this.distanceUtil.getDistanceAndUnitStr(distance);
             } else if (heartRate > 0) {
-                String heartRateStr = String.format("%d%s", heartRate,
-                        activity.getResources().getString(R.string.bpm));
+                String heartRateStr = String.format(Locale.getDefault(),
+                        "%d%s", heartRate, activity.getResources().getString(R.string.bpm));
                 resultStr += "/" + heartRateStr;
             }
             String stepCountStr = stepCount +

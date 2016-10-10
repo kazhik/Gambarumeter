@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -80,7 +81,7 @@ public class MobileConnector
 
         pendingResult.setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
             @Override
-            public void onResult(DataApi.DataItemResult dataItemResult) {
+            public void onResult(@NonNull DataApi.DataItemResult dataItemResult) {
                 DataItem item = dataItemResult.getDataItem();
 
                 if (item != null) {
@@ -100,7 +101,7 @@ public class MobileConnector
                 Wearable.DataApi.deleteDataItems(this.googleApiClient, putDataMapReq.getUri());
         result.setResultCallback(new ResultCallback<DataApi.DeleteDataItemsResult>() {
             @Override
-            public void onResult(DataApi.DeleteDataItemsResult deleteDataItemsResult) {
+            public void onResult(@NonNull DataApi.DeleteDataItemsResult deleteDataItemsResult) {
                 Log.d(TAG, "deleteDataItems: " + path +
                         " success=" +
                         deleteDataItemsResult.getStatus().isSuccess());
@@ -128,7 +129,7 @@ public class MobileConnector
 
     // GoogleApiClient.OnConnectionFailedListener
     @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         Log.d(TAG, "onConnectionFailed:" + connectionResult.toString());
 
     }
@@ -230,7 +231,7 @@ public class MobileConnector
         workoutTable.openWritable();
         for (String startTimeStr: dataMap.keySet()) {
             long startTime = Long.parseLong(startTimeStr);
-            if (dataMap.getBoolean(startTimeStr) == true) {
+            if (dataMap.getBoolean(startTimeStr)) {
                 boolean ret = workoutTable.updateSynced(startTime);
                 Log.d(TAG, "updateSynced: " +
                         TimeUtil.formatDateTime(this.context, startTime) + " synced=" + ret);
@@ -245,7 +246,7 @@ public class MobileConnector
         return notSynced;
     }
     @Override
-    public void onResult(DataItemBuffer dataItems) {
+    public void onResult(@NonNull DataItemBuffer dataItems) {
         for (DataItem dataItem : dataItems) {
             this.handleDataItem(dataItem);
         }

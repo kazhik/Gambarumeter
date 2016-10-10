@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -139,7 +140,10 @@ public class MobileGambarumeter extends AppCompatActivity
         } else if (f instanceof MainFragment) {
             Log.d(TAG, "MainFragment");
         }
-        getSupportActionBar().setDisplayHomeAsUpEnabled(showHomeAsUp);
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(showHomeAsUp);
+        }
         if (showHomeAsUp) {
             mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
         } else {
