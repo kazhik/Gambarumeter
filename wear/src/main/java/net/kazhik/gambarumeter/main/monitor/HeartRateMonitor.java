@@ -59,21 +59,6 @@ public class HeartRateMonitor extends SensorService {
         }
 
     }
-    public DataMap putData(DataMap dataMap) {
-        ArrayList<DataMap> heartRateDataMapList = new ArrayList<>();
-        for (SensorValue heartRate: this.dataList) {
-            DataMap heartRateMap = new DataMap();
-            heartRateMap.putLong(DataStorage.COL_TIMESTAMP, heartRate.getTimestamp());
-            heartRateMap.putInt(DataStorage.COL_HEART_RATE, (int) heartRate.getValue());
-            heartRateMap.putInt(DataStorage.COL_ACCURACY, heartRate.getAccuracy());
-
-            heartRateDataMapList.add(heartRateMap);
-
-        }
-        dataMap.putDataMapArrayList(DataStorage.TBL_HEARTRATE, heartRateDataMapList);
-
-        return dataMap;
-    }
 
     @Override
     public void start() {

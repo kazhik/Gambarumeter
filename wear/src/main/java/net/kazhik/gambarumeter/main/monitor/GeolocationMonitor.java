@@ -133,34 +133,6 @@ public class GeolocationMonitor extends Service
         return this.record.getSplits();
     }
 
-    public DataMap putData(DataMap dataMap) {
-        ArrayList<DataMap> locationMapList = new ArrayList<>();
-        for (Location loc : this.getLocationList()) {
-            DataMap locMap = new DataMap();
-            locMap.putLong(DataStorage.COL_TIMESTAMP, loc.getTime());
-            locMap.putDouble(DataStorage.COL_LATITUDE, loc.getLatitude());
-            locMap.putDouble(DataStorage.COL_LONGITUDE, loc.getLongitude());
-            locMap.putDouble(DataStorage.COL_ALTITUDE, loc.getAltitude());
-            locMap.putFloat(DataStorage.COL_ACCURACY, loc.getAccuracy());
-
-            locationMapList.add(locMap);
-
-        }
-        dataMap.putDataMapArrayList(DataStorage.TBL_LOCATION, locationMapList);
-
-        ArrayList<DataMap> splitMapList = new ArrayList<>();
-        for (SplitTime split : this.getSplits()) {
-            DataMap splitMap = new DataMap();
-            splitMap.putLong(DataStorage.COL_TIMESTAMP, split.getTimestamp());
-            splitMap.putFloat(DataStorage.COL_DISTANCE, split.getDistance());
-
-            splitMapList.add(splitMap);
-        }
-        dataMap.putDataMapArrayList(DataStorage.TBL_SPLITTIME, splitMapList);
-
-        return dataMap;
-    }
-
     public void saveResult(SQLiteDatabase db, long startTime) {
         LocationTable locTable = new LocationTable(this.context, db);
         for (Location loc : this.getLocationList()) {
