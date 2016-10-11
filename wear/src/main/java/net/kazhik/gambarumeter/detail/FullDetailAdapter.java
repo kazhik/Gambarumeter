@@ -13,11 +13,13 @@ import java.util.List;
  * Created by kazhik on 16/01/28.
  */
 public class FullDetailAdapter extends LocationDetailAdapter {
+    private Context context;
     private static final String TAG = "FullDetailAdapter";
 
     // Provide a suitable constructor (depends on the kind of dataset)
     public FullDetailAdapter(Context context, List<LapTime> dataset) {
         super(context, dataset);
+        this.context = context;
     }
 
     // Create new views for list items
@@ -40,7 +42,8 @@ public class FullDetailAdapter extends LocationDetailAdapter {
 
         ItemViewHolder itemHolder = (ItemViewHolder) holder;
         LapTime lapInfo = this.getDataSet(position);
-        itemHolder.setHeartRate(String.valueOf(lapInfo.getHeartRate()));
+        itemHolder.setHeartRate(
+                this.context.getString(R.string.heartrate, lapInfo.getHeartRate()));
 
         // replace list item's metadata
         holder.itemView.setTag(position);

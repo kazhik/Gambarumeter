@@ -37,6 +37,6 @@
     <string name="detail_laptime" translatable="false">4:55</string>
     <string name="detail_stepcount" translatable="false">1080</string>
     <string name="detail_timestamp" translatable="false">1:56:54</string>
-    <string name="detail_heartrate" translatable="false">176</string>
+    <string name="heartrate" translatable="false">%1$dbpm</string>
 
 </resources>

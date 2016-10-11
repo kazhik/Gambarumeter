@@ -14,6 +14,7 @@ import net.kazhik.gambarumeterlib.entity.WorkoutInfo;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by kazhik on 14/11/10.
@@ -86,8 +87,8 @@ public class HistoryAdapter extends WearableListView.Adapter {
         if (distance > 0.0f) {
             resultStr += "/" + this.distanceUtil.getDistanceAndUnitStr(distance);
         } else if (heartRate > 0) {
-            String heartRateStr = String.format("%d%s", heartRate,
-                    this.context.getResources().getString(R.string.bpm));
+            String heartRateStr = String.format(Locale.getDefault(),
+                    "%d%s", heartRate, this.context.getResources().getString(R.string.bpm));
             resultStr += "/" + heartRateStr;
         }
         String stepCountStr = stepCount +
@@ -106,7 +107,8 @@ public class HistoryAdapter extends WearableListView.Adapter {
         long min = splitTimeSec / 60 - (hour * 60);
         long sec = splitTimeSec % 60;
 
-        return String.format("%d:%02d:%02d", hour, min, sec);
+        return String.format(Locale.getDefault(),
+                "%d:%02d:%02d", hour, min, sec);
     }
 
     // Return the size of your dataset

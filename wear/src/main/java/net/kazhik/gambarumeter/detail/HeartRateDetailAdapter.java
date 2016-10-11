@@ -21,13 +21,14 @@ import java.util.Locale;
 public class HeartRateDetailAdapter extends WearableListView.Adapter {
     private List<HeartRateDetail> dataSet;
     private final LayoutInflater inflater;
+    private Context context;
     private static final String TAG = "HeartRateDetailAdapter";
 
     // Provide a suitable constructor (depends on the kind of dataset)
     public HeartRateDetailAdapter(Context context, List<HeartRateDetail> dataset) {
         this.inflater = LayoutInflater.from(context);
         this.dataSet = dataset;
-
+        this.context = context;
     }
 
     // Provide a reference to the type of views you're using
@@ -69,7 +70,8 @@ public class HeartRateDetailAdapter extends WearableListView.Adapter {
         // replace text contents
         HeartRateDetail heartRate = this.dataSet.get(position);
         tvTimestamp.setText(this.formatTimestamp(heartRate.getTimestamp()));
-        tvHeartRate.setText(String.valueOf(heartRate.getHeartRate()));
+        tvHeartRate.setText(
+                this.context.getString(R.string.heartrate, heartRate.getHeartRate()));
         tvStepcount.setText(String.valueOf(heartRate.getStepCount()));
 
         // replace list item's metadata
