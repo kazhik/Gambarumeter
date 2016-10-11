@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "net.kazhik.gambarumeter"
-        minSdkVersion 23
+        minSdkVersion 18
         targetSdkVersion 24
         versionCode 6
         versionName "0.6"

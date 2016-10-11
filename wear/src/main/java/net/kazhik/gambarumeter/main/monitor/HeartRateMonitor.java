@@ -9,10 +9,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
-import com.google.android.gms.wearable.DataMap;
-
 import net.kazhik.gambarumeterlib.entity.SensorValue;
-import net.kazhik.gambarumeterlib.storage.DataStorage;
 import net.kazhik.gambarumeterlib.storage.HeartRateTable;
 
 import java.util.ArrayList;
