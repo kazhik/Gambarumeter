@@ -3,6 +3,7 @@ package net.kazhik.gambarumeter;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.SQLException;
 import android.os.Bundle;
@@ -76,5 +77,14 @@ public class WearGambarumeter extends Activity {
         }
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+    }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        setIntent(intent);
+        super.onNewIntent(intent);
+    }
 }

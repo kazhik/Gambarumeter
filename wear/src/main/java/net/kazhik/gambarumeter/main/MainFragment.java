@@ -111,15 +111,22 @@ public abstract class MainFragment extends PagerFragment
         String actionStatus =
                 this.getActivity().getIntent().getStringExtra("actionStatus");
         if (actionStatus == null) {
+            Log.d(TAG, "No voice command");
             return;
         }
         if (actionStatus.equals("ActiveActionStatus")) {
             if (!this.stopwatch.isRunning()) {
                 this.startWorkout();
+                this.userInputManager.toggleVisibility(true);
+                long[] pattern = {0, 200, 400, 200, 400};
+                this.vibrator.vibrate(pattern, -1);
             }
+
         } else if (actionStatus.equals("CompletedActionStatus")) {
             if (this.stopwatch.isRunning()) {
                 this.stopWorkout();
+                this.userInputManager.toggleVisibility(false);
+                this.vibrator.vibrate(1000);
             }
         }
 
@@ -360,12 +367,15 @@ public abstract class MainFragment extends PagerFragment
 
     @Override
     public void onStart() {
+        Log.d(TAG, "onStart");
         super.onStart();
         this.mobileConnector.connect();
+        this.voiceAction();
     }
 
     @Override
     public void onStop() {
+        Log.d(TAG, "onStop");
         this.mobileConnector.disconnect();
         super.onStop();
     }
