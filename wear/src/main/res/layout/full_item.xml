@@ -41,14 +41,8 @@
             android:id="@+id/stepcount_value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/detail_stepcount"
-            android:textColor="@color/text" />
-        <net.kazhik.gambarumeterlib.AutoResizeTextView
-            android:id="@+id/stepcount_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:layout_marginEnd="2dp"
-            android:text="@string/steps"
+            android:text="@string/stepcount"
             android:textColor="@color/text" />
 
         <net.kazhik.gambarumeterlib.AutoResizeTextView

@@ -72,7 +72,8 @@ public class HeartRateDetailAdapter extends WearableListView.Adapter {
         tvTimestamp.setText(this.formatTimestamp(heartRate.getTimestamp()));
         tvHeartRate.setText(
                 this.context.getString(R.string.heartrate, heartRate.getHeartRate()));
-        tvStepcount.setText(String.valueOf(heartRate.getStepCount()));
+        tvStepcount.setText(
+                this.context.getString(R.string.stepcount, heartRate.getStepCount()));
 
         // replace list item's metadata
         holder.itemView.setTag(position);

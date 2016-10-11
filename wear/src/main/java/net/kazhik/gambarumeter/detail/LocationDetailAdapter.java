@@ -21,13 +21,14 @@ public class LocationDetailAdapter extends WearableListView.Adapter {
     private List<LapTime> dataSet;
     private final LayoutInflater inflater;
     private DistanceUtil distanceUtil;
+    private Context context;
     private static final String TAG = "LocationDetailAdapter";
 
     // Provide a suitable constructor (depends on the kind of dataset)
     public LocationDetailAdapter(Context context, List<LapTime> dataset) {
         this.inflater = LayoutInflater.from(context);
         this.dataSet = dataset;
-
+        this.context = context;
         this.distanceUtil = DistanceUtil.getInstance(context);
 
     }
@@ -67,7 +68,8 @@ public class LocationDetailAdapter extends WearableListView.Adapter {
         long laptime = lapInfo.getLaptime();
         itemHolder.setLapTime(TimeUtil.formatSec(laptime));
 
-        itemHolder.setStepCount(String.valueOf(lapInfo.getStepCount()));
+        itemHolder.setStepCount(
+                this.context.getString(R.string.stepcount, lapInfo.getStepCount()));
 
         // replace list item's metadata
         holder.itemView.setTag(position);

@@ -22,8 +22,7 @@
             android:layout_marginTop="16sp"
             android:clickable="false"
             android:enabled="false"
-            android:background="@color/button"
-            android:autoText="false" />
+            android:background="@color/button" />
 
         <android.support.wearable.view.WearableListView
             android:id="@+id/detail_list"
