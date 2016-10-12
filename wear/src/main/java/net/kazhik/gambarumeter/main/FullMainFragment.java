@@ -56,7 +56,7 @@ public class FullMainFragment extends MainFragment
         }
     }
     @Override
-    public void onDestroy() {
+    protected void terminateSensor() {
         if (this.heartRateMonitor != null) {
             this.heartRateMonitor.terminate();
         }
@@ -64,9 +64,9 @@ public class FullMainFragment extends MainFragment
             this.locationMonitor.terminate();
         }
 
-        super.onDestroy();
-
+        super.terminateSensor();
     }
+    @Override
     protected void initializeSensor() {
         super.initializeSensor();
 

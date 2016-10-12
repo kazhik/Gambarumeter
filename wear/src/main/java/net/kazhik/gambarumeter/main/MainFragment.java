@@ -140,6 +140,13 @@ public abstract class MainFragment extends PagerFragment
     public void onDestroy() {
         this.stopWorkout();
         this.mobileConnector.terminate();
+
+        this.terminateSensor();
+
+        super.onDestroy();
+    }
+
+    protected void terminateSensor() {
         if (this.gyroscope != null) {
             this.gyroscope.terminate();
         }
@@ -147,13 +154,11 @@ public abstract class MainFragment extends PagerFragment
             this.stepCountMonitor.terminate();
         }
         Activity activity = this.getActivity();
-        if (this.isBound) {
+        if (this.isBound()) {
             activity.unbindService(this);
 
         }
         activity.unregisterReceiver(this.batteryLevelReceiver);
-
-        super.onDestroy();
     }
 
     protected void initializeSensor() {

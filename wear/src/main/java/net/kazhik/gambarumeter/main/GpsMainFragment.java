@@ -49,14 +49,14 @@ public class GpsMainFragment extends MainFragment
     }
 
     @Override
-    public void onDestroy() {
+    protected void terminateSensor() {
         if (this.locationMonitor != null) {
             this.locationMonitor.terminate();
         }
 
-        super.onDestroy();
+        super.terminateSensor();
     }
-
+    @Override
     protected void initializeSensor() {
         
         super.initializeSensor();

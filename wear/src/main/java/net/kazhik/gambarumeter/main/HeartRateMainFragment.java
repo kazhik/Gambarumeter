@@ -44,14 +44,15 @@ public class HeartRateMainFragment extends MainFragment
 
 
     @Override
-    public void onDestroy() {
+    protected void terminateSensor() {
         if (this.heartRateMonitor != null) {
             this.heartRateMonitor.terminate();
         }
-        super.onDestroy();
 
+        super.terminateSensor();
     }
 
+    @Override
     protected void initializeSensor() {
         super.initializeSensor();
         
