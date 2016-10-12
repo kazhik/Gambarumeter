@@ -12,8 +12,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
-import com.google.android.gms.wearable.DataMap;
-
 import net.kazhik.gambarumeter.R;
 import net.kazhik.gambarumeter.main.monitor.HeartRateMonitor;
 import net.kazhik.gambarumeter.main.monitor.HeartRateSensorValueListener;
@@ -87,12 +85,12 @@ public class HeartRateMainFragment extends MainFragment
         activity.findViewById(R.id.separator).setVisibility(View.GONE);
         activity.findViewById(R.id.distance).setVisibility(View.GONE);
 
-        this.notificationView.initialize(activity);
+        this.notificationController.initialize(activity);
 
     }
 
     protected void startWorkout() {
-        this.notificationView.clear();
+        this.notificationController.clear();
 
         if (this.heartRateMonitor != null) {
             this.heartRateView.setCurrentRate(0)
@@ -107,7 +105,7 @@ public class HeartRateMainFragment extends MainFragment
         if (this.heartRateMonitor != null) {
             this.heartRateMonitor.stop(stopTime);
         }
-        this.notificationView.dismiss();
+        this.notificationController.dismiss();
 
         return stopTime;
     }
@@ -164,7 +162,7 @@ public class HeartRateMainFragment extends MainFragment
         this.getActivity().runOnUiThread(this.heartRateView);
 
         Log.d(TAG, "new heart rate: " + (new Date(timestamp)).toString() + " / " + rate);
-        this.notificationView.updateHeartRate(rate);
+        this.notificationController.updateHeartRate(rate);
 
     }
 

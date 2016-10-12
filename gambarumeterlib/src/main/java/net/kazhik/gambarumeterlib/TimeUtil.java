@@ -4,6 +4,8 @@ import android.content.Context;
 import android.text.format.DateUtils;
 import android.util.Log;
 
+import java.util.Locale;
+
 /**
  * Created by kazhik on 14/12/29.
  */
@@ -15,7 +17,7 @@ public class TimeUtil {
         long min = lapTime / 60 - (hour * 60);
         long sec = lapTime % 60;
 
-        return String.format("%d:%02d:%02d", hour, min, sec);
+        return String.format(Locale.getDefault(), "%d:%02d:%02d", hour, min, sec);
     }
     public static String formatMsec(long splitTime) {
         long splitTimeSec = splitTime / 1000;

@@ -19,7 +19,7 @@ public class NotificationController {
     private float distance = 0.0f;
     private long lapTime = 0;
     private DistanceUtil distanceUtil;
-    private static final String TAG = "FullNotificationView";
+    private static final String TAG = "NotificationController";
 
     public void initialize(Context context) {
         this.notificationView.initialize(context);

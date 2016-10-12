@@ -23,8 +23,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.google.android.gms.wearable.DataMap;
-
 import net.kazhik.gambarumeter.R;
 import net.kazhik.gambarumeter.main.monitor.BatteryLevelReceiver;
 import net.kazhik.gambarumeter.main.monitor.Gyroscope;
@@ -62,7 +60,7 @@ public abstract class MainFragment extends PagerFragment
     private Vibrator vibrator;
     private MobileConnector mobileConnector = new MobileConnector();
 
-    protected NotificationController notificationView = new NotificationController();
+    protected NotificationController notificationController = new NotificationController();
 
     private int connectedService = 0;
 
@@ -303,7 +301,7 @@ public abstract class MainFragment extends PagerFragment
         this.stepCountView.setStepCount(stepCount);
         this.getActivity().runOnUiThread(this.stepCountView);
 
-        this.notificationView.updateStepCount(stepCount);
+        this.notificationController.updateStepCount(stepCount);
     }
 
     // SensorValueListener
@@ -322,7 +320,7 @@ public abstract class MainFragment extends PagerFragment
         this.splitTimeView.setTime(elapsed);
         this.getActivity().runOnUiThread(this.splitTimeView);
 
-        this.notificationView.show(elapsed);
+        this.notificationController.show(elapsed);
     }
 
     // ServiceConnection

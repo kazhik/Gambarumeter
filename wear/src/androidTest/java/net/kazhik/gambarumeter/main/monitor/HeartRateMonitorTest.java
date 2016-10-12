@@ -19,13 +19,16 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
+
 /**
  * Created by kazhik on 15/01/16.
  */
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class HeartRateMonitorTest extends InstrumentationTestCase {
+public class HeartRateMonitorTest {
     class TestListener implements HeartRateSensorValueListener {
 
 

@@ -16,8 +16,6 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.wearable.DataMap;
-
 import net.kazhik.gambarumeter.R;
 import net.kazhik.gambarumeter.main.monitor.HeartRateMonitor;
 import net.kazhik.gambarumeter.main.monitor.HeartRateSensorValueListener;
@@ -127,7 +125,7 @@ public class FullMainFragment extends MainFragment
 
         Activity activity = this.getActivity();
 
-        this.notificationView.initialize(activity);
+        this.notificationController.initialize(activity);
 
         if (this.heartRateMonitor != null) {
             this.heartRateView.initialize((TextView) activity.findViewById(R.id.bpm));
@@ -175,7 +173,7 @@ public class FullMainFragment extends MainFragment
             this.locationMonitor.stop(stopTime);
         }
 
-        this.notificationView.dismiss();
+        this.notificationController.dismiss();
         return stopTime;
     }
     protected void saveResult() {
@@ -236,7 +234,7 @@ public class FullMainFragment extends MainFragment
         this.heartRateView.setCurrentRate(rate);
         this.getActivity().runOnUiThread(this.heartRateView);
 
-        this.notificationView.updateHeartRate(rate);
+        this.notificationController.updateHeartRate(rate);
 
     }
 
@@ -249,7 +247,7 @@ public class FullMainFragment extends MainFragment
         this.distanceView.setDistance(distance);
         this.getActivity().runOnUiThread(this.distanceView);
 
-        this.notificationView.updateDistance(distance);
+        this.notificationController.updateDistance(distance);
     }
 
     // LocationSensorValueListener
@@ -261,7 +259,7 @@ public class FullMainFragment extends MainFragment
     // LocationSensorValueListener
     @Override
     public void onLap(long timestamp, float distance, long lap) {
-        this.notificationView.updateLap(lap);
+        this.notificationController.updateLap(lap);
         this.stepCountMonitor.storeCurrentValue(timestamp);
     }
     // SensorValueListener

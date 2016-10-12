@@ -17,22 +17,22 @@ public class LocationNotificationViewTest extends InstrumentationTestCase {
     @Test
     public void testMakeSummaryText() throws Exception {
 
-        LocationNotificationView notificationView = new LocationNotificationView();
+        LocationNotificationView notificationController = new LocationNotificationView();
 
 
-        notificationView.initialize(InstrumentationRegistry.getTargetContext().getApplicationContext());
+        notificationController.initialize(InstrumentationRegistry.getTargetContext().getApplicationContext());
 
-        notificationView.updateStepCount(445);
-        notificationView.updateDistance(2300);
-        notificationView.updateLap(10 * 60 * 1000);
+        notificationController.updateStepCount(445);
+        notificationController.updateDistance(2300);
+        notificationController.updateLap(10 * 60 * 1000);
 
         Method makeSummaryText =
-                notificationView.getClass().getSuperclass().getDeclaredMethod("makeSummaryText",
+                notificationController.getClass().getSuperclass().getDeclaredMethod("makeSummaryText",
                         long.class);
         makeSummaryText.setAccessible(true);
         Object[] parameters = new Object[]{45 * 1000};
 
-        String text = (String)makeSummaryText.invoke(notificationView, parameters);
+        String text = (String)makeSummaryText.invoke(notificationController, parameters);
 
         assertEquals("00:45 2.3km", text);
 
@@ -46,29 +46,29 @@ public class LocationNotificationViewTest extends InstrumentationTestCase {
         appContext.getResources().updateConfiguration(config,
                 appContext.getResources().getDisplayMetrics());
 
-        LocationNotificationView notificationView = new LocationNotificationView();
+        LocationNotificationView notificationController = new LocationNotificationView();
 
 
-        notificationView.initialize(appContext);
+        notificationController.initialize(appContext);
 
-        notificationView.updateStepCount(445);
-        notificationView.updateDistance(2300);
-        notificationView.updateLap(((4 * 60) + 30) * 1000);
+        notificationController.updateStepCount(445);
+        notificationController.updateDistance(2300);
+        notificationController.updateLap(((4 * 60) + 30) * 1000);
 
         Method makeDetailedText =
-                notificationView.getClass().getSuperclass().getDeclaredMethod("makeDetailedText");
+                notificationController.getClass().getSuperclass().getDeclaredMethod("makeDetailedText");
         makeDetailedText.setAccessible(true);
 
-        String text = (String)makeDetailedText.invoke(notificationView);
+        String text = (String)makeDetailedText.invoke(notificationController);
 
         assertEquals("445steps 04:30/km", text);
 
 
-        notificationView.updateStepCount(446);
-        notificationView.updateDistance(2334);
-        notificationView.updateLap(((4 * 60) + 35) * 1000);
+        notificationController.updateStepCount(446);
+        notificationController.updateDistance(2334);
+        notificationController.updateLap(((4 * 60) + 35) * 1000);
 
-        text = (String)makeDetailedText.invoke(notificationView);
+        text = (String)makeDetailedText.invoke(notificationController);
 
         assertEquals("446steps 04:35/mi", text);
 

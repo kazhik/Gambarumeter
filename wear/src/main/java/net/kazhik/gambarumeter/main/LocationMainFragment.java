@@ -13,8 +13,6 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.wearable.DataMap;
-
 import net.kazhik.gambarumeter.R;
 import net.kazhik.gambarumeter.main.monitor.GeolocationMonitor;
 import net.kazhik.gambarumeter.main.monitor.LocationSensorValueListener;
@@ -93,7 +91,7 @@ public class LocationMainFragment extends MainFragment
         super.initializeUI();
         Activity activity = this.getActivity();
 
-        this.notificationView.initialize(activity);
+        this.notificationController.initialize(activity);
 
         if (this.locationMonitor != null) {
             TextView distanceValue =
@@ -114,7 +112,7 @@ public class LocationMainFragment extends MainFragment
     }
 
     protected void startWorkout() {
-        this.notificationView.clear();
+        this.notificationController.clear();
 
         if (this.locationMonitor != null) {
             this.distanceView.setDistance(0)
@@ -130,7 +128,7 @@ public class LocationMainFragment extends MainFragment
             this.locationMonitor.stop(stopTime);
         }
 
-        this.notificationView.dismiss();
+        this.notificationController.dismiss();
         
         return stopTime;
     }
@@ -187,7 +185,7 @@ public class LocationMainFragment extends MainFragment
         this.distanceView.setDistance(distance);
         this.getActivity().runOnUiThread(this.distanceView);
 
-        this.notificationView.updateDistance(distance);
+        this.notificationController.updateDistance(distance);
     }
 
     // LocationSensorValueListener
@@ -199,7 +197,7 @@ public class LocationMainFragment extends MainFragment
     // LocationSensorValueListener
     @Override
     public void onLap(long timestamp, float distance, long lap) {
-        this.notificationView.updateLap(lap);
+        this.notificationController.updateLap(lap);
         this.stepCountMonitor.storeCurrentValue(timestamp);
     }
 
