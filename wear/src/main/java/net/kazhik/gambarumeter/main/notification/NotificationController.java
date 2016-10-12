@@ -2,7 +2,6 @@ package net.kazhik.gambarumeter.main.notification;
 
 import android.content.Context;
 import android.text.format.DateUtils;
-import android.util.Log;
 
 import net.kazhik.gambarumeter.R;
 import net.kazhik.gambarumeterlib.DistanceUtil;
@@ -15,7 +14,9 @@ public class NotificationController {
     private NotificationView notificationView = new NotificationView();
 
     private int stepCount = 0;
+    private String stepCountLabel;
     private int heartRate = 0;
+    private String heartRateLabel;
     private float distance = 0.0f;
     private long lapTime = 0;
     private DistanceUtil distanceUtil;
@@ -25,6 +26,9 @@ public class NotificationController {
         this.notificationView.initialize(context);
 
         this.distanceUtil = DistanceUtil.getInstance(context);
+
+        this.stepCountLabel = context.getString(R.string.steps);
+        this.heartRateLabel = context.getString(R.string.bpm);
 
         this.clear();
     }
@@ -37,22 +41,17 @@ public class NotificationController {
     }
 
     public void show(long elapsed) {
-        Context context = this.notificationView.getContext();
-        if (context == null) {
-            Log.d(TAG, "No context");
-            return;
-        }
         String contentTitle = DateUtils.formatElapsedTime(elapsed / 1000);
 
         String contentText = "";
         if (this.stepCount >= 0) {
-            contentText += this.stepCount + context.getString(R.string.steps);
+            contentText += this.stepCount + this.stepCountLabel;
         }
         if (this.heartRate > 0) {
             if (!contentText.isEmpty()) {
                 contentText += " ";
             }
-            contentText += this.heartRate + context.getString(R.string.bpm);
+            contentText += this.heartRate + this.heartRateLabel;
         }
         if (this.distance > 0) {
             if (!contentText.isEmpty()) {

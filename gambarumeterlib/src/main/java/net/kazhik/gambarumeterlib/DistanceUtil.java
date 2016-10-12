@@ -5,14 +5,17 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import java.util.Locale;
+
 /**
  * Created by kazhik on 16/02/12.
  */
 public class DistanceUtil implements SharedPreferences.OnSharedPreferenceChangeListener {
     private static DistanceUtil distanceUtil;
-    private Context context;
     private String distanceUnitPref;
     private String distanceUnitStr;
+    private String kmStr;
+    private String mileStr;
     private static final Object lock = new Object();
     private static final String TAG = "DistanceUtil";
 
@@ -26,20 +29,17 @@ public class DistanceUtil implements SharedPreferences.OnSharedPreferenceChangeL
         return distanceUtil;
     }
     public void initialize(Context context) {
-        this.context = context;
+
+        this.kmStr = context.getString(R.string.km);
+        this.mileStr = context.getString(R.string.mile);
 
         SharedPreferences prefs =
                 PreferenceManager.getDefaultSharedPreferences(context);
         prefs.registerOnSharedPreferenceChangeListener(this);
 
-        String prefStr = prefs.getString("distanceUnit", "metre");
-
-        this.refreshPrefs(context, prefStr);
-    }
-    private void refreshPrefs(Context context, String distanceUnitPref) {
-        this.distanceUnitPref = distanceUnitPref;
-        int resId = distanceUnitPref.equals("mile")? R.string.mile: R.string.km;
-        this.distanceUnitStr = context.getString(resId);
+        this.distanceUnitPref = prefs.getString("distanceUnit", "metre");
+        this.distanceUnitStr = (distanceUnitPref.equals("mile"))?
+                this.mileStr: this.kmStr;
 
     }
 
@@ -61,11 +61,11 @@ public class DistanceUtil implements SharedPreferences.OnSharedPreferenceChangeL
     }
     public String getDistanceAndUnitStr(float distance) {
         distance = this.convertMeter(distance);
-        return String.format("%.2f%s", distance, this.distanceUnitStr);
+        return String.format(Locale.getDefault(), "%.2f%s", distance, this.distanceUnitStr);
     }
     public String getDistanceStr(float distance) {
         distance = this.convertMeter(distance);
-        return String.format("%.2f", distance);
+        return String.format(Locale.getDefault(), "%.2f", distance);
     }
 
     @Override
@@ -73,7 +73,9 @@ public class DistanceUtil implements SharedPreferences.OnSharedPreferenceChangeL
         String value = sharedPrefs.getString(key, "");
         Log.d(TAG, "onSharedPreferenceChanged: " + key + "=" + value);
         if (key.equals("distanceUnit")) {
-            this.refreshPrefs(this.context, value);
+            this.distanceUnitPref = sharedPrefs.getString("distanceUnit", "metre");
+            this.distanceUnitStr = (distanceUnitPref.equals("mile"))?
+                    this.mileStr: this.kmStr;
         }
 
     }

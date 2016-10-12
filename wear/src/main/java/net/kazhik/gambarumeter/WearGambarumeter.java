@@ -1,33 +1,23 @@
 package net.kazhik.gambarumeter;
 
-import android.Manifest;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.database.SQLException;
 import android.os.Bundle;
-import android.os.Environment;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.wearable.view.GridViewPager;
 import android.util.Log;
 
-import net.kazhik.gambarumeter.main.MobileConnector;
 import net.kazhik.gambarumeter.pager.PagerAdapter;
-import net.kazhik.gambarumeterlib.TimeUtil;
 import net.kazhik.gambarumeterlib.storage.DataStorage;
 import net.kazhik.gambarumeterlib.storage.HeartRateTable;
 import net.kazhik.gambarumeterlib.storage.LocationTable;
 import net.kazhik.gambarumeterlib.storage.WorkoutTable;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Calendar;
 
 public class WearGambarumeter extends Activity {
 
-    private static final String TAG = "Gambarumeter";
+    private static final String TAG = "WearGambarumeter";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

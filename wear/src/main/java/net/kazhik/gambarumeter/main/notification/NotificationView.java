@@ -61,10 +61,6 @@ public class NotificationView {
         this.notificationMgr = NotificationManagerCompat.from(this.context);
     }
 
-    public Context getContext() {
-        return this.context;
-        
-    }
     public void show(String contentTitle, String contentText) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             this.notificationBuilder
