@@ -2,12 +2,9 @@ package net.kazhik.gambarumeter.history;
 
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
-import android.content.Context;
-import android.util.Log;
 
 import net.kazhik.gambarumeter.R;
 import net.kazhik.gambarumeter.detail.LocationDetailFragment;
-import net.kazhik.gambarumeterlib.storage.LocationTable;
 
 /**
  * Created by kazhik on 14/11/11.

@@ -12,11 +12,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import net.kazhik.gambarumeter.R;
-import net.kazhik.gambarumeterlib.entity.WorkoutInfo;
 import net.kazhik.gambarumeter.pager.PagerFragment;
+import net.kazhik.gambarumeterlib.entity.WorkoutInfo;
 import net.kazhik.gambarumeterlib.storage.DataStorage;
-import net.kazhik.gambarumeterlib.storage.SplitTable;
-import net.kazhik.gambarumeterlib.storage.StepCountTable;
 import net.kazhik.gambarumeterlib.storage.WorkoutTable;
 
 import java.util.List;
