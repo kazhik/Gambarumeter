@@ -27,8 +27,10 @@
     <string name="settings_title">Settings</string>
     <string name="distance_unit">Distance Units</string>
 
-    <string name="gps_off">Geolocation setting is off</string>
+    <string name="location_off">Location setting is off</string>
     <string name="location_disabled">Location is disabled</string>
+
+    <string name="sensors_disabled">Sensors is disabled</string>
 
     <string name="no_detail">No detailed data available</string>
     <string name="longpress_quit">Long press to quit</string>

@@ -10,10 +10,7 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.google.android.gms.wearable.DataMap;
-
 import net.kazhik.gambarumeterlib.entity.SensorValue;
-import net.kazhik.gambarumeterlib.storage.DataStorage;
 import net.kazhik.gambarumeterlib.storage.StepCountTable;
 
 import java.util.ArrayList;
@@ -39,14 +36,13 @@ public class StepCountMonitor extends SensorService {
         }
     }
     public void init(Context context,
-                     SensorManager sensorManager,
                      SensorValueListener listener) {
 
         Log.d(TAG, "initialize");
         this.context = context;
         this.listener = listener;
 
-        super.initialize(sensorManager, Sensor.TYPE_STEP_COUNTER);
+        super.initialize(Sensor.TYPE_STEP_COUNTER);
     }
 
     public int getStepCount() {

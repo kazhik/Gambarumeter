@@ -36,14 +36,13 @@ public class HeartRateMonitor extends SensorService {
     }
 
     public void init(Context context,
-                     SensorManager sensorManager,
                      HeartRateSensorValueListener listener) {
 
         Log.d(TAG, "initialize");
         this.context = context;
         this.listener = listener;
 
-        super.initialize(sensorManager, Sensor.TYPE_HEART_RATE);
+        super.initialize(Sensor.TYPE_HEART_RATE);
     }
     public void saveResult(SQLiteDatabase db, long startTime) {
         HeartRateTable heartRateTable = new HeartRateTable(this.context, db);

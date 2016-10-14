@@ -1,5 +1,6 @@
 package net.kazhik.gambarumeter.main.monitor;
 
+import android.app.Activity;
 import android.app.Service;
 import android.content.Intent;
 import android.hardware.Sensor;
@@ -31,12 +32,16 @@ public abstract class SensorService extends Service implements SensorEventListen
     private HandlerThread saveDataThread = null;
     private static final String TAG = "SensorService";
 
-    public boolean initialize(SensorManager sensorManager,
-                           int sensorType) {
+    public boolean initialize(int sensorType) {
 
-        this.sensor = sensorManager.getDefaultSensor(sensorType);
+        this.sensorManager = (SensorManager)this.getSystemService(SENSOR_SERVICE);
+        if (this.sensorManager == null) {
+            Log.w(TAG, "Failed to get service: SENSOR_SERVICE");
+            return false;
+        }
+        this.sensor = this.sensorManager.getDefaultSensor(sensorType);
         if (this.sensor == null) {
-            Log.w(TAG, "Failed to get sensor");
+            Log.w(TAG, "Failed to get sensor: " + sensorType);
             return false;
         }
         PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
@@ -44,7 +49,6 @@ public abstract class SensorService extends Service implements SensorEventListen
                 "MyWakelockTag");
         this.wakeLock.acquire();
 
-        this.sensorManager = sensorManager;
 
         return true;
     }

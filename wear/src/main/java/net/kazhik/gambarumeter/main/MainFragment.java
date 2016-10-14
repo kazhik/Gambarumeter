@@ -122,9 +122,9 @@ public abstract class MainFragment extends PagerFragment
 
         } else if (actionStatus.equals("CompletedActionStatus")) {
             if (this.stopwatch.isRunning()) {
-                this.stopWorkout();
                 this.userInputManager.toggleVisibility(false);
                 this.vibrator.vibrate(1000);
+                this.stop();
             }
         }
 
@@ -289,13 +289,14 @@ public abstract class MainFragment extends PagerFragment
     // SensorValueListener
     @Override
     public void onRotation(long timestamp) {
-        if (!this.stopwatch.isRunning()) {
-            return;
-        }
-        this.userInputManager.toggleVisibility(false);
-        this.vibrator.vibrate(1000);
+        if (this.stopwatch.isRunning()) {
+            this.userInputManager.toggleVisibility(false);
+            this.vibrator.vibrate(1000);
 
-        this.stop();
+            this.onUserStop();
+        } else {
+            this.onUserStart();
+        }
     }
     // SensorValueListener
     @Override
@@ -336,12 +337,12 @@ public abstract class MainFragment extends PagerFragment
         if (iBinder instanceof Gyroscope.GyroBinder) {
             this.gyroscope =
                     ((Gyroscope.GyroBinder) iBinder).getService();
-            this.gyroscope.initialize(this.sensorManager, this);
+            this.gyroscope.initialize(this);
             this.connectedService++;
         } else if (iBinder instanceof StepCountMonitor.StepCountBinder) {
             this.stepCountMonitor =
                     ((StepCountMonitor.StepCountBinder) iBinder).getService();
-            this.stepCountMonitor.init(this.getActivity(), this.sensorManager, this);
+            this.stepCountMonitor.init(this.getActivity(), this);
             this.connectedService++;
         }
 

@@ -35,13 +35,12 @@ public class Gyroscope extends SensorService {
         return this;
     }
 
-    public void initialize(SensorManager sensorManager,
-                           SensorValueListener listener) {
+    public void initialize(SensorValueListener listener) {
 
         Log.d(TAG, "initialize");
 
         this.listener = listener;
-        super.initialize(sensorManager, Sensor.TYPE_GYROSCOPE);
+        super.initialize(Sensor.TYPE_GYROSCOPE);
     }
 
     @Override

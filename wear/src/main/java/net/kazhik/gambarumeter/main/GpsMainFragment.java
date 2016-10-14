@@ -65,7 +65,7 @@ public class GpsMainFragment extends MainFragment
 
         if (!this.isGpsEnabled(activity)) {
             Toast.makeText(activity,
-                    R.string.gps_off,
+                    R.string.location_off,
                     Toast.LENGTH_LONG)
                     .show();
             return;

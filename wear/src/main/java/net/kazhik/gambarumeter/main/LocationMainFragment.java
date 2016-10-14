@@ -74,7 +74,7 @@ public class LocationMainFragment extends MainFragment
                 this.locationMonitor = new GeolocationMonitor(); // temporary
             } else {
                 Toast.makeText(activity,
-                        R.string.gps_off,
+                        R.string.location_off,
                         Toast.LENGTH_LONG)
                         .show();
             }

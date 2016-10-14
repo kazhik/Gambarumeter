@@ -7,7 +7,6 @@ import android.hardware.SensorManager;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
-import android.test.InstrumentationTestCase;
 
 import net.kazhik.gambarumeterlib.entity.SensorValue;
 
@@ -136,7 +135,7 @@ public class HeartRateMonitorTest {
 
         Context context = InstrumentationRegistry.getTargetContext();
         SensorManager sensorManager =
-                (SensorManager)context.getSystemService(Activity.SENSOR_SERVICE);
+                (SensorManager)context.getSystemService(context.SENSOR_SERVICE);
 
         assertNotNull(sensorManager);
 
@@ -144,7 +143,7 @@ public class HeartRateMonitorTest {
             return;
         }
 
-        heartRateMonitor.init(context, sensorManager, new TestListener());
+        heartRateMonitor.init(context, new TestListener());
         heartRateMonitor.start();
 
         List<SensorValue> dataList;

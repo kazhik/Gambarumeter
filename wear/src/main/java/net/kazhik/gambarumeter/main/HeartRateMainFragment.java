@@ -1,16 +1,18 @@
 package net.kazhik.gambarumeter.main;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
-import android.hardware.Sensor;
-import android.hardware.SensorManager;
 import android.os.IBinder;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import net.kazhik.gambarumeter.R;
 import net.kazhik.gambarumeter.main.monitor.HeartRateMonitor;
@@ -26,8 +28,6 @@ import java.util.Date;
  */
 public class HeartRateMainFragment extends MainFragment
         implements HeartRateSensorValueListener {
-    private SensorManager sensorManager;
-
     private HeartRateMonitor heartRateMonitor;
 
     private HeartRateView heartRateView = new HeartRateView();
@@ -58,11 +58,7 @@ public class HeartRateMainFragment extends MainFragment
         
         Activity activity = this.getActivity();
 
-        this.sensorManager =
-                (SensorManager)activity.getSystemService(Activity.SENSOR_SERVICE);
-
-        Sensor sensor = this.sensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
-        if (sensor != null) {
+        if (isHeartRateAvailable(activity)) {
             Intent intent = new Intent(activity, HeartRateMonitor.class);
             boolean bound = activity.bindService(intent, this, Context.BIND_AUTO_CREATE);
             if (bound) {
@@ -71,6 +67,24 @@ public class HeartRateMainFragment extends MainFragment
             this.heartRateMonitor = new HeartRateMonitor(); // temporary
         }
 
+    }
+    private boolean isHeartRateAvailable(Activity activity) {
+        // Hardware doesn't have Heart rate sensor
+        PackageManager pm = activity.getPackageManager();
+        if (!pm.hasSystemFeature(PackageManager.FEATURE_SENSOR_HEART_RATE)) {
+            return false;
+        }
+        // Settings/Permissions/Sensors is disabled
+        int checkResult = ContextCompat.checkSelfPermission( activity,
+                Manifest.permission.BODY_SENSORS );
+        if ( checkResult != PackageManager.PERMISSION_GRANTED ) {
+            Toast.makeText(activity,
+                    R.string.sensors_disabled,
+                    Toast.LENGTH_LONG)
+                    .show();
+            return false;
+        }
+        return true;
     }
     protected void initializeUI() {
         super.initializeUI();
@@ -173,7 +187,7 @@ public class HeartRateMainFragment extends MainFragment
         if (iBinder instanceof HeartRateMonitor.HeartRateBinder) {
             this.heartRateMonitor =
                     ((HeartRateMonitor.HeartRateBinder)iBinder).getService();
-            this.heartRateMonitor.init(this.getActivity(), sensorManager, this);
+            this.heartRateMonitor.init(this.getActivity(), this);
             this.connectedService++;
         }
         super.onServiceConnected(componentName, iBinder);

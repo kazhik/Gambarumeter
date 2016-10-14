@@ -1,13 +1,12 @@
 package net.kazhik.gambarumeter.main;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
-import android.hardware.Sensor;
-import android.hardware.SensorManager;
 import android.location.LocationManager;
 import android.os.IBinder;
 import android.support.v4.content.ContextCompat;
@@ -32,7 +31,6 @@ import net.kazhik.gambarumeterlib.storage.WorkoutTable;
 public class FullMainFragment extends MainFragment
         implements HeartRateSensorValueListener, LocationSensorValueListener {
 
-    private SensorManager sensorManager;
     private HeartRateView heartRateView = new HeartRateView();
     private HeartRateMonitor heartRateMonitor;
 
@@ -72,11 +70,7 @@ public class FullMainFragment extends MainFragment
 
         Activity activity = this.getActivity();
 
-        this.sensorManager =
-                (SensorManager)activity.getSystemService(Activity.SENSOR_SERVICE);
-
-        Sensor sensor = this.sensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
-        if (sensor != null) {
+        if (this.isHeartRateAvailable(activity)) {
             Intent intent = new Intent(activity, HeartRateMonitor.class);
             activity.startService(intent);
             boolean bound = activity.bindService(intent, this, Context.BIND_AUTO_CREATE);
@@ -86,40 +80,64 @@ public class FullMainFragment extends MainFragment
             this.heartRateMonitor = new HeartRateMonitor(); // temporary
         }
 
-        if (!this.isGpsEnabled(activity)) {
+        if (this.isLocationAvailable(activity)) {
+            Intent intent = new Intent(activity, LocationMonitor.class);
+            boolean bound = activity.bindService(intent, this, Context.BIND_AUTO_CREATE);
+            if (bound) {
+                this.setBound();
+            }
+            this.locationMonitor = new LocationMonitor(); // temporary
+        }
+    }
+    private boolean isHeartRateAvailable(Activity activity) {
+        // Hardware doesn't have Heart rate sensor
+        PackageManager pm = activity.getPackageManager();
+        if (!pm.hasSystemFeature(PackageManager.FEATURE_SENSOR_HEART_RATE)) {
+            return false;
+        }
+        // Settings/Permissions/Sensors is disabled
+        int checkResult = ContextCompat.checkSelfPermission( activity,
+                Manifest.permission.BODY_SENSORS );
+        if ( checkResult != PackageManager.PERMISSION_GRANTED ) {
             Toast.makeText(activity,
-                    R.string.gps_off,
+                    R.string.sensors_disabled,
                     Toast.LENGTH_LONG)
                     .show();
-            return;
+            return false;
         }
-        if (!this.isLocationEnabled(activity)) {
+        return true;
+    }
+    private boolean isLocationAvailable(Activity activity) {
+        // Hardware doesn't have GPS sensor
+        PackageManager pm = activity.getPackageManager();
+        if (!pm.hasSystemFeature(PackageManager.FEATURE_LOCATION_GPS)) {
+            return false;
+        }
+
+        // Settings/Location is OFF
+        LocationManager lm =
+                (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
+        if (!lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            Toast.makeText(activity,
+                    R.string.location_off,
+                    Toast.LENGTH_LONG)
+                    .show();
+            return false;
+        }
+        // Settings/Permissions/Location is disabled
+        int checkResult = ContextCompat.checkSelfPermission( activity,
+                Manifest.permission.ACCESS_FINE_LOCATION );
+        if ( checkResult != PackageManager.PERMISSION_GRANTED ) {
             Toast.makeText(activity,
                     R.string.location_disabled,
                     Toast.LENGTH_LONG)
                     .show();
-            return;
-
+            return false;
         }
-        Intent intent = new Intent(activity, LocationMonitor.class);
-        boolean bound = activity.bindService(intent, this, Context.BIND_AUTO_CREATE);
-        if (bound) {
-            this.setBound();
-        }
-        this.locationMonitor = new LocationMonitor(); // temporary
+        return true;
+
     }
 
-    private boolean isLocationEnabled(Activity activity) {
-        int checkResult = ContextCompat.checkSelfPermission( activity,
-                android.Manifest.permission.ACCESS_FINE_LOCATION );
-        return ( checkResult == PackageManager.PERMISSION_GRANTED );
-    }
-    private boolean isGpsEnabled(Context context) {
-
-        LocationManager lm =
-                (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-        return lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
-    }
     protected void initializeUI() {
         super.initializeUI();
 
@@ -281,7 +299,7 @@ public class FullMainFragment extends MainFragment
         if (iBinder instanceof HeartRateMonitor.HeartRateBinder) {
             this.heartRateMonitor =
                     ((HeartRateMonitor.HeartRateBinder)iBinder).getService();
-            this.heartRateMonitor.init(this.getActivity(), sensorManager, this);
+            this.heartRateMonitor.init(this.getActivity(), this);
             this.connectedService++;
         } else if (iBinder instanceof LocationMonitor.GeolocationBinder) {
             this.locationMonitor =

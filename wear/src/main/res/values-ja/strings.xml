@@ -23,7 +23,7 @@
     <string name="settings_title">設定</string>
     <string name="distance_unit">距離の単位</string>
 
-    <string name="gps_off">位置情報がOFFになっています</string>
+    <string name="location_off">位置情報がOFFになっています</string>
     <string name="no_detail">詳細データがありません</string>
     <string name="longpress_quit">長押しでアプリを終了します</string>
     <string name="location_disabled">位置情報が無効です</string>
