@@ -23,17 +23,14 @@ import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.Wearable;
 
 import net.kazhik.gambarumeterlib.DistanceUtil;
 import net.kazhik.gambarumeterlib.LocationRecord;
 import net.kazhik.gambarumeterlib.entity.SplitTime;
-import net.kazhik.gambarumeterlib.storage.DataStorage;
 import net.kazhik.gambarumeterlib.storage.LocationTable;
 import net.kazhik.gambarumeterlib.storage.SplitTable;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -50,19 +47,26 @@ import java.util.List;
  *
  * Created by kazhik on 14/11/29.
  */
-public class GeolocationMonitor extends Service
-        implements GoogleApiClient.ConnectionCallbacks,
+public class GeolocationMonitorImpl extends Service
+        implements LocationMonitor,
+        GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener, GpsStatus.Listener, ResultCallback<Status> {
 
     private Context context;
     private GoogleApiClient googleApiClient;
 
-    private GeolocationBinder binder = new GeolocationBinder();
     private LocationSensorValueListener listener;
     private LocationRecord record = new LocationRecord();
     private LocationManager locationManager;
     private DistanceUtil distanceUtil;
+
+    private LocationBinder binder = new LocationBinder() {
+        @Override
+        public LocationMonitor getService() {
+            return GeolocationMonitorImpl.this;
+        }
+    };
 
     private static final int UPDATE_INTERVAL_MS = 5000;
     private static final int FASTEST_INTERVAL_MS = 3000;
@@ -73,13 +77,8 @@ public class GeolocationMonitor extends Service
         return this.binder;
     }
 
-    public class GeolocationBinder extends Binder {
-
-        public GeolocationMonitor getService() {
-            return GeolocationMonitor.this;
-        }
-    }
-
+    // LocationMonitor
+    @Override
     public void init(Context context, LocationSensorValueListener listener) {
         this.context = context;
         this.listener = listener;
@@ -105,6 +104,8 @@ public class GeolocationMonitor extends Service
         this.distanceUtil = DistanceUtil.getInstance(context);
     }
 
+    // LocationMonitor
+    @Override
     public void start() {
         if (this.googleApiClient == null) {
             return;
@@ -116,11 +117,15 @@ public class GeolocationMonitor extends Service
         this.record.addLap(System.currentTimeMillis());
     }
 
+    // LocationMonitor
+    @Override
     public void stop(long stopTime) {
         this.record.addLap(stopTime);
 
     }
 
+    // LocationMonitor
+    @Override
     public float getDistance() {
         return this.record.getDistance();
     }
@@ -133,6 +138,8 @@ public class GeolocationMonitor extends Service
         return this.record.getSplits();
     }
 
+    // LocationMonitor
+    @Override
     public void saveResult(SQLiteDatabase db, long startTime) {
         LocationTable locTable = new LocationTable(this.context, db);
         for (Location loc : this.getLocationList()) {
@@ -147,6 +154,8 @@ public class GeolocationMonitor extends Service
 
     }
 
+    // LocationMonitor
+    @Override
     public void terminate() {
         Log.d(TAG, "terminate: " + this.googleApiClient);
         if (this.googleApiClient == null) {

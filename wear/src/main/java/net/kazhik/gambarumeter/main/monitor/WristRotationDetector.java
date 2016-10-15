@@ -28,6 +28,10 @@ class WristRotationDetector {
                 maxValue: values[2];
         return maxValue;
     }
+
+    private boolean hasSameSign(float val1, float val2) {
+        return (val1 < 0 && val2 < 0) || (val1 >= 0 && val2 >= 0);
+    }
     boolean onSensorEvent(long timestamp, float[] newValues) {
         if (newValues.length < 3) {
             return false;
@@ -58,8 +62,7 @@ class WristRotationDetector {
             this.prevValue = maxValue;
 
         // 2nd event, not opposite move
-        } else if (Math.abs(maxValue + this.prevValue)
-                == Math.abs(maxValue) + Math.abs(this.prevValue)) {
+        } else if (this.hasSameSign(maxValue, this.prevValue)) {
             Log.d(TAG, "onSensorEvent:" +
                     newValues[0] + "/" +
                     newValues[1] + "/" +

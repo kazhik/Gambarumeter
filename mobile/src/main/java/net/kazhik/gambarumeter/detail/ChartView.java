@@ -32,7 +32,7 @@ public class ChartView implements DetailView {
     private Context context;
 
     private static final String TAG = "ChartView";
-    private class LapTimeFormatter implements YAxisValueFormatter, ValueFormatter {
+    private static class LapTimeFormatter implements YAxisValueFormatter, ValueFormatter {
         private String formatTime(float sec) {
             // convert seconds -> min:sec
             return String.format(Locale.getDefault(), "%d:%02d",

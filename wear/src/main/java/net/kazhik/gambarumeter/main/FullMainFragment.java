@@ -19,6 +19,7 @@ import net.kazhik.gambarumeter.R;
 import net.kazhik.gambarumeter.main.monitor.HeartRateMonitor;
 import net.kazhik.gambarumeter.main.monitor.HeartRateSensorValueListener;
 import net.kazhik.gambarumeter.main.monitor.LocationMonitor;
+import net.kazhik.gambarumeter.main.monitor.LocationMonitorImpl;
 import net.kazhik.gambarumeter.main.monitor.LocationSensorValueListener;
 import net.kazhik.gambarumeter.main.view.DistanceView;
 import net.kazhik.gambarumeter.main.view.HeartRateView;
@@ -31,13 +32,13 @@ import net.kazhik.gambarumeterlib.storage.WorkoutTable;
 public class FullMainFragment extends MainFragment
         implements HeartRateSensorValueListener, LocationSensorValueListener {
 
-    private HeartRateView heartRateView = new HeartRateView();
+    private HeartRateView heartRateView;
     private HeartRateMonitor heartRateMonitor;
+    private boolean isHeartRateAvailable = false;
 
-    private DistanceView distanceView = new DistanceView();
+    private DistanceView distanceView;
     private LocationMonitor locationMonitor;
-
-    private int connectedService = 0;
+    private boolean isLocationAvailable = false;
 
     private static final String TAG = "FullMainFragment";
 
@@ -77,16 +78,16 @@ public class FullMainFragment extends MainFragment
             if (bound) {
                 this.setBound();
             }
-            this.heartRateMonitor = new HeartRateMonitor(); // temporary
+            this.isHeartRateAvailable = true;
         }
 
         if (this.isLocationAvailable(activity)) {
-            Intent intent = new Intent(activity, LocationMonitor.class);
+            Intent intent = new Intent(activity, LocationMonitorImpl.class);
             boolean bound = activity.bindService(intent, this, Context.BIND_AUTO_CREATE);
             if (bound) {
                 this.setBound();
             }
-            this.locationMonitor = new LocationMonitor(); // temporary
+            this.isLocationAvailable = true;
         }
     }
     private boolean isHeartRateAvailable(Activity activity) {
@@ -138,6 +139,7 @@ public class FullMainFragment extends MainFragment
 
     }
 
+    @Override
     protected void initializeUI() {
         super.initializeUI();
 
@@ -145,11 +147,13 @@ public class FullMainFragment extends MainFragment
 
         this.notificationController.initialize(activity);
 
-        if (this.heartRateMonitor != null) {
+        if (this.isHeartRateAvailable) {
+            this.heartRateView = new HeartRateView();
             this.heartRateView.initialize((TextView) activity.findViewById(R.id.bpm));
             activity.findViewById(R.id.heart_rate).setVisibility(View.VISIBLE);
         }
-        if (this.locationMonitor != null) {
+        if (this.isLocationAvailable) {
+            this.distanceView = new DistanceView();
             TextView distanceValue =
                     (TextView)activity.findViewById(R.id.distance_value);
             TextView distanceUnitLabel
@@ -166,6 +170,7 @@ public class FullMainFragment extends MainFragment
 
 
     }
+    @Override
     protected void startWorkout() {
         if (this.heartRateMonitor != null) {
             this.heartRateView.setCurrentRate(0)
@@ -180,6 +185,7 @@ public class FullMainFragment extends MainFragment
         }
         super.startWorkout();
     }
+    @Override
     protected long stopWorkout() {
         long stopTime = super.stopWorkout();
 
@@ -194,6 +200,7 @@ public class FullMainFragment extends MainFragment
         this.notificationController.dismiss();
         return stopTime;
     }
+    @Override
     protected void saveResult() {
         Context context = this.getActivity();
 
@@ -300,19 +307,19 @@ public class FullMainFragment extends MainFragment
             this.heartRateMonitor =
                     ((HeartRateMonitor.HeartRateBinder)iBinder).getService();
             this.heartRateMonitor.init(this.getActivity(), this);
-            this.connectedService++;
-        } else if (iBinder instanceof LocationMonitor.GeolocationBinder) {
+        } else if (iBinder instanceof LocationMonitor.LocationBinder) {
             this.locationMonitor =
-                    ((LocationMonitor.GeolocationBinder)iBinder).getService();
+                    ((LocationMonitor.LocationBinder)iBinder).getService();
             this.locationMonitor.init(this.getActivity(), this);
-            this.connectedService++;
         }
         super.onServiceConnected(componentName, iBinder);
 
     }
 
+    @Override
     protected boolean isServiceReady() {
-        return (super.isServiceReady() && this.connectedService == 2);
+        return super.isServiceReady() &&
+                (this.heartRateMonitor != null && this.locationMonitor != null);
     }
 
 }

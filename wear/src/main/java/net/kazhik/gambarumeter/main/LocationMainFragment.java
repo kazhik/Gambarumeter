@@ -1,5 +1,6 @@
 package net.kazhik.gambarumeter.main;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
@@ -8,13 +9,15 @@ import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
 import android.location.LocationManager;
 import android.os.IBinder;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import net.kazhik.gambarumeter.R;
-import net.kazhik.gambarumeter.main.monitor.GeolocationMonitor;
+import net.kazhik.gambarumeter.main.monitor.GeolocationMonitorImpl;
+import net.kazhik.gambarumeter.main.monitor.LocationMonitor;
 import net.kazhik.gambarumeter.main.monitor.LocationSensorValueListener;
 import net.kazhik.gambarumeter.main.view.DistanceView;
 import net.kazhik.gambarumeterlib.storage.DataStorage;
@@ -26,11 +29,9 @@ import net.kazhik.gambarumeterlib.storage.WorkoutTable;
 public class LocationMainFragment extends MainFragment
         implements LocationSensorValueListener {
 
-    private GeolocationMonitor locationMonitor;
-
-    private DistanceView distanceView = new DistanceView();
-
-    private int connectedService = 0;
+    private LocationMonitor locationMonitor;
+    private DistanceView distanceView;
+    private boolean isLocationAvailable = false;
 
     private static final String TAG = "LocationMainFragment";
 
@@ -55,6 +56,9 @@ public class LocationMainFragment extends MainFragment
 
         super.terminateSensor();
     }
+    protected Class<?> getServiceClass() {
+        return GeolocationMonitorImpl.class;
+    }
 
     @Override
     protected void initializeSensor() {
@@ -63,43 +67,60 @@ public class LocationMainFragment extends MainFragment
         
         Activity activity = this.getActivity();
 
-        if (activity.getPackageManager().hasSystemFeature(PackageManager.FEATURE_LOCATION_GPS)) {
-
-            if (this.isGpsEnabled(activity)) {
-                Intent intent = new Intent(activity, GeolocationMonitor.class);
-                boolean bound = activity.bindService(intent, this, Context.BIND_AUTO_CREATE);
-                if (bound) {
-                    this.setBound();
-                }
-                this.locationMonitor = new GeolocationMonitor(); // temporary
-            } else {
-                Toast.makeText(activity,
-                        R.string.location_off,
-                        Toast.LENGTH_LONG)
-                        .show();
+        if (this.isLocationAvailable(activity)) {
+            Intent intent = new Intent(activity, this.getServiceClass());
+            boolean bound = activity.bindService(intent, this, Context.BIND_AUTO_CREATE);
+            if (bound) {
+                this.setBound();
             }
-
+            this.isLocationAvailable = true;
         }
 
     }
-    private boolean isGpsEnabled(Context context) {
+    private boolean isLocationAvailable(Activity activity) {
+        // Hardware doesn't have GPS sensor
+        PackageManager pm = activity.getPackageManager();
+        if (!pm.hasSystemFeature(PackageManager.FEATURE_LOCATION_GPS)) {
+            return false;
+        }
 
+        // Settings/Location is OFF
         LocationManager lm =
-                (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-        return lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+                (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
+        if (!lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            Toast.makeText(activity,
+                    R.string.location_off,
+                    Toast.LENGTH_LONG)
+                    .show();
+            return false;
+        }
+        // Settings/Permissions/Location is disabled
+        int checkResult = ContextCompat.checkSelfPermission( activity,
+                Manifest.permission.ACCESS_FINE_LOCATION );
+        if ( checkResult != PackageManager.PERMISSION_GRANTED ) {
+            Toast.makeText(activity,
+                    R.string.location_disabled,
+                    Toast.LENGTH_LONG)
+                    .show();
+            return false;
+        }
+        return true;
+
     }
+    @Override
     protected void initializeUI() {
         super.initializeUI();
         Activity activity = this.getActivity();
 
         this.notificationController.initialize(activity);
 
-        if (this.locationMonitor != null) {
+        if (this.isLocationAvailable) {
             TextView distanceValue =
                     (TextView)activity.findViewById(R.id.distance_value);
             TextView distanceUnitLabel
                     = (TextView)activity.findViewById(R.id.distance_label);
 
+            this.distanceView = new DistanceView();
             this.distanceView.initialize(activity, distanceValue, distanceUnitLabel);
             this.distanceView.refresh();
             activity.findViewById(R.id.distance).setVisibility(View.VISIBLE);
@@ -109,9 +130,9 @@ public class LocationMainFragment extends MainFragment
         activity.findViewById(R.id.separator).setVisibility(View.GONE);
         activity.findViewById(R.id.heart_rate).setVisibility(View.GONE);
 
-
     }
 
+    @Override
     protected void startWorkout() {
         this.notificationController.clear();
 
@@ -122,6 +143,7 @@ public class LocationMainFragment extends MainFragment
         }
         super.startWorkout();
     }
+    @Override
     protected long stopWorkout() {
         long stopTime = super.stopWorkout();
 
@@ -134,6 +156,7 @@ public class LocationMainFragment extends MainFragment
         return stopTime;
     }
 
+    @Override
     protected void saveResult() {
         Context context = this.getActivity();
 
@@ -218,18 +241,18 @@ public class LocationMainFragment extends MainFragment
     @Override
     public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
 
-        if (iBinder instanceof GeolocationMonitor.GeolocationBinder) {
+        if (iBinder instanceof LocationMonitor.LocationBinder) {
             this.locationMonitor =
-                    ((GeolocationMonitor.GeolocationBinder)iBinder).getService();
+                    ((LocationMonitor.LocationBinder)iBinder).getService();
             this.locationMonitor.init(this.getActivity(), this);
-            this.connectedService++;
         }
 
         super.onServiceConnected(componentName, iBinder);
     }
 
+    @Override
     protected boolean isServiceReady() {
-        return (super.isServiceReady() && this.connectedService == 1);
+        return (super.isServiceReady() && this.locationMonitor != null);
     }
 
 }

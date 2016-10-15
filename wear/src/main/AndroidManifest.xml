@@ -45,7 +45,7 @@
         </activity>
         <service android:name=".main.monitor.Gyroscope" />
         <service android:name=".main.monitor.HeartRateMonitor" />
-        <service android:name=".main.monitor.LocationMonitor" />
+        <service android:name=".main.monitor.LocationMonitorImpl" />
         <service android:name=".main.monitor.StepCountMonitor" />
         <meta-data android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />

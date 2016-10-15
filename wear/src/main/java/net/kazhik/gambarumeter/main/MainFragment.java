@@ -45,24 +45,23 @@ public abstract class MainFragment extends PagerFragment
         SensorValueListener,
         ServiceConnection,
         UserInputManager.UserInputListener {
-    private SensorManager sensorManager;
 
     protected Stopwatch stopwatch;
     protected StepCountMonitor stepCountMonitor;
+    private boolean isStepCountAvailable = false;
     private BatteryLevelReceiver batteryLevelReceiver;
     private Gyroscope gyroscope;
+
     private boolean isBound = false;
 
     private SplitTimeView splitTimeView = new SplitTimeView();
-    private StepCountView stepCountView = new StepCountView();
+    private StepCountView stepCountView;
 
     private UserInputManager userInputManager;
     private Vibrator vibrator;
     private MobileConnector mobileConnector = new MobileConnector();
 
     protected NotificationController notificationController = new NotificationController();
-
-    private int connectedService = 0;
 
     private static final String TAG = "MainFragment";
 
@@ -170,10 +169,10 @@ public abstract class MainFragment extends PagerFragment
         intentFilter.addAction("android.intent.action.BATTERY_OKAY");
         activity.registerReceiver(this.batteryLevelReceiver, intentFilter);
 
-        this.sensorManager =
+        SensorManager sensorManager =
                 (SensorManager)activity.getSystemService(Activity.SENSOR_SERVICE);
 
-        List<Sensor> sensorList = this.sensorManager.getSensorList(Sensor.TYPE_ALL);
+        List<Sensor> sensorList = sensorManager.getSensorList(Sensor.TYPE_ALL);
         Intent intent;
         boolean bound;
         for (Sensor sensor: sensorList) {
@@ -182,11 +181,10 @@ public abstract class MainFragment extends PagerFragment
             switch (sensor.getType()) {
                 case Sensor.TYPE_STEP_COUNTER:
                     intent = new Intent(activity, StepCountMonitor.class);
-                    this.stepCountMonitor = new StepCountMonitor();
+                    this.isStepCountAvailable = true;
                     break;
                 case Sensor.TYPE_GYROSCOPE:
                     intent = new Intent(activity, Gyroscope.class);
-                    this.gyroscope = new Gyroscope(); // temporary
 
                     break;
                 default:
@@ -208,7 +206,12 @@ public abstract class MainFragment extends PagerFragment
         Activity activity = this.getActivity();
 
         this.splitTimeView.initialize((TextView) activity.findViewById(R.id.split_time));
-        this.stepCountView.initialize((TextView) activity.findViewById(R.id.stepcount_value));
+
+        if (this.isStepCountAvailable) {
+            this.stepCountView = new StepCountView();
+            this.stepCountView.initialize(
+                    (TextView) activity.findViewById(R.id.stepcount_value));
+        }
 
         this.userInputManager = new UserInputManager(this)
                 .initTouch(activity,
@@ -338,12 +341,10 @@ public abstract class MainFragment extends PagerFragment
             this.gyroscope =
                     ((Gyroscope.GyroBinder) iBinder).getService();
             this.gyroscope.initialize(this);
-            this.connectedService++;
         } else if (iBinder instanceof StepCountMonitor.StepCountBinder) {
             this.stepCountMonitor =
                     ((StepCountMonitor.StepCountBinder) iBinder).getService();
             this.stepCountMonitor.init(this.getActivity(), this);
-            this.connectedService++;
         }
 
         if (isServiceReady()) {
@@ -358,7 +359,7 @@ public abstract class MainFragment extends PagerFragment
     }
 
     protected boolean isServiceReady() {
-        return (this.connectedService == 2);
+        return (this.gyroscope != null && this.stepCountMonitor != null);
     }
 
     private void initialize() {

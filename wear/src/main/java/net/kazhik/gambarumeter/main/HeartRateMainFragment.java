@@ -29,10 +29,8 @@ import java.util.Date;
 public class HeartRateMainFragment extends MainFragment
         implements HeartRateSensorValueListener {
     private HeartRateMonitor heartRateMonitor;
-
-    private HeartRateView heartRateView = new HeartRateView();
-
-    private int connectedService = 0;
+    private HeartRateView heartRateView;
+    private boolean isHeartRateAvailable = false;
 
     private static final String TAG = "HeartRateMainFragment";
 
@@ -64,7 +62,7 @@ public class HeartRateMainFragment extends MainFragment
             if (bound) {
                 this.setBound();
             }
-            this.heartRateMonitor = new HeartRateMonitor(); // temporary
+            this.isHeartRateAvailable = true;
         }
 
     }
@@ -86,12 +84,14 @@ public class HeartRateMainFragment extends MainFragment
         }
         return true;
     }
+    @Override
     protected void initializeUI() {
         super.initializeUI();
         
         Activity activity = this.getActivity();
 
-        if (this.heartRateMonitor != null) {
+        if (this.isHeartRateAvailable) {
+            this.heartRateView = new HeartRateView();
             this.heartRateView.initialize((TextView)activity.findViewById(R.id.bpm));
             activity.findViewById(R.id.heart_rate).setVisibility(View.VISIBLE);
         } else {
@@ -104,6 +104,7 @@ public class HeartRateMainFragment extends MainFragment
 
     }
 
+    @Override
     protected void startWorkout() {
         this.notificationController.clear();
 
@@ -114,6 +115,7 @@ public class HeartRateMainFragment extends MainFragment
         }
         super.startWorkout();
     }
+    @Override
     protected long stopWorkout() {
         long stopTime = super.stopWorkout();
 
@@ -125,6 +127,7 @@ public class HeartRateMainFragment extends MainFragment
         return stopTime;
     }
 
+    @Override
     protected void saveResult() {
         Context context = this.getActivity();
 
@@ -188,14 +191,14 @@ public class HeartRateMainFragment extends MainFragment
             this.heartRateMonitor =
                     ((HeartRateMonitor.HeartRateBinder)iBinder).getService();
             this.heartRateMonitor.init(this.getActivity(), this);
-            this.connectedService++;
         }
         super.onServiceConnected(componentName, iBinder);
 
     }
 
+    @Override
     protected boolean isServiceReady() {
-        return (super.isServiceReady() && this.connectedService == 1);
+        return (super.isServiceReady() && this.heartRateMonitor != null);
     }
 
 }
