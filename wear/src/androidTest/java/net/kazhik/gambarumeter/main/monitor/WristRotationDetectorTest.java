@@ -55,5 +55,21 @@ public class WristRotationDetectorTest {
         result = wristRotationDetector.onSensorEvent(timestamp, sensorValues);
         assertThat("2nd+", result, is(false));
 
+        // opposite move
+        timestamp += interval + 1;
+
+        sensorValues[0] = -threshold;
+        result = wristRotationDetector.onSensorEvent(timestamp, sensorValues);
+        assertThat("1st+", result, is(false));
+
+        sensorValues[0] = threshold;
+        result = wristRotationDetector.onSensorEvent(timestamp, sensorValues);
+        assertThat("1st-", result, is(false));
+
+        timestamp += interval - 1;
+        sensorValues[0] = threshold;
+        result = wristRotationDetector.onSensorEvent(timestamp, sensorValues);
+        assertThat("2nd+", result, is(false));
+
     }
 }
