@@ -33,7 +33,7 @@ public class LocationDetailFragment extends DetailFragment {
             Log.e(TAG, e.getMessage(), e);
         }
 
-        return new FullDetailAdapter(activity, laptimes);
+        return new LocationDetailAdapter(activity, laptimes);
 
     }
 

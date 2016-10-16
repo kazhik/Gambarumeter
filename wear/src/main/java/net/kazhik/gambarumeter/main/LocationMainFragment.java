@@ -23,6 +23,8 @@ import net.kazhik.gambarumeter.main.view.DistanceView;
 import net.kazhik.gambarumeterlib.storage.DataStorage;
 import net.kazhik.gambarumeterlib.storage.WorkoutTable;
 
+import static net.kazhik.gambarumeter.R.id.distance;
+
 /**
  * Created by kazhik on 14/11/11.
  */
@@ -77,6 +79,17 @@ public class LocationMainFragment extends MainFragment
         }
 
     }
+    public boolean isLocationAvailable() {
+        return this.isLocationAvailable;
+    }
+    public float getDistance() {
+        float distance = 0;
+        if (this.locationMonitor != null) {
+            distance = this.locationMonitor.getDistance();
+        }
+        return distance;
+    }
+
     private boolean isLocationAvailable(Activity activity) {
         // Hardware doesn't have GPS sensor
         PackageManager pm = activity.getPackageManager();
@@ -123,9 +136,9 @@ public class LocationMainFragment extends MainFragment
             this.distanceView = new DistanceView();
             this.distanceView.initialize(activity, distanceValue, distanceUnitLabel);
             this.distanceView.refresh();
-            activity.findViewById(R.id.distance).setVisibility(View.VISIBLE);
+            activity.findViewById(distance).setVisibility(View.VISIBLE);
         } else {
-            activity.findViewById(R.id.distance).setVisibility(View.GONE);
+            activity.findViewById(distance).setVisibility(View.GONE);
         }
         activity.findViewById(R.id.separator).setVisibility(View.GONE);
         activity.findViewById(R.id.heart_rate).setVisibility(View.GONE);
@@ -157,6 +170,16 @@ public class LocationMainFragment extends MainFragment
     }
 
     @Override
+    public void saveResult(SQLiteDatabase db, long startTime) {
+        super.saveResult(db, startTime);
+
+        if (this.locationMonitor != null) {
+            this.locationMonitor.saveResult(db, startTime);
+        }
+
+    }
+
+    @Override
     protected void saveResult() {
         Context context = this.getActivity();
 
@@ -166,22 +189,13 @@ public class LocationMainFragment extends MainFragment
         try {
             long startTime = this.stopwatch.getStartTime();
 
-            super.saveResult(db, startTime);
+            this.saveResult(db, startTime);
 
-            // LocationTable, SplitTable
-            float distance = 0;
-            if (this.locationMonitor != null) {
-                distance = this.locationMonitor.getDistance();
-                this.locationMonitor.saveResult(db, startTime);
-            }
+            float distance = this.getDistance();
+
+            int stepCount = this.getStepCount();
 
             WorkoutTable workoutTable = new WorkoutTable(context, db);
-            // WorkoutTable
-            int stepCount = 0;
-            if (this.stepCountMonitor != null) {
-                stepCount = this.stepCountMonitor.getStepCount();
-            }
-
             workoutTable.insert(
                     startTime,
                     this.stopwatch.getStopTime(),
@@ -222,7 +236,7 @@ public class LocationMainFragment extends MainFragment
     @Override
     public void onLap(long timestamp, float distance, long lap) {
         this.notificationController.updateLap(lap);
-        this.stepCountMonitor.storeCurrentValue(timestamp);
+        this.storeCurrentStepCount(timestamp);
     }
 
     // SensorValueListener

@@ -47,7 +47,7 @@ public abstract class MainFragment extends PagerFragment
         UserInputManager.UserInputListener {
 
     protected Stopwatch stopwatch;
-    protected StepCountMonitor stepCountMonitor;
+    private StepCountMonitor stepCountMonitor;
     private boolean isStepCountAvailable = false;
     private BatteryLevelReceiver batteryLevelReceiver;
     private Gyroscope gyroscope;
@@ -253,6 +253,17 @@ public abstract class MainFragment extends PagerFragment
         if (this.stepCountMonitor != null) {
             this.stepCountMonitor.saveResult(db, startTime);
         }
+    }
+    public int getStepCount() {
+        int stepCount = 0;
+        if (this.stepCountMonitor != null) {
+            stepCount = this.stepCountMonitor.getStepCount();
+        }
+        return stepCount;
+    }
+    protected void storeCurrentStepCount(long timestamp) {
+        this.stepCountMonitor.storeCurrentValue(timestamp);
+
     }
 
     private void stop() {

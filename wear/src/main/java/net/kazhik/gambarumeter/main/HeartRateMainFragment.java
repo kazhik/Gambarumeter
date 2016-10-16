@@ -145,13 +145,10 @@ public class HeartRateMainFragment extends MainFragment
                 this.heartRateMonitor.saveResult(db, startTime);
             }
 
-            WorkoutTable workoutTable = new WorkoutTable(context, db);
             // WorkoutTable
-            int stepCount = 0;
-            if (this.stepCountMonitor != null) {
-                stepCount = this.stepCountMonitor.getStepCount();
-            }
+            int stepCount = this.getStepCount();
 
+            WorkoutTable workoutTable = new WorkoutTable(context, db);
             workoutTable.insert(
                     startTime,
                     this.stopwatch.getStopTime(),
