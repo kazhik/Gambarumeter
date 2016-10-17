@@ -205,6 +205,8 @@ public abstract class MainFragment extends PagerFragment
     protected void initializeUI() {
         Activity activity = this.getActivity();
 
+        this.notificationController.initialize(activity);
+
         this.splitTimeView.initialize((TextView) activity.findViewById(R.id.split_time));
 
         if (this.isStepCountAvailable) {

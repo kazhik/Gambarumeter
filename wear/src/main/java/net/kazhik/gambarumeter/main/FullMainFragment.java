@@ -83,8 +83,6 @@ public class FullMainFragment extends GpsMainFragment
 
         Activity activity = this.getActivity();
 
-        this.notificationController.initialize(activity);
-
         if (this.isHeartRateAvailable) {
             this.heartRateView = new HeartRateView();
             this.heartRateView.initialize((TextView) activity.findViewById(R.id.bpm));

@@ -123,9 +123,8 @@ public class LocationMainFragment extends MainFragment
     @Override
     protected void initializeUI() {
         super.initializeUI();
-        Activity activity = this.getActivity();
 
-        this.notificationController.initialize(activity);
+        Activity activity = this.getActivity();
 
         if (this.isLocationAvailable) {
             TextView distanceValue =

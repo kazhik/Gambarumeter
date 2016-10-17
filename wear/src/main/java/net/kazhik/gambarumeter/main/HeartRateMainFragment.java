@@ -100,8 +100,6 @@ public class HeartRateMainFragment extends MainFragment
         activity.findViewById(R.id.separator).setVisibility(View.GONE);
         activity.findViewById(R.id.distance).setVisibility(View.GONE);
 
-        this.notificationController.initialize(activity);
-
     }
 
     @Override
