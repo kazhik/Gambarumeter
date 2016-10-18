@@ -10,14 +10,11 @@ import net.kazhik.gambarumeter.R;
 import net.kazhik.gambarumeter.main.notification.NotificationController;
 import net.kazhik.gambarumeterlib.DistanceUtil;
 
-import static net.kazhik.gambarumeter.R.id.distance;
-
 /**
  * Created by kazhik on 10/18/16.
  */
 
 public class MainViewController {
-    private Activity activity;
 
     private long elapsed = 0;
     private TextView tvSplitTime;
@@ -47,23 +44,18 @@ public class MainViewController {
         this.tvStepCount = (TextView) activity.findViewById(R.id.stepcount_value);
 
         if ((flags & HEARTRATE_AVAILABLE) == HEARTRATE_AVAILABLE) {
-            Log.d(TAG, "initialize(1): " + flags);
             this.tvHeartRate = (TextView) activity.findViewById(R.id.bpm);
             activity.findViewById(R.id.heart_rate).setVisibility(View.VISIBLE);
         } else {
-            Log.d(TAG, "initialize(2): " + flags);
             activity.findViewById(R.id.heart_rate).setVisibility(View.GONE);
         }
         if ((flags & LOCATION_AVAILABLE) == LOCATION_AVAILABLE) {
-            Log.d(TAG, "initialize(3): " + flags);
             this.tvDistance = (TextView) activity.findViewById(R.id.distance_value);
             this.tvDistanceUnit = (TextView) activity.findViewById(R.id.distance_label);
             activity.findViewById(R.id.distance).setVisibility(View.VISIBLE);
             this.distanceUtil = DistanceUtil.getInstance(activity);
         } else {
-            Log.d(TAG, "initialize(4): " + flags);
             activity.findViewById(R.id.distance).setVisibility(View.GONE);
-
         }
         if ((flags & HEARTRATE_AVAILABLE) == HEARTRATE_AVAILABLE &&
                 (flags & LOCATION_AVAILABLE) == LOCATION_AVAILABLE) {
@@ -74,7 +66,6 @@ public class MainViewController {
 
         this.notificationController.initialize(activity);
 
-        this.activity = activity;
     }
     public void setSplitTime(long elapsed) {
         this.elapsed = elapsed;
@@ -120,8 +111,8 @@ public class MainViewController {
         this.notificationController.show(this.elapsed);
 
     }
-    public void refreshView() {
-        this.activity.runOnUiThread(new Runnable() {
+    public void refreshView(Activity activity) {
+        activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 refreshViewOnUiThread();

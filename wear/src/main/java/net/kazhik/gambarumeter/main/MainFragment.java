@@ -29,7 +29,6 @@ import net.kazhik.gambarumeter.main.monitor.SensorValueListener;
 import net.kazhik.gambarumeter.main.monitor.StepCountMonitor;
 import net.kazhik.gambarumeter.main.monitor.Stopwatch;
 import net.kazhik.gambarumeter.pager.PagerFragment;
-import net.kazhik.gambarumeterlib.storage.WorkoutTable;
 
 import java.util.List;
 
@@ -221,7 +220,7 @@ public abstract class MainFragment extends PagerFragment
 
         this.stopwatch.start();
 
-        this.mainViewController.refreshView();
+        this.mainViewController.refreshView(this.getActivity());
     }
     protected long stopWorkout() {
         long stopTime = this.stopwatch.stop();
@@ -320,7 +319,7 @@ public abstract class MainFragment extends PagerFragment
     @Override
     public void onTick(long elapsed) {
         this.mainViewController.setSplitTime(elapsed);
-        this.mainViewController.refreshView();
+        this.mainViewController.refreshView(this.getActivity());
     }
 
     // ServiceConnection
