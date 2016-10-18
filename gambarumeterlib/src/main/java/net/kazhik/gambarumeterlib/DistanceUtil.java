@@ -7,6 +7,8 @@ import android.util.Log;
 
 import java.util.Locale;
 
+import static android.R.attr.key;
+
 /**
  * Created by kazhik on 16/02/12.
  */
@@ -40,7 +42,6 @@ public class DistanceUtil implements SharedPreferences.OnSharedPreferenceChangeL
         this.distanceUnitPref = prefs.getString("distanceUnit", "metre");
         this.distanceUnitStr = (distanceUnitPref.equals("mile"))?
                 this.mileStr: this.kmStr;
-
     }
 
     public String getUnitStr() {
@@ -60,8 +61,7 @@ public class DistanceUtil implements SharedPreferences.OnSharedPreferenceChangeL
         return lapDistance;
     }
     public String getDistanceAndUnitStr(float distance) {
-        distance = this.convertMeter(distance);
-        return String.format(Locale.getDefault(), "%.2f%s", distance, this.distanceUnitStr);
+        return getDistanceStr(distance) + this.distanceUnitStr;
     }
     public String getDistanceStr(float distance) {
         distance = this.convertMeter(distance);

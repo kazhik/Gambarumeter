@@ -21,7 +21,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
-import android.widget.TextView;
 
 import net.kazhik.gambarumeter.R;
 import net.kazhik.gambarumeter.main.monitor.BatteryLevelReceiver;
@@ -29,9 +28,6 @@ import net.kazhik.gambarumeter.main.monitor.Gyroscope;
 import net.kazhik.gambarumeter.main.monitor.SensorValueListener;
 import net.kazhik.gambarumeter.main.monitor.StepCountMonitor;
 import net.kazhik.gambarumeter.main.monitor.Stopwatch;
-import net.kazhik.gambarumeter.main.notification.NotificationController;
-import net.kazhik.gambarumeter.main.view.SplitTimeView;
-import net.kazhik.gambarumeter.main.view.StepCountView;
 import net.kazhik.gambarumeter.pager.PagerFragment;
 import net.kazhik.gambarumeterlib.storage.WorkoutTable;
 
@@ -48,20 +44,16 @@ public abstract class MainFragment extends PagerFragment
 
     protected Stopwatch stopwatch;
     private StepCountMonitor stepCountMonitor;
-    private boolean isStepCountAvailable = false;
     private BatteryLevelReceiver batteryLevelReceiver;
     private Gyroscope gyroscope;
 
     private boolean isBound = false;
 
-    private SplitTimeView splitTimeView = new SplitTimeView();
-    private StepCountView stepCountView;
-
     private UserInputManager userInputManager;
     private Vibrator vibrator;
     private MobileConnector mobileConnector = new MobileConnector();
 
-    protected NotificationController notificationController = new NotificationController();
+    protected MainViewController mainViewController = new MainViewController();
 
     private static final String TAG = "MainFragment";
 
@@ -89,9 +81,10 @@ public abstract class MainFragment extends PagerFragment
     }
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
+        Log.d(TAG, "onActivityCreated");
         super.onActivityCreated(savedInstanceState);
 
-        this.initializeUI();
+        this.initializeUI(0);
 
     }
 
@@ -181,7 +174,6 @@ public abstract class MainFragment extends PagerFragment
             switch (sensor.getType()) {
                 case Sensor.TYPE_STEP_COUNTER:
                     intent = new Intent(activity, StepCountMonitor.class);
-                    this.isStepCountAvailable = true;
                     break;
                 case Sensor.TYPE_GYROSCOPE:
                     intent = new Intent(activity, Gyroscope.class);
@@ -202,18 +194,10 @@ public abstract class MainFragment extends PagerFragment
         this.stopwatch = new Stopwatch(1000L, this);
 
     }
-    protected void initializeUI() {
+    protected void initializeUI(int flags) {
         Activity activity = this.getActivity();
 
-        this.notificationController.initialize(activity);
-
-        this.splitTimeView.initialize((TextView) activity.findViewById(R.id.split_time));
-
-        if (this.isStepCountAvailable) {
-            this.stepCountView = new StepCountView();
-            this.stepCountView.initialize(
-                    (TextView) activity.findViewById(R.id.stepcount_value));
-        }
+        this.mainViewController.initialize(activity, flags);
 
         this.userInputManager = new UserInputManager(this)
                 .initTouch(activity,
@@ -227,18 +211,17 @@ public abstract class MainFragment extends PagerFragment
 
     protected void startWorkout() {
 
+        this.mainViewController.clear();
+
         if (this.stepCountMonitor != null) {
-            this.stepCountView.setStepCount(0)
-                    .refresh();
             this.stepCountMonitor.start();
         }
-        this.splitTimeView.setTime(0)
-                .refresh();
 
         this.gyroscope.start();
 
         this.stopwatch.start();
 
+        this.mainViewController.refreshView();
     }
     protected long stopWorkout() {
         long stopTime = this.stopwatch.stop();
@@ -320,10 +303,7 @@ public abstract class MainFragment extends PagerFragment
         if (!this.stopwatch.isRunning()) {
             return;
         }
-        this.stepCountView.setStepCount(stepCount);
-        this.getActivity().runOnUiThread(this.stepCountView);
-
-        this.notificationController.updateStepCount(stepCount);
+        this.mainViewController.setStepCount(stepCount);
     }
 
     // SensorValueListener
@@ -339,10 +319,8 @@ public abstract class MainFragment extends PagerFragment
     // Stopwatch.OnTickListener
     @Override
     public void onTick(long elapsed) {
-        this.splitTimeView.setTime(elapsed);
-        this.getActivity().runOnUiThread(this.splitTimeView);
-
-        this.notificationController.show(elapsed);
+        this.mainViewController.setSplitTime(elapsed);
+        this.mainViewController.refreshView();
     }
 
     // ServiceConnection
@@ -373,14 +351,6 @@ public abstract class MainFragment extends PagerFragment
 
     protected boolean isServiceReady() {
         return (this.gyroscope != null && this.stepCountMonitor != null);
-    }
-
-    private void initialize() {
-        WorkoutTable workoutTable = new WorkoutTable(this.getActivity());
-        workoutTable.openWritable();
-        workoutTable.initializeSynced();
-        workoutTable.close();
-
     }
 
     @Override

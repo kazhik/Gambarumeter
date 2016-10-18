@@ -10,14 +10,11 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.IBinder;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
-import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import net.kazhik.gambarumeter.R;
 import net.kazhik.gambarumeter.main.monitor.HeartRateMonitor;
 import net.kazhik.gambarumeter.main.monitor.HeartRateSensorValueListener;
-import net.kazhik.gambarumeter.main.view.HeartRateView;
 import net.kazhik.gambarumeterlib.storage.DataStorage;
 import net.kazhik.gambarumeterlib.storage.WorkoutTable;
 
@@ -29,7 +26,6 @@ import java.util.Date;
 public class HeartRateMainFragment extends MainFragment
         implements HeartRateSensorValueListener {
     private HeartRateMonitor heartRateMonitor;
-    private HeartRateView heartRateView;
     private boolean isHeartRateAvailable = false;
 
     private static final String TAG = "HeartRateMainFragment";
@@ -85,30 +81,20 @@ public class HeartRateMainFragment extends MainFragment
         return true;
     }
     @Override
-    protected void initializeUI() {
-        super.initializeUI();
-        
-        Activity activity = this.getActivity();
+    protected void initializeUI(int flags) {
 
         if (this.isHeartRateAvailable) {
-            this.heartRateView = new HeartRateView();
-            this.heartRateView.initialize((TextView)activity.findViewById(R.id.bpm));
-            activity.findViewById(R.id.heart_rate).setVisibility(View.VISIBLE);
-        } else {
-            activity.findViewById(R.id.heart_rate).setVisibility(View.GONE);
+            flags |= MainViewController.HEARTRATE_AVAILABLE;
         }
-        activity.findViewById(R.id.separator).setVisibility(View.GONE);
-        activity.findViewById(R.id.distance).setVisibility(View.GONE);
 
+        super.initializeUI(flags);
     }
 
     @Override
     protected void startWorkout() {
-        this.notificationController.clear();
+        this.mainViewController.clear();
 
         if (this.heartRateMonitor != null) {
-            this.heartRateView.setCurrentRate(0)
-                    .refresh();
             this.heartRateMonitor.start();
         }
         super.startWorkout();
@@ -120,7 +106,7 @@ public class HeartRateMainFragment extends MainFragment
         if (this.heartRateMonitor != null) {
             this.heartRateMonitor.stop(stopTime);
         }
-        this.notificationController.dismiss();
+        this.mainViewController.dismissNotification();
 
         return stopTime;
     }
@@ -171,11 +157,9 @@ public class HeartRateMainFragment extends MainFragment
         if (!this.stopwatch.isRunning()) {
             return;
         }
-        this.heartRateView.setCurrentRate(rate);
-        this.getActivity().runOnUiThread(this.heartRateView);
 
         Log.d(TAG, "new heart rate: " + (new Date(timestamp)).toString() + " / " + rate);
-        this.notificationController.updateHeartRate(rate);
+        this.mainViewController.setHeartRate(rate);
 
     }
 

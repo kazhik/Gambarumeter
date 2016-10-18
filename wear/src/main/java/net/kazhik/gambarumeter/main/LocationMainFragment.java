@@ -11,19 +11,14 @@ import android.location.LocationManager;
 import android.os.IBinder;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
-import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import net.kazhik.gambarumeter.R;
 import net.kazhik.gambarumeter.main.monitor.GeolocationMonitorImpl;
 import net.kazhik.gambarumeter.main.monitor.LocationMonitor;
 import net.kazhik.gambarumeter.main.monitor.LocationSensorValueListener;
-import net.kazhik.gambarumeter.main.view.DistanceView;
 import net.kazhik.gambarumeterlib.storage.DataStorage;
 import net.kazhik.gambarumeterlib.storage.WorkoutTable;
-
-import static net.kazhik.gambarumeter.R.id.distance;
 
 /**
  * Created by kazhik on 14/11/11.
@@ -32,7 +27,6 @@ public class LocationMainFragment extends MainFragment
         implements LocationSensorValueListener {
 
     private LocationMonitor locationMonitor;
-    private DistanceView distanceView;
     private boolean isLocationAvailable = false;
 
     private static final String TAG = "LocationMainFragment";
@@ -45,9 +39,6 @@ public class LocationMainFragment extends MainFragment
             return;
         }
         Log.d(TAG, "refreshView");
-        if (this.locationMonitor != null) {
-            this.getActivity().runOnUiThread(this.distanceView);
-        }
     }
 
     @Override
@@ -121,36 +112,21 @@ public class LocationMainFragment extends MainFragment
 
     }
     @Override
-    protected void initializeUI() {
-        super.initializeUI();
-
-        Activity activity = this.getActivity();
+    protected void initializeUI(int flags) {
+        Log.d(TAG, "initializeUI");
 
         if (this.isLocationAvailable) {
-            TextView distanceValue =
-                    (TextView)activity.findViewById(R.id.distance_value);
-            TextView distanceUnitLabel
-                    = (TextView)activity.findViewById(R.id.distance_label);
-
-            this.distanceView = new DistanceView();
-            this.distanceView.initialize(activity, distanceValue, distanceUnitLabel);
-            this.distanceView.refresh();
-            activity.findViewById(distance).setVisibility(View.VISIBLE);
-        } else {
-            activity.findViewById(distance).setVisibility(View.GONE);
+            flags |= MainViewController.LOCATION_AVAILABLE;
         }
-        activity.findViewById(R.id.separator).setVisibility(View.GONE);
-        activity.findViewById(R.id.heart_rate).setVisibility(View.GONE);
 
+        super.initializeUI(flags);
     }
 
     @Override
     protected void startWorkout() {
-        this.notificationController.clear();
+        this.mainViewController.clear();
 
         if (this.locationMonitor != null) {
-            this.distanceView.setDistance(0)
-                    .refresh();
             this.locationMonitor.start();
         }
         super.startWorkout();
@@ -163,7 +139,7 @@ public class LocationMainFragment extends MainFragment
             this.locationMonitor.stop(stopTime);
         }
 
-        this.notificationController.dismiss();
+        this.mainViewController.dismissNotification();
         
         return stopTime;
     }
@@ -219,22 +195,20 @@ public class LocationMainFragment extends MainFragment
         if (!this.stopwatch.isRunning()) {
             return;
         }
-        this.distanceView.setDistance(distance);
-        this.getActivity().runOnUiThread(this.distanceView);
 
-        this.notificationController.updateDistance(distance);
+        this.mainViewController.setDistance(distance);
     }
 
     // LocationSensorValueListener
     @Override
     public void onLocationAvailable() {
-        this.distanceView.setAvailable(true);
+        this.mainViewController.setDistance(0);
     }
 
     // LocationSensorValueListener
     @Override
     public void onLap(long timestamp, float distance, long lap) {
-        this.notificationController.updateLap(lap);
+        this.mainViewController.setSplitTime(lap);
         this.storeCurrentStepCount(timestamp);
     }
 

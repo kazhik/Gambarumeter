@@ -28,5 +28,6 @@
     <string name="longpress_quit">長押しでアプリを終了します</string>
     <string name="location_disabled">位置情報が無効です</string>
     <string name="stepcount">%1$d歩</string>
+    <string name="sensors_disabled"></string>
 
 </resources>
