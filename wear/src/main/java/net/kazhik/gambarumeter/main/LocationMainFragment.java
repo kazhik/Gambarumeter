@@ -203,6 +203,7 @@ public class LocationMainFragment extends MainFragment
     @Override
     public void onLocationAvailable() {
         this.mainViewController.setDistance(0);
+        this.mainViewController.refreshView(this.getActivity());
     }
 
     // LocationSensorValueListener
