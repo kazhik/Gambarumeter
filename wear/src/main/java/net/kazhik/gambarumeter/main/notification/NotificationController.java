@@ -32,7 +32,7 @@ public class NotificationController {
 
         this.clear();
     }
-    public void clear() {
+    private void clear() {
         this.stepCount = 0;
         this.heartRate = 0;
 

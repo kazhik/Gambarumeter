@@ -7,8 +7,6 @@ import android.util.Log;
 
 import java.util.Locale;
 
-import static android.R.attr.key;
-
 /**
  * Created by kazhik on 16/02/12.
  */

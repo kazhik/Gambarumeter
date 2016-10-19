@@ -37,7 +37,7 @@ public class HistoryAdapter extends WearableListView.Adapter {
     }
 
     // Provide a reference to the type of views you're using
-    public static class ItemViewHolder extends WearableListView.ViewHolder {
+    private static class ItemViewHolder extends WearableListView.ViewHolder {
         private TextView startTimeText;
         private TextView resultText;
         public ItemViewHolder(View itemView) {

@@ -2,7 +2,6 @@ package net.kazhik.gambarumeter.main;
 
 import android.app.Activity;
 import android.text.format.DateUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -31,7 +30,7 @@ public class MainViewController {
 
     private DistanceUtil distanceUtil;
 
-    public final static int HEARTRATE_AVAILABLE = 1 << 0;
+    public final static int HEARTRATE_AVAILABLE = 1;
     public final static int LOCATION_AVAILABLE = 1 << 1;
 
     private NotificationController notificationController = new NotificationController();
@@ -54,6 +53,7 @@ public class MainViewController {
             this.tvDistanceUnit = (TextView) activity.findViewById(R.id.distance_label);
             activity.findViewById(R.id.distance).setVisibility(View.VISIBLE);
             this.distanceUtil = DistanceUtil.getInstance(activity);
+            this.setDistanceText();
         } else {
             activity.findViewById(R.id.distance).setVisibility(View.GONE);
         }
@@ -67,29 +67,46 @@ public class MainViewController {
         this.notificationController.initialize(activity);
 
     }
+
     public void setSplitTime(long elapsed) {
         this.elapsed = elapsed;
     }
+
     public void setStepCount(int stepCount) {
         this.stepCount = stepCount;
         this.notificationController.updateStepCount(stepCount);
     }
+
     public void setHeartRate(int heartRate) {
         this.heartRate = heartRate;
         this.notificationController.updateHeartRate(heartRate);
     }
+
     public void setDistance(float distance) {
         this.distance = distance;
         this.notificationController.updateDistance(distance);
     }
+
     public void clear() {
         this.setStepCount(0);
         this.setSplitTime(0);
         this.setHeartRate(0);
         this.setDistance(0f);
     }
+
     public void dismissNotification() {
         this.notificationController.dismiss();
+    }
+
+    private void setDistanceText() {
+        if (this.distance < 0) {
+            this.tvDistance.setText(R.string.location_nosignal);
+        } else {
+            String str = this.distanceUtil.getDistanceStr(this.distance);
+            this.tvDistance.setText(str);
+        }
+        this.tvDistanceUnit.setText(this.distanceUtil.getUnitStr());
+
     }
 
     private void refreshViewOnUiThread() {
@@ -99,18 +116,13 @@ public class MainViewController {
             this.tvHeartRate.setText(String.valueOf(this.heartRate));
         }
         if (this.tvDistance != null) {
-            if (this.distance < 0) {
-                this.tvDistance.setText(R.string.location_nosignal);
-            } else {
-                String str = this.distanceUtil.getDistanceStr(this.distance);
-                this.tvDistance.setText(str);
-            }
-            this.tvDistanceUnit.setText(this.distanceUtil.getUnitStr());
+            this.setDistanceText();
         }
 
         this.notificationController.show(this.elapsed);
 
     }
+
     public void refreshView(Activity activity) {
         activity.runOnUiThread(new Runnable() {
             @Override

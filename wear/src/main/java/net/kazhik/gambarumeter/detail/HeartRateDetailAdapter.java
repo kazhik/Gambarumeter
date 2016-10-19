@@ -32,7 +32,7 @@ public class HeartRateDetailAdapter extends WearableListView.Adapter {
     }
 
     // Provide a reference to the type of views you're using
-    public static class ItemViewHolder extends WearableListView.ViewHolder {
+    private static class ItemViewHolder extends WearableListView.ViewHolder {
         private TextView tvTimestamp;
         private TextView tvHeartRate;
         private TextView tvStepcount;
