@@ -10,6 +10,7 @@ class WristRotationDetector {
     private int interval = 1000;
     private long prevTimestamp = 0;
     private float prevValue = 0;
+    private int counter = 0;
     private static final String TAG = "WristRotationDetector";
 
     WristRotationDetector setThreshold(float threshold) {
@@ -60,9 +61,12 @@ class WristRotationDetector {
                     (timestamp - this.prevTimestamp));
             this.prevTimestamp = timestamp;
             this.prevValue = maxValue;
-
-        // 2nd event, not opposite move
-        } else if (this.hasSameSign(maxValue, this.prevValue)) {
+            this.counter = 0;
+        // 2nd event, opposite move
+        } else if (!this.hasSameSign(maxValue, this.prevValue)) {
+            this.counter++;
+        // 3rd event, not opposite move
+        } else if (this.counter > 0) {
             Log.d(TAG, "onSensorEvent:" +
                     newValues[0] + "/" +
                     newValues[1] + "/" +

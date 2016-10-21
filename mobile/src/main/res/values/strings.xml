@@ -5,16 +5,16 @@
     <string name="action_settings">Settings</string>
     <string name="action_about">About this app</string>
 
-    <string name="heart_rate">Heart rate</string>
 
     <string name="delete">Delete</string>
     <string name="confirm_delete">Do you really want to delete?</string>
 
     <string name="bpm" translatable="false">bpm</string>
     <string name="steps">steps</string>
-    <string name="lap">Lap</string>
 
-    <string name="stepLabel">steps</string>
+    <string name="chart_time">time</string>
+    <string name="chart_heart_rate">bpm</string>
+    <string name="chart_steps">steps</string>
 
     <string name="distance">distance</string>
 

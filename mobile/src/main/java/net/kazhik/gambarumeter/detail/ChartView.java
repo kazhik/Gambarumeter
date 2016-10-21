@@ -92,22 +92,23 @@ public class ChartView implements DetailView {
             }
             int laptime = (int) ((data.getTimestamp() - prevTimestamp) / 1000);
             yLap.add(new Entry(laptime, x));
+            yHeartRate.add(new Entry(data.getHeartRate(), x));
 
             prevStepCount = data.getStepCount();
             prevTimestamp = data.getTimestamp();
         }
 
         LineDataSet hrSet = this.getDefaultLineDataSet(yHeartRate,
-                this.context.getString(R.string.heart_rate),
+                this.context.getString(R.string.chart_heart_rate),
                 Color.RED);
 
         LineDataSet lapSet = this.getDefaultLineDataSet(yLap,
-                this.context.getString(R.string.lap),
+                this.context.getString(R.string.chart_time),
                 Color.GREEN);
         lapSet.setValueFormatter(new LapTimeFormatter());
 
         LineDataSet stepSet = this.getDefaultLineDataSet(ySteps,
-                this.context.getString(R.string.stepLabel),
+                this.context.getString(R.string.chart_steps),
                 Color.BLUE);
 
         List<ILineDataSet> dataSets = new ArrayList<>();
